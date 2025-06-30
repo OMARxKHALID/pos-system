@@ -1,6 +1,6 @@
 "use client";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import {
   setCurrentPage,
   setSelectedCategory,
@@ -12,18 +12,31 @@ import {
   setSelectedItem,
   setTable,
   setOrderType,
+  setCustomerName,
   togglePromo,
   toggleSidebar,
   toggleCart,
   placeOrder,
+  closeTrackingOrder,
+  clearOrderHistory,
+  toggleTrackOrder,
+  openEditCustomerNameModal,
+  closeEditCustomerNameModal,
 } from "@/redux/pos-slice";
 
 export const usePOSStore = () => {
-  const pos = useSelector((state) => state.pos);
+  const pos = useSelector((state) => {
+    const p = state.pos || {};
+    return {
+      ...p,
+      orderTracking: Array.isArray(p.orderTracking) ? p.orderTracking : [],
+    };
+  }, shallowEqual);
   const dispatch = useDispatch();
 
   return {
     ...pos,
+    orderHistory: pos.orderHistory, // <-- ensure always up-to-date
     setCurrentPage: (page) => dispatch(setCurrentPage(page)),
     setSelectedCategory: (cat) => dispatch(setSelectedCategory(cat)),
     setSearchQuery: (q) => dispatch(setSearchQuery(q)),
@@ -39,5 +52,13 @@ export const usePOSStore = () => {
     toggleSidebar: () => dispatch(toggleSidebar()),
     toggleCart: () => dispatch(toggleCart()),
     placeOrder: () => dispatch(placeOrder()),
+    closeTrackingOrder: (orderNumber) =>
+      dispatch(closeTrackingOrder(orderNumber)),
+    clearOrderHistory: () => dispatch(clearOrderHistory()),
+    toggleTrackOrder: () => dispatch(toggleTrackOrder()),
+    setCustomerName: (name) =>
+      dispatch({ type: "pos/setCustomerName", payload: name }),
+    openEditCustomerNameModal: () => dispatch(openEditCustomerNameModal()),
+    closeEditCustomerNameModal: () => dispatch(closeEditCustomerNameModal()),
   };
 };

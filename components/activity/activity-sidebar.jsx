@@ -21,7 +21,7 @@ const ActivitySidebar = ({ activeView, onViewChange }) => {
                 variant={activeView === view.id ? "default" : "ghost"}
                 className={`w-full justify-start h-12 px-4 rounded-xl font-medium text-sm transition-all duration-200 ${
                   activeView === view.id
-                    ? "bg-blue-500 text-white hover:bg-blue-600 shadow-lg"
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
                 onClick={() => onViewChange(view.id)}
@@ -32,10 +32,11 @@ const ActivitySidebar = ({ activeView, onViewChange }) => {
           </div>
         </CardContent>
       </Card>
-
       <Card className="border bg-white/80 backdrop-blur-sm border-slate-200/60">
         <CardContent className="p-6">
-          <h3 className="mb-3 text-xl font-bold text-blue-600">Bakehouse POS</h3>
+          <h3 className="mb-3 text-xl font-bold text-blue-600">
+            Bakehouse POS
+          </h3>
           <p className="mb-4 text-sm leading-relaxed text-slate-600">
             The dreamy taste & magic of sweet moments in every bite from our
             bakery

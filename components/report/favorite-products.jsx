@@ -4,16 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import { favoriteProducts } from "@/lib/report-data";
+import { CATEGORY_COLORS } from "@/lib/constants";
 
 export const FavoriteProducts = () => {
   const getCategoryColor = (category) => {
-    const colors = {
-      Pastry: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      Sandwich: "bg-orange-50 text-orange-700 border-orange-200",
-      Cake: "bg-pink-50 text-pink-700 border-pink-200",
-      Bread: "bg-amber-50 text-amber-700 border-amber-200",
-    };
-    return colors[category] || "bg-gray-50 text-gray-700 border-gray-200";
+    return (
+      CATEGORY_COLORS[category] || "bg-gray-100 text-gray-700 border-gray-200"
+    );
   };
 
   return (
@@ -24,7 +21,7 @@ export const FavoriteProducts = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl text-slate-400 hover:bg-slate-100"
+            className="bg-transparent h-9 w-9 rounded-xl text-slate-400"
           >
             <Search className="w-4 h-4" />
           </Button>
@@ -40,11 +37,11 @@ export const FavoriteProducts = () => {
           {favoriteProducts.map((product, index) => (
             <div
               key={product.id}
-              className="grid items-center grid-cols-3 gap-4 px-2 py-3 transition-colors hover:bg-slate-50/50 rounded-xl"
+              className="grid items-center grid-cols-3 gap-4 px-2 py-3 transition-colors rounded-xl"
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="flex items-center justify-center w-12 h-12 shadow-sm bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl">
                     <Image
                       src={product.image || "/placeholder.svg"}
                       alt={product.name}

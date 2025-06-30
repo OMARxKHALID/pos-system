@@ -33,7 +33,7 @@ export const MenuGrid = () => {
       <div
         className={`grid gap-3 transition-all duration-300 ${
           cartOpen
-            ? "grid-cols-4 xl:grid-cols-5"
+            ? "grid-cols-4 xl:grid-cols-6"
             : "grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
         } transition-all duration-300`}
       >

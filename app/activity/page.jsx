@@ -23,6 +23,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { usePOSStore } from "@/hooks/use-pos-store";
 
 const ActivityPage = () => {
   const [activeView, setActiveView] = useState("billing-queue");
@@ -33,6 +34,8 @@ const ActivityPage = () => {
   const [dateTo, setDateTo] = useState("May 29, 2024");
   const [timeFrom, setTimeFrom] = useState("08:00");
   const [timeTo, setTimeTo] = useState("01:00");
+
+  const { orderHistory } = usePOSStore();
 
   const getViewTitle = () => {
     switch (activeView) {
@@ -343,17 +346,25 @@ const ActivityPage = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orderHistoryData.map((row) => (
-                      <TableRow key={row.id}>
+                    {orderHistory.map((row, idx) => (
+                      <TableRow key={row.id + row.time}>
                         <TableCell className="text-center">{row.id}</TableCell>
                         <TableCell>
                           {row.date} - {row.time}
                         </TableCell>
                         <TableCell>{row.customerName}</TableCell>
                         <TableCell>{row.orderStatus}</TableCell>
-                        <TableCell>${row.totalPayment}</TableCell>
+                        <TableCell>
+                          ${row.totalPayment?.toFixed(2) ?? "0.00"}
+                        </TableCell>
                         <TableCell>{row.paymentStatus}</TableCell>
-                        <TableCell>{row.orders}</TableCell>
+                        <TableCell>
+                          {row.items
+                            ? row.items
+                                .map((item) => `${item.quantity}x ${item.name}`)
+                                .join(", ")
+                            : "-"}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

@@ -17,7 +17,6 @@ import {
   Users,
   Settings,
   LogOut,
-  ChevronDown,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { usePOSStore } from "@/hooks/use-pos-store";
@@ -76,7 +75,7 @@ const SidebarHeader = ({ onClose }) => (
         </Avatar>
         <div className="flex-1">
           <Select defaultValue="jelly-grande">
-            <SelectTrigger className="h-auto p-0 bg-transparent border-0 shadow-none focus:ring-0">
+            <SelectTrigger className="h-auto p-0 bg-transparent border-0 shadow-none focus:ring-0 focus:outline-none">
               <div className="text-left">
                 <div className="text-lg font-bold text-slate-800">
                   Jelly Grande
@@ -85,9 +84,8 @@ const SidebarHeader = ({ onClose }) => (
                   Cashier
                 </div>
               </div>
-              <ChevronDown className="w-4 h-4 ml-3 text-slate-400" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-slate-200 rounded-xl bg-white/95">
               <SelectItem value="jelly-grande">Jelly Grande</SelectItem>
               <SelectItem value="other-user">Other User</SelectItem>
             </SelectContent>
@@ -98,7 +96,7 @@ const SidebarHeader = ({ onClose }) => (
         variant="ghost"
         size="icon"
         onClick={onClose}
-        className="w-8 h-8 transition-all duration-200 rounded-xl text-slate-400"
+        className="w-8 h-8 rounded-xl text-slate-400"
       >
         <X className="w-5 h-5" />
       </Button>
@@ -130,7 +128,7 @@ const SidebarNav = ({ pathname, onNavigate }) => (
           onClick={() => onNavigate(item)}
         >
           <div
-            className={`mr-4 p-2 rounded-xl transition-all duration-200 ${
+            className={`mr-4 p-2 rounded-xl ${
               pathname === item.path
                 ? "bg-white/20"
                 : "bg-slate-100 group-hover:bg-white/80"
@@ -149,7 +147,7 @@ const SidebarFooter = ({ onLogout }) => (
   <div className="p-6 border-t border-slate-200/60 bg-gradient-to-r from-white/40 to-white/20">
     <Button
       variant="ghost"
-      className="justify-start w-full h-12 px-4 text-sm font-medium transition-all duration-200 rounded-2xl text-slate-600"
+      className="justify-start w-full h-12 px-4 text-sm font-medium rounded-2xl text-slate-600"
       onClick={onLogout}
     >
       <div className="flex items-center justify-center w-10 h-10 mr-4 bg-red-100 rounded-xl">
@@ -202,7 +200,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         />
       )}
       <div
-        className={`fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-xl border-r border-white/60 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-xl border-r border-white/60 z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         role="navigation"

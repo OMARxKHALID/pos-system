@@ -8,22 +8,33 @@ export const CategoryNav = () => {
   const { selectedCategory, setSelectedCategory } = usePOSStore();
 
   return (
-    <nav className="flex gap-1.5 mb-4 overflow-x-auto">
+    <nav className="flex gap-2 pb-1 mb-6 overflow-x-auto">
       {categories.map((category) => (
         <Button
           key={category.id}
-          className={`flex flex-col items-center px-3 py-2 h-auto min-w-[70px] rounded-xl text-xs font-medium transition-all duration-200 ${
-            selectedCategory === category.id
-              ? "bg-blue-500 text-white"
-              : "bg-slate-50 text-slate-600 border border-slate-200"
-          }`}
+          variant="ghost"
+          className={`flex flex-col items-center px-4 h-auto min-w-[90px] rounded-lg text-xs font-medium transition-all duration-200
+            ${
+              selectedCategory === category.id
+                ? "bg-blue-500/10 text-blue-600 border border-blue-500/20 shadow-sm hover:bg-blue-500/20"
+                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-blue-500 hover:border-gray-300"
+            }
+          `}
           onClick={() => setSelectedCategory(category.id)}
         >
-          <div className="text-sm mb-0.5">{category.icon}</div>
-          <div className="text-xs font-medium leading-tight">
+          <div className="mb-1 text-3xl">{category.icon}</div>
+          <div className="text-sm font-medium leading-tight">
             {category.name}
           </div>
-          <div className="text-xs opacity-75">{category.count}</div>
+          <div
+            className={`text-xs mt-0.5 ${
+              selectedCategory === category.id
+                ? "text-blue-500/80"
+                : "text-gray-500"
+            }`}
+          >
+            {category.count}
+          </div>
         </Button>
       ))}
     </nav>

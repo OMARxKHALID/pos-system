@@ -11,7 +11,7 @@ import {
 
 export const ReportChart = () => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border border-slate-200/60">
+    <Card className="border bg-white/80 backdrop-blur-sm border-slate-200/60">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-slate-800">Sales Analytics</h3>
@@ -31,7 +31,7 @@ export const ReportChart = () => {
         </div>
 
         {/* Enhanced Chart Area */}
-        <div className="h-80 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl mb-6 relative overflow-hidden border border-slate-200/30">
+        <div className="relative mb-6 overflow-hidden border h-80 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl border-slate-200/30">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           <svg className="w-full h-full" viewBox="0 0 500 300">
             <defs>
@@ -42,8 +42,8 @@ export const ReportChart = () => {
                 x2="0%"
                 y2="100%"
               >
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
+                <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.05" />
               </linearGradient>
               <filter id="glow">
                 <feGaussianBlur stdDeviation="3" result="coloredBlur" />
@@ -100,26 +100,26 @@ export const ReportChart = () => {
 
         {/* Enhanced Chart Stats */}
         <div className="grid grid-cols-3 gap-8">
-          <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl border border-blue-200/30">
-            <p className="text-sm font-medium text-slate-600 mb-2">
+          <div className="p-4 text-center border bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl border-blue-200/30">
+            <p className="mb-2 text-sm font-medium text-slate-600">
               Total Amount
             </p>
-            <p className="text-2xl font-bold text-slate-800 mb-1">$12,650.00</p>
-            <p className="text-xs text-blue-600 font-medium">USD</p>
+            <p className="mb-1 text-2xl font-bold text-slate-800">$12,650.00</p>
+            <p className="text-xs font-medium text-blue-600">USD</p>
           </div>
-          <div className="text-center p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl border border-emerald-200/30">
-            <p className="text-sm font-medium text-slate-600 mb-2">Growth</p>
-            <p className="text-2xl font-bold text-emerald-600 mb-1">
+          <div className="p-4 text-center border bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl border-emerald-200/30">
+            <p className="mb-2 text-sm font-medium text-slate-600">Growth</p>
+            <p className="mb-1 text-2xl font-bold text-emerald-600">
               +$1,543.30
             </p>
-            <p className="text-xs text-emerald-600 font-medium">USD</p>
+            <p className="text-xs font-medium text-emerald-600">USD</p>
           </div>
-          <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-2xl border border-purple-200/30">
-            <p className="text-sm font-medium text-slate-600 mb-2">
+          <div className="p-4 text-center border bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-2xl border-purple-200/30">
+            <p className="mb-2 text-sm font-medium text-slate-600">
               Growth Rate
             </p>
-            <p className="text-2xl font-bold text-purple-600 mb-1">↑ 12.2%</p>
-            <p className="text-xs text-purple-600 font-medium">Percent</p>
+            <p className="mb-1 text-2xl font-bold text-purple-600">↑ 12.2%</p>
+            <p className="text-xs font-medium text-purple-600">Percent</p>
           </div>
         </div>
       </CardContent>

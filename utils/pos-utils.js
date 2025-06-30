@@ -8,28 +8,23 @@ export const calculateOrderTotals = (orderItems, promoApplied = false) => {
     0
   );
   const tax = subtotal * 0.1;
-  const discount = promoApplied ? 1.0 : 0;
+  const discount = promoApplied ? subtotal * 0.1 : 0;
   const total = subtotal + tax - discount;
 
-  return {
-    subtotal: Number(subtotal.toFixed(2)),
-    tax: Number(tax.toFixed(2)),
-    discount: Number(discount.toFixed(2)),
-    total: Number(total.toFixed(2)),
-  };
+  return { subtotal, tax, discount, total };
 };
 
 export const getCategoryBadgeColor = (category) => {
   const colorMap = {
-    Sandwich: "bg-orange-100 text-orange-600",
-    Pastry: "bg-teal-100 text-teal-600",
-    Donut: "bg-orange-100 text-orange-600",
-    Cake: "bg-pink-100 text-pink-600",
-    Bread: "bg-blue-100 text-blue-600",
-    Tart: "bg-yellow-100 text-yellow-600",
+    Sandwich: "bg-orange-50 text-orange-400",
+    Pastry: "bg-emerald-50 text-emerald-500",
+    Donut: "bg-pink-50 text-pink-400",
+    Cake: "bg-purple-50 text-purple-400",
+    Bread: "bg-amber-50 text-amber-500",
+    Tart: "bg-yellow-50 text-yellow-400",
   };
 
-  return colorMap[category] || "bg-gray-100 text-gray-600";
+  return colorMap[category] || "bg-gray-50 text-gray-500";
 };
 
 // Example React component using the utilities
@@ -55,5 +50,3 @@ OrderSummary.propTypes = {
   ).isRequired,
   promoApplied: PropTypes.bool,
 };
-
-export { calculateOrderTotals, getCategoryBadgeColor, OrderSummary };

@@ -11,7 +11,7 @@ export const OrderItem = ({ item, showCheckmark = false }) => {
   const { updateQuantity, removeFromCart } = usePOSStore();
 
   return (
-    <Card className="flex items-center gap-3 p-2 border-0 rounded-lg shadow-none bg-white/50">
+    <Card className="flex items-center gap-3 p-2 border-0 rounded-lg bg-white/50">
       <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50">
         <Image
           src={item.image || "/placeholder.svg"}

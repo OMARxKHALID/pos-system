@@ -31,7 +31,7 @@ export const ItemDetailModal = () => {
 
   const getCategoryColor = (category) => {
     return (
-      CATEGORY_COLORS[category] || "bg-gray-50 text-gray-700 border-gray-200"
+      CATEGORY_COLORS[category] || "bg-gray-100 text-gray-700 border-gray-200"
     );
   };
 

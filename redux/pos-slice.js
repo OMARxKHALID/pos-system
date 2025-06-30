@@ -32,13 +32,18 @@ const initialState = {
   selectedItem: null,
   orderType: "open",
   customerName: "Eloise's Order",
-  orderNumber: "#005",
+  orderNumber: "#001", // start from 1
+  orderNumberCounter: 1, // new: numeric counter for unique order numbers
   selectedTable: "Table 05",
   selectedOrderType: "Dine In",
   promoApplied: true,
   sidebarOpen: false,
   cartOpen: true,
   searchQuery: "",
+  orderHistory: [],
+  orderTracking: [],
+  trackOrderOpen: true,
+  editCustomerNameModalOpen: false, // new: modal state
 };
 
 const posSlice = createSlice({
@@ -91,6 +96,15 @@ const posSlice = createSlice({
     setOrderType(state, action) {
       state.selectedOrderType = action.payload;
     },
+    setCustomerName(state, action) {
+      state.customerName = action.payload;
+    },
+    openEditCustomerNameModal(state) {
+      state.editCustomerNameModalOpen = true;
+    },
+    closeEditCustomerNameModal(state) {
+      state.editCustomerNameModalOpen = false;
+    },
     togglePromo(state) {
       state.promoApplied = !state.promoApplied;
     },
@@ -100,14 +114,79 @@ const posSlice = createSlice({
     toggleCart(state) {
       state.cartOpen = !state.cartOpen;
     },
+    toggleTrackOrder(state) {
+      state.trackOrderOpen = !state.trackOrderOpen;
+    },
     placeOrder(state) {
-      if (state.orderItems.length === 0) return;
-      const currentNum = Number.parseInt(state.orderNumber.slice(1));
-      const newOrderNumber = `#${String(currentNum + 1).padStart(3, "0")}`;
-      // Optionally: log order
+      if (!state.orderItems.length) return;
+      // Generate new order number
+      const newOrderNumberCounter = state.orderNumberCounter + 1;
+      const newOrderNumber = `#${String(newOrderNumberCounter).padStart(
+        3,
+        "0"
+      )}`;
+      // Prepare order data
+      const now = new Date();
+      const date = now.toLocaleDateString("en-GB").replace(/\//g, "/");
+      const time = now
+        .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        .replace(/ /g, "");
+      const totalPayment = state.orderItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+      const tax = totalPayment * 0.1;
+      const discount = state.promoApplied ? totalPayment * 0.1 : 0;
+      const finalTotal = totalPayment + tax - discount;
+      // Add to orderHistory
+      state.orderHistory.push({
+        id: String(newOrderNumberCounter).padStart(3, "0"),
+        orderNumber: newOrderNumber,
+        date,
+        time,
+        customerName: state.customerName,
+        table: state.selectedTable,
+        type: state.selectedOrderType,
+        orderStatus: "Done",
+        totalPayment: finalTotal,
+        paymentStatus: "Paid",
+        items: state.orderItems.map((item) => ({
+          ...item,
+        })),
+      });
+      // Add to orderTracking
+      state.orderTracking.push({
+        customerName: state.customerName,
+        orderNumber: newOrderNumber,
+        table: state.selectedTable,
+        type: state.selectedOrderType,
+        time,
+        status: "On Kitchen Hand",
+        statusColor: "bg-orange-50 text-orange-400",
+        items: state.orderItems.map((item) => ({
+          ...item,
+        })),
+        orderStatus: "Active",
+      });
+      // Reset cart
       state.orderItems = [];
+      state.orderNumberCounter = newOrderNumberCounter;
       state.orderNumber = newOrderNumber;
       state.promoApplied = false;
+    },
+    closeTrackingOrder(state, action) {
+      // action.payload: orderNumber
+      const idx = state.orderTracking.findIndex(
+        (o) => o.orderNumber === action.payload
+      );
+      if (idx !== -1) {
+        state.orderTracking[idx].orderStatus = "Closed";
+        state.orderTracking[idx].status = "Closed";
+        state.orderTracking[idx].statusColor = "bg-gray-100 text-gray-400";
+      }
+    },
+    clearOrderHistory(state) {
+      state.orderHistory = [];
     },
   },
 });
@@ -123,10 +202,16 @@ export const {
   setSelectedItem,
   setTable,
   setOrderType,
+  setCustomerName,
   togglePromo,
   toggleSidebar,
   toggleCart,
+  toggleTrackOrder,
   placeOrder,
+  closeTrackingOrder,
+  clearOrderHistory,
+  openEditCustomerNameModal,
+  closeEditCustomerNameModal,
 } = posSlice.actions;
 
 export default posSlice.reducer;

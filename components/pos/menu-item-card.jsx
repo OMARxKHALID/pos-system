@@ -11,7 +11,7 @@ export const MenuItemCard = ({ item }) => {
 
   const getCategoryColor = (category) => {
     return (
-      CATEGORY_COLORS[category] || "bg-gray-50 text-gray-700 border-gray-200"
+      CATEGORY_COLORS[category] || "bg-gray-100 text-gray-700 border-gray-200"
     );
   };
 
@@ -22,13 +22,14 @@ export const MenuItemCard = ({ item }) => {
     >
       <CardContent className="p-2.5">
         <div className="flex items-center justify-center mb-2 transition-colors rounded-lg aspect-square bg-slate-50">
-          <Image
-            src={item.image || "/placeholder.svg"}
+          {/* <Image
+            src={item.image}
             alt={item.name}
             width={60}
             height={60}
             className="object-cover rounded-lg"
-          />
+          /> */}
+          <div className="text-7xl">{item.icon}</div>
         </div>
         <h3 className="font-semibold text-xs mb-1.5 text-slate-800 line-clamp-2 leading-tight">
           {item.name}

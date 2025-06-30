@@ -20,7 +20,7 @@ export const PageHeader = ({
         <Button
           variant="ghost"
           size="icon"
-          className="w-8 h-8 transition-colors rounded-lg text-slate-600"
+          className="w-8 h-8 transition-colors rounded-lg text-blue-400 hover:bg-blue-50"
           onClick={toggleSidebar}
         >
           <Menu className="w-4 h-4" />

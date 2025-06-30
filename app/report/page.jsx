@@ -37,6 +37,7 @@ import {
   TableCell,
   TableCaption,
 } from "@/components/ui/table";
+import { usePOSStore } from "@/hooks/use-pos-store";
 
 const ReportPage = () => {
   const [showGraph, setShowGraph] = useState(true);
@@ -44,6 +45,7 @@ const ReportPage = () => {
   const [dateTo, setDateTo] = useState("May 29, 2024");
   const [timeFrom, setTimeFrom] = useState("08:00");
   const [timeTo, setTimeTo] = useState("01:00");
+  const { orderHistory } = usePOSStore();
 
   const orderColumns = [
     { key: "id", label: "#", align: "center" },
@@ -232,19 +234,21 @@ const ReportPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allOrders.map((row, idx) => (
-                <TableRow key={row.id + row.date + row.time}>
+              {orderHistory.map((row, idx) => (
+                <TableRow key={row.id + row.time}>
                   <TableCell className="text-center">{row.id}</TableCell>
                   <TableCell>{`${row.date} - ${row.time}`}</TableCell>
                   <TableCell>{row.customerName}</TableCell>
                   <TableCell>{row.orderStatus}</TableCell>
-                  <TableCell>{row.totalPayment}</TableCell>
+                  <TableCell>
+                    ${row.totalPayment?.toFixed(2) ?? "0.00"}
+                  </TableCell>
                   <TableCell>{row.paymentStatus}</TableCell>
                   <TableCell>
-                    {row.orders
-                      ? Array.isArray(row.orders)
-                        ? row.orders.join(", ")
-                        : row.orders
+                    {row.items
+                      ? row.items
+                          .map((item) => `${item.quantity}x ${item.name}`)
+                          .join(", ")
                       : "-"}
                   </TableCell>
                 </TableRow>
