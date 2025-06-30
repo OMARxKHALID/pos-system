@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import posReducer from "./pos-slice";
+import cartReducer from "./slice/cart-slice";
 
 import {
   persistStore,
@@ -18,7 +18,7 @@ import storage from "./storage";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["pos"],
+  whitelist: ["cart"],
   transforms: [
     expireReducer({
       expireMilliseconds: 30 * 60 * 1000,
@@ -30,7 +30,7 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  pos: posReducer,
+  cart: cartReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

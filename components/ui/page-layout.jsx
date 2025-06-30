@@ -2,13 +2,15 @@
 
 import { Sidebar } from "@/components/shared/sidebar";
 import { PageHeader } from "@/components/shared/header";
-import { usePOSStore } from "@/hooks/use-pos-store";
+import React, { useState } from "react";
 
 const PageLayout = ({ title, subtitle, children, headerActions }) => {
-  const { sidebarOpen, toggleSidebar } = usePOSStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => setSidebarOpen((open) => !open);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-background">
       <Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
 
       <div className="p-6">

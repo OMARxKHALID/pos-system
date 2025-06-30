@@ -1,105 +1,150 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import Image from "next/image";
-import { usePOSStore } from "@/hooks/use-pos-store";
+import { useCartStore } from "@/hooks/use-cart-store";
 import { QuantityControl } from "@/components/ui/quantity-control";
-import { CATEGORY_COLORS } from "@/lib/constants";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
 
-export const ItemDetailModal = () => {
-  const { selectedItem, setSelectedItem, addToCart } = usePOSStore();
+export const ItemDetailModal = ({
+  selectedItem = null,
+  setSelectedItem = () => {},
+}) => {
+  const { addToCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
 
-  if (!selectedItem) return null;
+  useEffect(() => {
+    if (selectedItem) {
+      setQuantity(1);
+      setNotes("");
+    }
+  }, [selectedItem]);
 
   const handleClose = () => {
     setSelectedItem(null);
-    setQuantity(1);
-    setNotes("");
   };
 
   const handleAddToCart = () => {
-    addToCart(selectedItem, quantity);
+    if (!selectedItem) return;
+
+    addToCart({
+      ...selectedItem,
+      quantity,
+      notes: notes.trim() || undefined,
+    });
     handleClose();
   };
 
-  const getCategoryColor = (category) => {
-    return (
-      CATEGORY_COLORS[category] || "bg-gray-100 text-gray-700 border-gray-200"
-    );
-  };
+  if (!selectedItem) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <Card className="w-full max-w-xs border bg-white/95 backdrop-blur-xl border-white/50">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <h2 className="text-sm font-bold text-slate-800">Detail Menu</h2>
+    <Dialog
+      open={!!selectedItem}
+      onOpenChange={(open) => !open && handleClose()}
+    >
+      <DialogContent
+        className="flex items-center justify-center w-full max-w-xs p-0 bg-transparent border-0 shadow-none rounded-2xl"
+        style={{
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Card className="relative w-full overflow-hidden border-0 shadow-lg bg-white/95 backdrop-blur-xl rounded-2xl">
+          <DialogClose asChild>
             <Button
               variant="ghost"
               size="icon"
+              className="absolute z-10 w-8 h-8 rounded-lg top-3 right-3 hover:bg-slate-100"
               onClick={handleClose}
-              className="w-6 h-6 rounded-lg"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="w-4 h-4 text-slate-500" />
             </Button>
-          </div>
+          </DialogClose>
 
-          <div className="flex items-center justify-center w-20 h-20 mx-auto mb-3 rounded-lg bg-slate-50">
-            <Image
-              src={selectedItem.image || "/placeholder.svg"}
-              alt={selectedItem.name}
-              width={60}
-              height={60}
-              className="object-cover rounded-lg"
-            />
-          </div>
-
-          <div className="mb-3 text-center">
-            <Badge
-              className={`mb-2 border rounded-md text-xs ${getCategoryColor(
-                selectedItem.category
-              )}`}
-            >
-              {selectedItem.category}
-            </Badge>
-            <h3 className="mb-1 text-sm font-bold text-slate-800">
+          <CardContent className="p-6 pt-4">
+            <DialogTitle className="mb-4 text-base font-bold text-center text-slate-800">
               {selectedItem.name}
-            </h3>
-            <p className="text-lg font-bold text-blue-600">
-              ${selectedItem.price.toFixed(2)}
-            </p>
-          </div>
+            </DialogTitle>
 
-          <Input
-            placeholder="Add notes..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="h-8 mb-3 text-xs border-slate-200 focus:border-blue-300 focus:ring-blue-200"
-          />
+            <div className="relative flex items-center justify-center w-full h-40 mx-auto mb-4 overflow-hidden rounded-xl bg-slate-50">
+              {selectedItem.image ? (
+                <Image
+                  src={selectedItem.image}
+                  alt={selectedItem.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              ) : (
+                <div className="text-6xl text-slate-300">
+                  {selectedItem.icon || "🍔"}
+                </div>
+              )}
+            </div>
 
-          <div className="flex justify-center mb-4">
-            <QuantityControl
-              quantity={quantity}
-              onDecrease={() => setQuantity(Math.max(1, quantity - 1))}
-              onIncrease={() => setQuantity(quantity + 1)}
-            />
-          </div>
+            <div className="mb-4 text-center">
+              <Badge
+                variant="secondary"
+                className={`mb-2 border rounded-md text-xs px-2 py-0.5 bg-gray-100 text-gray-700 border-gray-200`}
+              >
+                {selectedItem.category || "Uncategorized"}
+              </Badge>
+              <p className="mb-2 text-lg font-bold text-blue-600">
+                ${selectedItem.price.toFixed(2)}
+              </p>
+              {selectedItem.description && (
+                <p className="mb-3 text-sm text-slate-600">
+                  {selectedItem.description}
+                </p>
+              )}
+            </div>
 
-          <Button
-            className="w-full text-xs font-semibold text-white bg-blue-500 rounded-lg h-9"
-            onClick={handleAddToCart}
-          >
-            Add to Cart (${(selectedItem.price * quantity).toFixed(2)})
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+            <div className="mb-4">
+              <label className="block mb-1 text-xs font-medium text-slate-600">
+                Special Instructions
+              </label>
+              <Input
+                placeholder="Add notes (e.g. no onions, extra sauce)"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="text-xs rounded-lg h-9 border-slate-200 focus:border-blue-300 focus:ring-blue-200"
+              />
+            </div>
+
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-sm font-medium text-slate-700">
+                Quantity
+              </span>
+              <QuantityControl
+                quantity={quantity}
+                onDecrease={() => setQuantity(Math.max(1, quantity - 1))}
+                onIncrease={() => setQuantity(quantity + 1)}
+                min={1}
+              />
+            </div>
+
+            <Button
+              className="w-full h-10 text-sm font-semibold text-white transition-colors bg-blue-500 rounded-lg shadow hover:bg-blue-600"
+              onClick={handleAddToCart}
+              disabled={!selectedItem}
+            >
+              Add to Cart - ${(selectedItem.price * quantity).toFixed(2)}
+            </Button>
+          </CardContent>
+        </Card>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -2,19 +2,8 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
-import { CATEGORY_COLORS } from "@/lib/constants";
-import { usePOSStore } from "@/hooks/use-pos-store";
 
-export const MenuItemCard = ({ item }) => {
-  const { setSelectedItem } = usePOSStore();
-
-  const getCategoryColor = (category) => {
-    return (
-      CATEGORY_COLORS[category] || "bg-gray-100 text-gray-700 border-gray-200"
-    );
-  };
-
+export const MenuItemCard = ({ item, setSelectedItem = () => {} }) => {
   return (
     <Card
       className="transition-all duration-200 border cursor-pointer bg-white/80 backdrop-blur-sm border-slate-200/60 rounded-xl group"
@@ -35,9 +24,8 @@ export const MenuItemCard = ({ item }) => {
           {item.name}
         </h3>
         <Badge
-          className={`text-xs mb-1.5 border rounded-md px-1.5 py-0.5 ${getCategoryColor(
-            item.category
-          )}`}
+          variant="secondary"
+          className={`text-xs mb-1.5 border rounded-md px-1.5 py-0.5 bg-gray-100 text-gray-700 border-gray-200`}
         >
           {item.category}
         </Badge>

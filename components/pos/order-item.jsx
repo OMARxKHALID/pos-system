@@ -2,24 +2,24 @@
 
 import { Button } from "@/components/ui/button";
 import { X, Check } from "lucide-react";
-import Image from "next/image";
 import { QuantityControl } from "@/components/ui/quantity-control";
-import { usePOSStore } from "@/hooks/use-pos-store";
+import { useCartStore } from "@/hooks/use-cart-store";
 import { Card } from "@/components/ui/card";
 
 export const OrderItem = ({ item, showCheckmark = false }) => {
-  const { updateQuantity, removeFromCart } = usePOSStore();
+  const { updateQuantity, removeFromCart } = useCartStore();
 
   return (
     <Card className="flex items-center gap-3 p-2 border-0 rounded-lg bg-white/50">
       <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50">
-        <Image
+        {/* <Image
           src={item.image || "/placeholder.svg"}
           alt={item.name}
           width={32}
           height={32}
           className="object-cover rounded-md"
-        />
+        /> */}
+        <div className="text-3xl">{item.icon}</div>
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-xs font-semibold truncate text-slate-800">

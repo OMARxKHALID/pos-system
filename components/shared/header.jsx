@@ -4,23 +4,23 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Menu, Calendar, Clock, Circle, ShoppingCart } from "lucide-react";
-import { usePOSStore } from "@/hooks/use-pos-store";
 
 export const PageHeader = ({
   title,
   subtitle,
   showCartToggle = false,
   children,
+  toggleSidebar = () => {},
+  toggleCart = () => {},
+  orderType = "open",
 }) => {
-  const { toggleSidebar, toggleCart, orderType } = usePOSStore();
-
   return (
     <div className="flex items-center justify-between mb-6">
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
           size="icon"
-          className="w-8 h-8 transition-colors rounded-lg text-blue-400 hover:bg-blue-50"
+          className="w-8 h-8 text-blue-400 transition-colors rounded-lg hover:bg-blue-50"
           onClick={toggleSidebar}
         >
           <Menu className="w-4 h-4" />

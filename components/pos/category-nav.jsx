@@ -2,10 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { categories } from "@/data/menu-data";
-import { usePOSStore } from "@/hooks/use-pos-store";
+import { useState } from "react";
 
 export const CategoryNav = () => {
-  const { selectedCategory, setSelectedCategory } = usePOSStore();
+  const [selectedCategory, setSelectedCategory] = useState(
+    categories.length > 0 ? categories[0].id : null
+  );
 
   return (
     <nav className="flex gap-2 pb-1 mb-6 overflow-x-auto">

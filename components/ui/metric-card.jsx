@@ -19,29 +19,33 @@ export const MetricCard = ({
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border border-slate-200/60 transition-all duration-200">
+    <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-xl">
-              <Icon className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-primary/10 rounded-xl">
+              <Icon className="w-5 h-5 text-primary" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-700">{title}</h3>
+            <h3 className="text-sm font-semibold text-card-foreground">
+              {title}
+            </h3>
           </div>
         </div>
         <div className="space-y-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-slate-800">
+            <span className="text-3xl font-bold text-card-foreground">
               {unit === "USD"
                 ? formatCurrency(value).replace("$", "")
                 : value.toLocaleString()}
             </span>
-            <span className="text-sm font-medium text-slate-500">{unit}</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              {unit}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <span
               className={`text-sm font-semibold ${
-                trend === "up" ? "text-emerald-600" : "text-red-600"
+                trend === "up" ? "text-emerald-600" : "text-destructive"
               }`}
             >
               {trend === "up" ? "+" : ""}
@@ -49,14 +53,14 @@ export const MetricCard = ({
             </span>
             <div
               className={`flex items-center gap-1 ${
-                trend === "up" ? "text-emerald-600" : "text-red-600"
+                trend === "up" ? "text-emerald-600" : "text-destructive"
               }`}
             >
               <span className="text-sm font-semibold">{percentage}%</span>
               {trend === "up" ? (
-                <TrendingUp className="h-4 w-4" />
+                <TrendingUp className="w-4 h-4" />
               ) : (
-                <TrendingDown className="h-4 w-4" />
+                <TrendingDown className="w-4 h-4" />
               )}
             </div>
           </div>

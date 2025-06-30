@@ -9,38 +9,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Edit3, X, Minus, Plus, Check } from "lucide-react";
-import Image from "next/image";
-import { usePOSStore } from "@/hooks/use-pos-store";
+import { Edit3, X, Check } from "lucide-react";
+import { useCartStore } from "@/hooks/use-cart-store";
 import { Input } from "@/components/ui/input";
-import { EditCustomerNameModal } from "./order-edit-customer-modal";
+import { OrderItem } from "./order-item";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
-export const OrderCart = () => {
-  const {
-    cartOpen,
-    toggleCart,
-    orderItems,
-    updateQuantity,
-    selectedTable,
-    setTable,
-    selectedOrderType,
-    setOrderType,
-    promoApplied,
-    togglePromo,
-    customerName,
-    setCustomerName,
-    orderNumber,
-    openEditCustomerNameModal,
-    editCustomerNameModalOpen,
-    closeEditCustomerNameModal,
-  } = usePOSStore();
+export const OrderCart = ({
+  cartOpen = false,
+  toggleCart = () => {},
+  orderItems = [],
+  promoApplied = false,
+  selectedTable = "",
+  setTable = () => {},
+  selectedOrderType = "",
+  setOrderType = () => {},
+  customerName = "",
+  orderNumber = "",
+  togglePromo = () => {},
+}) => {
+  const [editCustomerNameModalOpen, setEditCustomerNameModalOpen] =
+    useState(false);
+  const [localCustomerName, setLocalCustomerName] = useState(customerName);
+  const [tempCustomerName, setTempCustomerName] = useState(customerName);
+
+  const openEditCustomerNameModal = () => {
+    setTempCustomerName(localCustomerName);
+    setEditCustomerNameModalOpen(true);
+  };
+  const closeEditCustomerNameModal = () => setEditCustomerNameModalOpen(false);
+
+  const handleSaveCustomerName = () => {
+    setLocalCustomerName(tempCustomerName.trim() || "Guest");
+    closeEditCustomerNameModal();
+  };
 
   const subtotal = orderItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
   const tax = subtotal * 0.1;
-  const discount = promoApplied ? 1.0 : 0;
+  const discount = promoApplied ? subtotal * 0.1 : 0;
   const total = subtotal + tax - discount;
 
   return (
@@ -56,9 +73,9 @@ export const OrderCart = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <Input
-              value={customerName}
+              value={localCustomerName}
               readOnly
-              className="text-base font-semibold text-slate-800 bg-transparent border-0 p-0 h-auto focus:ring-0 focus:border-0 cursor-pointer"
+              className="h-auto p-0 text-base font-semibold bg-transparent border-0 cursor-pointer text-slate-800 focus:ring-0 focus:border-0"
               style={{ width: "auto", minWidth: "120px" }}
               onClick={openEditCustomerNameModal}
             />
@@ -121,54 +138,11 @@ export const OrderCart = () => {
         ) : (
           <div className="space-y-4">
             {orderItems.map((item, index) => (
-              <Card
+              <OrderItem
                 key={item.id}
-                className="flex items-center gap-3 p-2 border-0 rounded-lg bg-white/50"
-              >
-                <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50">
-                  <Image
-                    src={item.image || "/placeholder.svg"}
-                    alt={item.name}
-                    width={32}
-                    height={32}
-                    className="object-cover rounded-md"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-semibold truncate text-slate-800">
-                    {item.name}
-                  </h4>
-                  <p className="text-xs text-slate-600">
-                    ${item.price.toFixed(2)}
-                  </p>
-                </div>
-                {(index === 1 || index === 2) && (
-                  <div className="flex items-center justify-center w-5 h-5 bg-blue-500 rounded-full">
-                    <Check className="w-3 h-3 text-white" />
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="w-6 h-6 bg-transparent rounded text-slate-400 border-slate-200"
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  >
-                    <Minus className="w-3 h-3" />
-                  </Button>
-                  <span className="w-6 text-xs font-semibold text-center">
-                    {item.quantity}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="w-6 h-6 bg-transparent rounded text-slate-400 border-slate-200"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  >
-                    <Plus className="w-3 h-3" />
-                  </Button>
-                </div>
-              </Card>
+                item={item}
+                showCheckmark={index === 1 || index === 2}
+              />
             ))}
           </div>
         )}
@@ -237,13 +211,44 @@ export const OrderCart = () => {
           </Button>
         </CardContent>
       </Card>
-      {editCustomerNameModalOpen && (
-        <EditCustomerNameModal
-          value={customerName}
-          onSave={setCustomerName}
-          onClose={closeEditCustomerNameModal}
-        />
-      )}
+
+      {/* Dialog for editing customer name */}
+      <Dialog
+        open={editCustomerNameModalOpen}
+        onOpenChange={setEditCustomerNameModalOpen}
+      >
+        <DialogContent className="flex items-center justify-center w-full max-w-xs p-0 bg-transparent border-0 shadow-2xl rounded-2xl">
+          <Card className="relative w-full border-0 shadow-lg bg-white/95 backdrop-blur-xl rounded-2xl">
+            {/* Single close button in top right */}
+            <DialogClose asChild />
+            <CardContent className="p-6 pt-4">
+              <DialogTitle className="mb-4 text-base font-bold text-center text-slate-800">
+                Edit Customer Name
+              </DialogTitle>
+              <Input
+                autoFocus
+                value={tempCustomerName}
+                onChange={(e) => setTempCustomerName(e.target.value)}
+                className="mb-5 rounded-lg h-9"
+                placeholder="Enter customer name"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && tempCustomerName.trim())
+                    handleSaveCustomerName();
+                }}
+              />
+              <DialogFooter>
+                <Button
+                  className="w-full h-10 text-sm font-semibold text-white bg-blue-500 rounded-lg shadow"
+                  onClick={handleSaveCustomerName}
+                  disabled={!tempCustomerName.trim()}
+                >
+                  Save
+                </Button>
+              </DialogFooter>
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

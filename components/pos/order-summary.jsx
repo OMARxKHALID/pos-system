@@ -2,23 +2,19 @@
 
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import { usePOSStore } from "@/hooks/use-pos-store";
 import { calculateOrderTotals } from "@/utils/pos-utils";
 import { useRef, useEffect } from "react";
 
-export const OrderSummary = () => {
-  const {
-    orderItems,
-    promoApplied,
-    togglePromo,
-    placeOrder,
-    selectedTable,
-    selectedOrderType,
-    customerName,
-    orderNumber,
-    orderHistory, // <-- always up-to-date from store
-  } = usePOSStore();
-
+export const OrderSummary = ({
+  orderItems = [],
+  promoApplied = false,
+  selectedTable = null,
+  selectedOrderType = null,
+  customerName = "",
+  orderHistory = [],
+  placeOrder = () => {},
+  togglePromo = () => {},
+}) => {
   const orderHistoryRef = useRef(orderHistory);
   useEffect(() => {
     orderHistoryRef.current = orderHistory;
@@ -35,8 +31,8 @@ export const OrderSummary = () => {
     setTimeout(() => {
       // Use latest orderHistory from store
       const latestOrder =
-        orderHistory && orderHistory.length > 0
-          ? orderHistory[orderHistory.length - 1]
+        orderHistoryRef.current && orderHistoryRef.current.length > 0
+          ? orderHistoryRef.current[orderHistoryRef.current.length - 1]
           : null;
       if (!latestOrder) return;
 
@@ -158,7 +154,7 @@ export const OrderSummary = () => {
         `);
         printWindow.document.close();
       }
-    }, 100); // Wait for Redux state to update
+    }, 100); // Wait for state to update
   };
 
   return (

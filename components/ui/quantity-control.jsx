@@ -19,7 +19,7 @@ export const QuantityControl = ({
       <Button
         variant="outline"
         size="icon"
-        className={`${buttonSize} rounded border-slate-200 bg-transparent`}
+        className={`${buttonSize} rounded border bg-background`}
         onClick={onDecrease}
         disabled={disabled || quantity <= 1}
       >
@@ -31,7 +31,7 @@ export const QuantityControl = ({
       <Button
         variant="outline"
         size="icon"
-        className={`${buttonSize} rounded border-slate-200 bg-transparent`}
+        className={`${buttonSize} rounded border bg-background`}
         onClick={onIncrease}
         disabled={disabled}
       >

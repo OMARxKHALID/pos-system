@@ -1,10 +1,11 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { usePOSStore } from "@/hooks/use-pos-store";
+
+import { useState } from "react";
 
 export const SearchBar = () => {
-  const { searchQuery, setSearchQuery } = usePOSStore();
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="relative">
