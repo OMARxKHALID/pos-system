@@ -5,12 +5,13 @@ import { X, Check } from "lucide-react";
 import Image from "next/image";
 import { QuantityControl } from "@/components/ui/quantity-control";
 import { usePOSStore } from "@/hooks/use-pos-store";
+import { Card } from "@/components/ui/card";
 
 export const OrderItem = ({ item, showCheckmark = false }) => {
   const { updateQuantity, removeFromCart } = usePOSStore();
 
   return (
-    <div className="flex items-center gap-3 p-2 rounded-lg bg-white/50">
+    <Card className="flex items-center gap-3 p-2 border-0 rounded-lg shadow-none bg-white/50">
       <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50">
         <Image
           src={item.image || "/placeholder.svg"}
@@ -45,6 +46,6 @@ export const OrderItem = ({ item, showCheckmark = false }) => {
       >
         <X className="w-3 h-3" />
       </Button>
-    </div>
+    </Card>
   );
 };

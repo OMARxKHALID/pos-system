@@ -35,13 +35,13 @@ const ActivitySidebar = ({ activeView, onViewChange }) => {
 
       <Card className="border bg-white/80 backdrop-blur-sm border-slate-200/60">
         <CardContent className="p-6">
-          <h3 className="mb-3 text-xl font-bold text-blue-600">Bakehouse</h3>
+          <h3 className="mb-3 text-xl font-bold text-blue-600">Bakehouse POS</h3>
           <p className="mb-4 text-sm leading-relaxed text-slate-600">
             The dreamy taste & magic of sweet moments in every bite from our
             bakery
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-500">
-            <span>© 2024 Bakehouse</span>
+            <span>© 2024 Bakehouse POS</span>
             <span className="cursor-pointer hover:text-blue-600">Contacts</span>
             <span className="cursor-pointer hover:text-blue-600">Help</span>
           </div>

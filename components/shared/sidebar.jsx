@@ -105,7 +105,7 @@ const SidebarHeader = ({ onClose }) => (
     </div>
     <div className="text-center">
       <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-        Bakehouse
+        Bakehouse POS
       </h2>
       <p className="mt-1 text-xs text-slate-500">Point of Sales System</p>
     </div>

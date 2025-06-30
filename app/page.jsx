@@ -292,9 +292,9 @@ const PosPage = () => {
             ) : (
               <div className="space-y-4">
                 {orderItems.map((item, index) => (
-                  <div
+                  <Card
                     key={item.id}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-white/50"
+                    className="flex items-center gap-3 p-2 border-0 rounded-lg shadow-none bg-white/50"
                   >
                     <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50">
                       <Image
@@ -343,73 +343,75 @@ const PosPage = () => {
                         <Plus className="w-3 h-3" />
                       </Button>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             )}
           </main>
 
           {/* Order Summary */}
-          <div className="p-4 border-t border-slate-200/50 bg-white/30">
-            <div className="mb-4 space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-600">Subtotal</span>
-                <span className="font-semibold text-slate-800">
-                  $ {subtotal.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-600">Tax (10%)</span>
-                <span className="font-semibold text-slate-800">
-                  $ {tax.toFixed(2)}
-                </span>
-              </div>
-              {discount > 0 && (
+          <Card className="bg-transparent border-0 rounded-none shadow-none">
+            <CardContent className="p-4 border-t border-slate-200/50 bg-white/30">
+              <div className="mb-4 space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="text-emerald-600">Discount</span>
-                  <span className="font-semibold text-emerald-600">
-                    -$ {discount.toFixed(2)}
+                  <span className="text-slate-600">Subtotal</span>
+                  <span className="font-semibold text-slate-800">
+                    $ {subtotal.toFixed(2)}
                   </span>
                 </div>
-              )}
-            </div>
-
-            <div className="flex justify-between pt-2 mb-4 text-sm font-bold border-t border-slate-200">
-              <span className="text-slate-800">TOTAL</span>
-              <span className="text-slate-800">$ {total.toFixed(2)}</span>
-            </div>
-
-            <div className="flex gap-2 mb-4">
-              <Button
-                variant={promoApplied ? "default" : "outline"}
-                className={`flex-1 h-8 rounded-lg text-xs ${
-                  promoApplied
-                    ? "bg-emerald-500 text-white"
-                    : "border-slate-200 text-slate-600"
-                }`}
-                onClick={togglePromo}
-              >
-                {promoApplied ? (
-                  <>
-                    <Check className="w-3 h-3 mr-1" />
-                    Promo Applied
-                  </>
-                ) : (
-                  "Add Promo"
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-600">Tax (10%)</span>
+                  <span className="font-semibold text-slate-800">
+                    $ {tax.toFixed(2)}
+                  </span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-emerald-600">Discount</span>
+                    <span className="font-semibold text-emerald-600">
+                      -$ {discount.toFixed(2)}
+                    </span>
+                  </div>
                 )}
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 h-8 text-xs bg-transparent rounded-lg border-slate-200 text-slate-600"
-              >
-                QRIS
-              </Button>
-            </div>
+              </div>
 
-            <Button className="w-full h-10 text-sm font-semibold text-white bg-blue-500 rounded-xl">
-              Place Order
-            </Button>
-          </div>
+              <div className="flex justify-between pt-2 mb-4 text-sm font-bold border-t border-slate-200">
+                <span className="text-slate-800">TOTAL</span>
+                <span className="text-slate-800">$ {total.toFixed(2)}</span>
+              </div>
+
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant={promoApplied ? "default" : "outline"}
+                  className={`flex-1 h-8 rounded-lg text-xs ${
+                    promoApplied
+                      ? "bg-emerald-500 text-white"
+                      : "border-slate-200 text-slate-600"
+                  }`}
+                  onClick={togglePromo}
+                >
+                  {promoApplied ? (
+                    <>
+                      <Check className="w-3 h-3 mr-1" />
+                      Promo Applied
+                    </>
+                  ) : (
+                    "Add Promo"
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 h-8 text-xs bg-transparent rounded-lg border-slate-200 text-slate-600"
+                >
+                  QRIS
+                </Button>
+              </div>
+
+              <Button className="w-full h-10 text-sm font-semibold text-white bg-blue-500 rounded-xl">
+                Place Order
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
