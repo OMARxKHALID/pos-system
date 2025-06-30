@@ -22,7 +22,8 @@ export const useCartStore = () => {
 
   return {
     orderItems: cart.orderItems,
-    addToCart: (item, quantity = 1) => dispatch(addToCart({ item, quantity })),
+    addToCart: (item, quantity = 1, notes) =>
+      dispatch(addToCart({ item: { ...item, notes }, quantity })), // quantity is passed through
     updateQuantity: (id, quantity) =>
       dispatch(updateQuantity({ id, quantity })),
     removeFromCart: (id) => dispatch(removeFromCart(id)),

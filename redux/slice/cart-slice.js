@@ -15,7 +15,11 @@ const cartSlice = createSlice({
       );
 
       if (existingItem) {
-        existingItem.quantity += quantity;
+        existingItem.quantity += quantity; // add the passed quantity
+        // Optionally update notes if provided
+        if (item.notes) {
+          existingItem.notes = item.notes;
+        }
       } else {
         state.orderItems.push({ ...item, quantity });
       }
