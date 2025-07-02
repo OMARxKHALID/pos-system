@@ -74,7 +74,7 @@ export function PageHeader({
         <StatusIndicator status={orderType} />
 
         {showDashboard && (
-          <Link href="/dashboard">
+          <Link href="/admin/login">
             <Button
               variant="outline"
               size="sm"

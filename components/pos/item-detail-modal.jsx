@@ -38,13 +38,12 @@ export function ItemDetailModal({ selectedItem, onClose }) {
   return (
     <Dialog open={!!selectedItem} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm p-0 bg-transparent border-0 shadow-none">
-        <Card className="border-0 shadow-lg bg-card rounded-lg overflow-hidden">
+        <DialogTitle className="mb-3 text-base font-semibold text-center text-foreground">
+          Detail Menu
+        </DialogTitle>
+        <Card className="overflow-hidden border-0 rounded-lg shadow-lg bg-card">
           <CardContent className="p-4">
-            <DialogTitle className="text-base font-semibold text-center text-foreground mb-3">
-              Detail Menu
-            </DialogTitle>
-
-            <div className="relative w-full h-32 mx-auto mb-3 overflow-hidden rounded-md bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center">
+            <div className="relative flex items-center justify-center w-full h-32 mx-auto mb-3 overflow-hidden rounded-md bg-gradient-to-br from-muted/50 to-muted">
               {image ? (
                 <div className="text-8xl text-muted-foreground">
                   {icon || "🍔"}
@@ -56,16 +55,16 @@ export function ItemDetailModal({ selectedItem, onClose }) {
               )}
             </div>
 
-            <div className="text-center mb-3">
+            <div className="mb-3 text-center">
               <Badge variant="secondary" className="mb-2 text-[10px] h-4 px-2">
                 <Package className="w-2 h-2 mr-1" />
                 {category}
               </Badge>
-              <h3 className="text-sm font-semibold text-foreground mb-1">
+              <h3 className="mb-1 text-sm font-semibold text-foreground">
                 {name}
               </h3>
               {description && (
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="mb-2 text-xs text-muted-foreground">
                   {description}
                 </p>
               )}
@@ -78,19 +77,19 @@ export function ItemDetailModal({ selectedItem, onClose }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 w-8 p-0 rounded-md bg-transparent"
+                className="w-8 h-8 p-0 bg-transparent rounded-md"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 disabled={quantity <= 1}
               >
                 <Minus className="w-3 h-3" />
               </Button>
-              <span className="w-8 text-center text-sm font-semibold">
+              <span className="w-8 text-sm font-semibold text-center">
                 {quantity}
               </span>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 w-8 p-0 rounded-md bg-transparent"
+                className="w-8 h-8 p-0 bg-transparent rounded-md"
                 onClick={() => setQuantity(quantity + 1)}
               >
                 <Plus className="w-3 h-3" />
@@ -98,7 +97,7 @@ export function ItemDetailModal({ selectedItem, onClose }) {
             </div>
 
             <Button
-              className="w-full h-9 text-sm font-medium rounded-md"
+              className="w-full text-sm font-medium rounded-md h-9"
               onClick={handleAddToCart}
             >
               Add to Cart (${(price * quantity).toFixed(2)})

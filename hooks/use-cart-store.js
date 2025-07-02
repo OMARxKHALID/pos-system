@@ -4,35 +4,30 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { clampDiscount } from "@/utils/pos-utils";
 
-export const useCartStore = create(
+const useCartStore = create(
   persist(
     (set, get) => ({
+      menu: [],
+      cart: [],
       orderItems: [],
       cartDiscount: 0,
 
-      addToCart: (item, quantity) =>
+      setMenu: (menu) => set({ menu }),
+
+      addToCart: (item, quantity = 1) =>
         set(({ orderItems }) => {
-          const existingIndex = orderItems.findIndex((i) => i.id === item.id);
-
-          if (existingIndex >= 0) {
-            const updatedItems = [...orderItems];
-            updatedItems[existingIndex] = {
-              ...updatedItems[existingIndex],
-              quantity: updatedItems[existingIndex].quantity + quantity,
+          const existing = orderItems.find((i) => i.id === item.id);
+          if (existing) {
+            return {
+              orderItems: orderItems.map((i) =>
+                i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
+              ),
             };
-            return { orderItems: updatedItems };
+          } else {
+            return {
+              orderItems: [...orderItems, { ...item, quantity }],
+            };
           }
-
-          return {
-            orderItems: [
-              ...orderItems,
-              {
-                ...item,
-                quantity,
-                discount: 0,
-              },
-            ],
-          };
         }),
 
       updateQuantity: (id, quantity) =>
@@ -81,7 +76,7 @@ export const useCartStore = create(
         get().orderItems.reduce((sum, item) => sum + item.quantity, 0),
     }),
     {
-      name: "cart-storage",
+      name: "cart-store",
       storage: createJSONStorage(() => {
         // Check if we're in a browser environment before accessing localStorage
         if (typeof window !== "undefined") {
@@ -97,3 +92,5 @@ export const useCartStore = create(
     }
   )
 );
+
+export { useCartStore };

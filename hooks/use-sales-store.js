@@ -9,14 +9,14 @@ import {
   aggregatePayments,
 } from "@/utils/pos-utils";
 
-export const useSalesStore = create(
+const useSalesStore = create(
   persist(
     (set, get) => ({
       orders: [],
-
+      setOrders: (orders) => set({ orders }),
       addOrder: (order) =>
         set((state) => ({
-          orders: [order, ...state.orders],
+          orders: [...state.orders, order],
         })),
 
       updateOrderStatus: (id, status) =>
@@ -75,3 +75,5 @@ export const useSalesStore = create(
     }
   )
 );
+
+export { useSalesStore };

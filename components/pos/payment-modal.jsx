@@ -83,7 +83,7 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
 
           <Card>
             <CardContent className="p-4">
-              <div className="flex justify-between font-bold text-lg">
+              <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
               </div>
