@@ -4,10 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
-import { BarChart3, Package, FileText, LogOut, X, Menu } from "lucide-react";
-import { useState } from "react";
+import { BarChart3, Package, FileText, LogOut, Menu } from "lucide-react";
+import { useAdminSidebarStore } from "@/hooks/use-admin-sidebar-store";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 const NAV_LINKS = [
   { href: "/admin/dashboard", label: "Report", icon: BarChart3 },
@@ -18,104 +21,98 @@ const NAV_LINKS = [
 const NavLink = ({ href, label, icon: Icon }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
+
   return (
     <Link
       href={href}
-      className={`flex items-center gap-5 px-6 py-3 rounded-xl text-lg font-semibold transition-all ${
-        isActive
-          ? "bg-blue-100 text-blue-600"
-          : "text-gray-500 hover:bg-gray-50"
-      }`}
+      className={`
+        flex items-center gap-4 px-4 py-3 rounded-lg font-medium transition-all duration-200
+        ${
+          isActive
+            ? "bg-blue-50 text-blue-600 border-l-4 border-blue-600"
+            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        }
+      `}
       prefetch={false}
-      style={{ minHeight: "56px" }}
     >
       <Icon
-        className={`w-7 h-7 ${isActive ? "text-blue-600" : "text-gray-400"}`}
+        className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-400"}`}
       />
-      {label}
+      <span>{label}</span>
     </Link>
   );
 };
 
-export default function ProtectedAdminLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+const SidebarContent = () => {
   return (
-    <div className="flex w-full min-h-screen">
-      {/* Mobile Sidebar Trigger */}
-      <div className="fixed z-20 md:hidden top-4 left-4">
-        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Menu className="w-5 h-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] p-0">
-            <SidebarContent onClose={() => setSidebarOpen(false)} />
-          </SheetContent>
-        </Sheet>
+    <div className="flex flex-col h-full ">
+      {/* User Profile */}
+      <div className="p-6 border-b">
+        <div className="flex items-center gap-3">
+          <Avatar className="w-12 h-12">
+            <AvatarImage src="/placeholder-user.jpg" alt="Admin" />
+            <AvatarFallback className="font-semibold text-blue-600 bg-blue-100">
+              JG
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="font-semibold text-gray-900">Jelly Grande</h2>
+            <p className="text-sm text-gray-500">Cashier</p>
+          </div>
+        </div>
       </div>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex fixed h-full w-[300px] border-r">
-        <SidebarContent />
-      </div>
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-2">
+        {NAV_LINKS.map((link) => (
+          <NavLink key={link.href} {...link} />
+        ))}
+      </nav>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-[300px] pt-4 md:pt-0">{children}</main>
+      {/* Logout */}
+      <div className="p-4 border-t">
+        <form action="/api/auth/signout" method="post">
+          <Button
+            type="submit"
+            variant="ghost"
+            className="justify-start w-full gap-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <LogOut className="w-5 h-5" />
+            Log Out
+          </Button>
+        </form>
+      </div>
     </div>
   );
-}
+};
 
-function SidebarContent({ onClose }) {
+export default function AdminLayout({ children }) {
+  const { open: sidebarOpen, setOpen: setSidebarOpen } = useAdminSidebarStore();
+
   return (
-    <div className="flex flex-col h-full p-6 bg-white">
-      {/* User Section */}
-      <div>
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-4">
-            <Avatar className="w-16 h-16 shadow-md">
-              <AvatarImage src="/placeholder-user.jpg" alt="Admin" />
-              <AvatarFallback>A</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold leading-tight text-gray-900">
-                Jelly Grande
-              </span>
-              <span className="text-sm font-medium text-gray-400">Cashier</span>
-            </div>
-          </div>
-          {onClose && (
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="text-gray-400 hover:text-red-500 md:hidden"
-              onClick={onClose}
-              aria-label="Close sidebar"
-            >
-              <X className="w-6 h-6" />
-            </Button>
-          )}
-        </div>
-        <nav className="flex flex-col gap-3 mt-2">
-          {NAV_LINKS.map((link) => (
-            <NavLink key={link.href} {...link} />
-          ))}
-        </nav>
-      </div>
-
-      {/* Logout Button */}
-      <form action="/api/auth/signout" method="post" className="mt-auto">
-        <Separator className="mb-4" />
-        <Button
-          type="submit"
-          variant="ghost"
-          className="flex items-center justify-center w-full gap-3 py-3 text-lg font-semibold text-red-500 rounded-xl"
+    <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
+      <div className="flex min-h-screen bg-gray-50">
+        {/* Desktop Sidebar */}
+        <Sidebar
+          className={`hidden bg-white border-r shadow-sm transition-all duration-200 md:flex ${
+            sidebarOpen ? "w-64" : "w-0"
+          }`}
         >
-          <LogOut className="w-6 h-6" /> Log Out
-        </Button>
-      </form>
-    </div>
+          <SidebarContent />
+        </Sidebar>
+
+        {/* Mobile Sidebar Trigger */}
+        <div className="fixed z-50 top-4 left-4 md:hidden">
+          <SidebarTrigger className="p-2 bg-white border rounded-lg shadow-md">
+            <Menu className="w-5 h-5" />
+          </SidebarTrigger>
+        </div>
+
+        {/* Main Content */}
+        <main className="flex-1 w-full sm:w-auto">
+          <div>{children}</div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }
