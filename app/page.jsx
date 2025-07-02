@@ -6,34 +6,27 @@ import { SearchBar } from "@/components/pos/search-bar";
 import { MenuGrid } from "@/components/pos/menu-grid";
 import { OrderCart } from "@/components/pos/order-cart";
 import { ItemDetailModal } from "@/components/pos/item-detail-modal";
-
 import { useState } from "react";
 
-const PosPage = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+export default function PosPage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const toggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
-  };
-
-  const toggleCart = () => {
-    setCartOpen((prev) => !prev);
-  };
+  const toggleCart = () => setCartOpen((prev) => !prev);
 
   return (
-    <div className="relative flex w-full h-screen">
-      <div className="flex flex-1 transition-all duration-300 ease-in-out">
-        <div className="flex flex-col flex-1 m-3">
-          <header className="px-4 py-3 border-b">
+    <div className="h-screen w-full overflow-hidden">
+      {/* Mobile Layout */}
+      <div className="flex flex-col h-full lg:hidden">
+        <div className="flex flex-col flex-1 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/60 overflow-hidden">
+          <div className="flex-shrink-0 px-2 py-2">
             <PageHeader
-              title="Point of Sales"
+              title="POS"
               showCartToggle
-              toggleSidebar={toggleSidebar}
               toggleCart={toggleCart}
+              showDashboard
             />
             <CategoryNav
               selectedCategory={selectedCategory}
@@ -43,22 +36,62 @@ const PosPage = () => {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
             />
-          </header>
-          <MenuGrid
-            cartOpen={cartOpen}
-            setSelectedItem={setSelectedItem}
-            selectedCategory={selectedCategory}
-            searchQuery={searchQuery}
-          />
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <MenuGrid
+              selectedCategory={selectedCategory}
+              searchQuery={searchQuery}
+              onItemSelect={setSelectedItem}
+            />
+          </div>
         </div>
-        <OrderCart cartOpen={cartOpen} toggleCart={toggleCart} />
+        {cartOpen && (
+          <div className="fixed inset-0 z-50 bg-black/10 backdrop-blur-sm">
+            <div className="absolute inset-x-0 bottom-0 top-0">
+              <OrderCart cartOpen={cartOpen} toggleCart={toggleCart} isMobile />
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex h-full">
+        <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/60 overflow-hidden flex flex-col">
+          <div className="flex-shrink-0 px-6 py-4">
+            <PageHeader
+              title="POS"
+              showCartToggle
+              toggleCart={toggleCart}
+              showDashboard
+            />
+            <CategoryNav
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <MenuGrid
+              selectedCategory={selectedCategory}
+              searchQuery={searchQuery}
+              onItemSelect={setSelectedItem}
+            />
+          </div>
+        </div>
+        <div
+          className={`transition-all duration-300 ease-in-out ${
+            cartOpen ? "w-80" : "w-0"
+          } overflow-hidden`}
+        >
+          <OrderCart cartOpen={cartOpen} toggleCart={toggleCart} />
+        </div>
       </div>
       <ItemDetailModal
         selectedItem={selectedItem}
-        setSelectedItem={setSelectedItem}
+        onClose={() => setSelectedItem(null)}
       />
     </div>
   );
-};
-
-export default PosPage;
+}

@@ -3,32 +3,26 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
+import { Package, Minus, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useCartStore } from "@/hooks/use-cart-store";
-import { QuantityControl } from "@/components/ui/quantity-control";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
 
-export const ItemDetailModal = ({
-  selectedItem = null,
-  setSelectedItem = () => {},
-}) => {
+export function ItemDetailModal({ selectedItem, onClose }) {
   const { addToCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
-  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (selectedItem) {
       setQuantity(1);
-      setNotes("");
     }
   }, [selectedItem]);
+
+  const handleAddToCart = () => {
+    if (!selectedItem) return;
+    addToCart(selectedItem, quantity);
+    onClose();
+  };
 
   if (!selectedItem) return null;
 
@@ -41,91 +35,77 @@ export const ItemDetailModal = ({
     description,
   } = selectedItem;
 
-  const handleClose = () => setSelectedItem(null);
-
-  const handleAddToCart = () => {
-    addToCart(selectedItem, quantity, notes.trim() || undefined);
-    handleClose();
-  };
-
   return (
-    <Dialog
-      open={!!selectedItem}
-      onOpenChange={(open) => !open && handleClose()}
-    >
-      <DialogContent
-        className="flex items-center justify-center w-full max-w-xs p-0 bg-transparent border-0 shadow-none rounded-2xl"
-        style={{
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <Card className="relative w-full overflow-hidden border-0 shadow-lg bg-white/95 backdrop-blur-xl rounded-2xl">
-          <DialogClose onClick={handleClose} asChild />
-          <CardContent className="p-6 pt-4">
-            <DialogTitle className="mb-4 text-base font-bold text-center text-slate-800">
-              {name}
+    <Dialog open={!!selectedItem} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-sm p-0 bg-transparent border-0 shadow-none">
+        <Card className="border-0 shadow-lg bg-card rounded-lg overflow-hidden">
+          <CardContent className="p-4">
+            <DialogTitle className="text-base font-semibold text-center text-foreground mb-3">
+              Detail Menu
             </DialogTitle>
-            <div className="relative flex items-center justify-center w-full h-40 mx-auto mb-4 overflow-hidden rounded-xl bg-slate-50">
+
+            <div className="relative w-full h-32 mx-auto mb-3 overflow-hidden rounded-md bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center">
               {image ? (
-                <Image
-                  src={image}
-                  alt={name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
+                <div className="text-8xl text-muted-foreground">
+                  {icon || "🍔"}
+                </div>
               ) : (
-                <div className="text-9xl text-slate-300">{icon || "🍔"}</div>
+                <div className="text-8xl text-muted-foreground">
+                  {icon || "🍔"}
+                </div>
               )}
             </div>
-            <div className="mb-4 text-center">
-              <Badge
-                variant="secondary"
-                className="mb-2 border rounded-md text-xs px-2 py-0.5 bg-gray-100 text-gray-700 border-gray-200"
-              >
+
+            <div className="text-center mb-3">
+              <Badge variant="secondary" className="mb-2 text-[10px] h-4 px-2">
+                <Package className="w-2 h-2 mr-1" />
                 {category}
               </Badge>
-              <p className="mb-2 text-lg font-bold text-blue-600">
+              <h3 className="text-sm font-semibold text-foreground mb-1">
+                {name}
+              </h3>
+              {description && (
+                <p className="text-xs text-muted-foreground mb-2">
+                  {description}
+                </p>
+              )}
+              <p className="text-lg font-bold text-primary">
                 ${price.toFixed(2)}
               </p>
-              {description && (
-                <p className="mb-3 text-sm text-slate-600">{description}</p>
-              )}
             </div>
-            <div className="mb-4">
-              <label className="block mb-1 text-xs font-medium text-slate-600">
-                Special Instructions
-              </label>
-              <Input
-                placeholder="Add notes (e.g. no onions, extra sauce)"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="text-xs rounded-lg h-9 border-slate-200 focus:border-blue-300 focus:ring-blue-200"
-              />
-            </div>
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-sm font-medium text-slate-700">
-                Quantity
+
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-md bg-transparent"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                disabled={quantity <= 1}
+              >
+                <Minus className="w-3 h-3" />
+              </Button>
+              <span className="w-8 text-center text-sm font-semibold">
+                {quantity}
               </span>
-              <QuantityControl
-                quantity={quantity}
-                onDecrease={() => setQuantity(Math.max(1, quantity - 1))}
-                onIncrease={() => setQuantity(quantity + 1)}
-                min={1}
-              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-md bg-transparent"
+                onClick={() => setQuantity(quantity + 1)}
+              >
+                <Plus className="w-3 h-3" />
+              </Button>
             </div>
+
             <Button
-              className="w-full h-10 text-sm font-semibold text-white transition-colors bg-blue-500 rounded-lg shadow hover:bg-blue-600"
+              className="w-full h-9 text-sm font-medium rounded-md"
               onClick={handleAddToCart}
-              disabled={!selectedItem}
             >
-              Add to Cart - ${(price * quantity).toFixed(2)}
+              Add to Cart (${(price * quantity).toFixed(2)})
             </Button>
           </CardContent>
         </Card>
       </DialogContent>
     </Dialog>
   );
-};
+}

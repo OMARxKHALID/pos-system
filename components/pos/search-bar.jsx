@@ -1,15 +1,19 @@
 "use client";
+
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-export const SearchBar = ({ searchQuery, setSearchQuery }) => (
-  <div className="relative">
-    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-    <Input
-      placeholder="Search something sweet on your mind"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      className="pl-10 text-xs h-9 bg-slate-50 border-slate-200 rounded-xl placeholder:text-slate-400 focus:border-blue-300 focus:ring-blue-200"
-    />
-  </div>
-);
+export function SearchBar({ searchQuery, setSearchQuery }) {
+  return (
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+      <Input
+        type="text"
+        placeholder="Search something sweet on your mind..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="pl-9 h-9 text-xs bg-white/70 border-gray-200 rounded-lg focus:bg-white transition-all"
+      />
+    </div>
+  );
+}

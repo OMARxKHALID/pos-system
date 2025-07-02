@@ -1,62 +1,121 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { X, Check, Minus, Plus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { X, Edit3 } from "lucide-react";
+import { QuantityControl } from "@/components/ui/quantity-control";
+import { DiscountModal } from "./discount-modal";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { useState } from "react";
+import {
+  calculateItemOriginalPrice,
+  calculateItemDiscountAmount,
+  calculateItemFinalPrice,
+} from "@/utils/pos-utils";
 
-export const OrderItem = ({ item, showCheckmark = false }) => {
-  const { updateQuantity, removeFromCart } = useCartStore();
+export function OrderItem({ item }) {
+  const cartStore = useCartStore();
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
 
   const handleDecrease = () => {
-    if (item.quantity <= 1) removeFromCart(item.id);
-    else updateQuantity(item.id, item.quantity - 1);
+    if (!cartStore) return;
+
+    if (item.quantity <= 1) {
+      cartStore.removeFromCart(item.id);
+    } else {
+      cartStore.updateQuantity(item.id, item.quantity - 1);
+    }
   };
 
+  const originalPrice = calculateItemOriginalPrice(item);
+  const discountAmount = calculateItemDiscountAmount(item);
+  const finalPrice = calculateItemFinalPrice(item);
+
   return (
-    <div className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-lg">
-      <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 rounded-lg bg-gray-50">
-        <div className="text-4xl">{item.icon}</div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="mb-1 text-sm font-medium text-gray-900 truncate">
-          {item.name}
-        </h4>
-        <p className="text-sm text-gray-600">${item.price.toFixed(2)}</p>
-      </div>
-      {showCheckmark && (
-        <div className="flex items-center justify-center flex-shrink-0 w-6 h-6 bg-blue-500 rounded-full">
-          <Check className="w-3.5 h-3.5 text-white" />
-        </div>
-      )}
-      <div className="flex items-center flex-shrink-0 gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          className="w-8 h-8 bg-transparent border-gray-200 rounded-lg hover:bg-gray-50"
-          onClick={handleDecrease}
-        >
-          <Minus className="w-3.5 h-3.5" />
-        </Button>
-        <span className="w-8 text-sm font-medium text-center text-gray-900">
-          {item.quantity}
-        </span>
-        <Button
-          variant="outline"
-          size="icon"
-          className="w-8 h-8 bg-transparent border-gray-200 rounded-lg hover:bg-gray-50"
-          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-        >
-          <Plus className="w-3.5 h-3.5" />
-        </Button>
-      </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="flex-shrink-0 w-8 h-8 text-gray-400 rounded-lg hover:text-red-500 hover:bg-red-50"
-        onClick={() => removeFromCart(item.id)}
-      >
-        <X className="w-4 h-4" />
-      </Button>
-    </div>
+    <>
+      <Card className="transition-all duration-200 hover:shadow-sm bg-white/80 border-gray-200 rounded-md overflow-hidden">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-md flex items-center justify-center border border-primary/20 flex-shrink-0">
+              <span className="text-3xl">{item.icon}</span>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1">
+                  <h4 className="font-medium text-xs text-foreground mb-1">
+                    {item.name}
+                  </h4>
+                  <p className="text-[10px] text-muted-foreground">
+                    $ {item.price.toFixed(2)}
+                  </p>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-gray-400 hover:text-destructive hover:bg-destructive/10 rounded-sm"
+                  onClick={() => cartStore?.removeFromCart(item.id)}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <QuantityControl
+                    quantity={item.quantity}
+                    onDecrease={handleDecrease}
+                    onIncrease={() =>
+                      cartStore?.updateQuantity(item.id, item.quantity + 1)
+                    }
+                    size="sm"
+                  />
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[10px] text-blue-600 hover:bg-blue-50 rounded-sm"
+                    onClick={() => setDiscountModalOpen(true)}
+                  >
+                    <Edit3 className="w-2 h-2 mr-1" />
+                    {(item.discount || 0) > 0 ? `${item.discount}%` : "Edit"}
+                  </Button>
+                </div>
+
+                <div className="text-right">
+                  {(item.discount || 0) > 0 && (
+                    <span className="text-[10px] text-gray-400 line-through block">
+                      $ {originalPrice.toFixed(2)}
+                    </span>
+                  )}
+                  <span className="text-xs font-semibold text-foreground">
+                    $ {finalPrice.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {(item.discount || 0) > 0 && (
+                <div className="mt-2 pt-2 border-t border-gray-100">
+                  <Badge className="bg-green-50 text-green-700 border-0 text-[10px] h-4">
+                    {item.discount}% Discount Applied
+                  </Badge>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <DiscountModal
+        open={discountModalOpen}
+        onOpenChange={setDiscountModalOpen}
+        currentDiscount={item.discount || 0}
+        type="item"
+        itemId={item.id}
+        itemName={item.name}
+      />
+    </>
   );
-};
+}

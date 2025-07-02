@@ -1,231 +1,243 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Edit3, X } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { X, Trash2, Receipt, Hash } from "lucide-react";
 import { useCartStore } from "@/hooks/use-cart-store";
-import { Input } from "@/components/ui/input";
+import { useSalesStore } from "@/hooks/use-sales-store";
 import { OrderItem } from "./order-item";
-import { useState, useMemo } from "react";
+import { PaymentModal } from "./payment-modal";
+import { DiscountModal } from "./discount-modal";
 import { ReceiptGenerator } from "./receipt-generator";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { calculateOrderTotals } from "@/utils/pos-utils";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { calculateOrderTotals, generateOrderNumber } from "@/utils/pos-utils";
 
-function generateOrderNumber() {
-  return (
-    "ORD-" +
-    ([1e7] + -1e3 + -4e3 + -8e3 + -1e11)
-      .replace(/[018]/g, (c) =>
-        (
-          (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & 15)) >>
-          (c / 4)
-        ).toString(16)
-      )
-      .toUpperCase()
-  );
-}
+export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
+  const { orderItems, clearCart, cartDiscount } = useCartStore();
+  const { addOrder } = useSalesStore();
 
-export const OrderCart = ({
-  cartOpen = false,
-  toggleCart = () => {},
-  selectedTable = "",
-  selectedOrderType = "",
-  customerName = "",
-  orderNumber = "",
-  setOrderHistory = () => {},
-}) => {
-  const { orderItems } = useCartStore();
-  const [localOrderNumber] = useState(orderNumber || generateOrderNumber());
-  const [editCustomerNameModalOpen, setEditCustomerNameModalOpen] =
-    useState(false);
-  const [localCustomerName, setLocalCustomerName] = useState(
-    customerName || ""
-  );
-  const [tempCustomerName, setTempCustomerName] = useState(customerName || "");
+  const [localOrderNumber, setLocalOrderNumber] = useState(null);
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [printReceipt, setPrintReceipt] = useState(false);
   const [lastOrderData, setLastOrderData] = useState(null);
 
   const totals = useMemo(
-    () => calculateOrderTotals(orderItems, false),
-    [orderItems]
+    () => calculateOrderTotals(orderItems, cartDiscount),
+    [orderItems, cartDiscount]
   );
 
-  const openEditCustomerNameModal = () => {
-    setTempCustomerName(localCustomerName);
-    setEditCustomerNameModalOpen(true);
-  };
+  useEffect(() => {
+    setLocalOrderNumber(generateOrderNumber());
+  }, []);
 
-  const closeEditCustomerNameModal = () => setEditCustomerNameModalOpen(false);
+  const handlePlaceOrder = useCallback(
+    (customerName, paymentMethod) => {
+      if (!orderItems.length) return;
 
-  const handleSaveCustomerName = () => {
-    setLocalCustomerName(tempCustomerName.trim() || "Guest");
-    closeEditCustomerNameModal();
-  };
+      const now = new Date();
+      const orderData = {
+        id: crypto.randomUUID(),
+        items: orderItems,
+        customerName: customerName.trim() || "Guest",
+        orderNumber: localOrderNumber || "",
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        discount: totals.discount + totals.itemDiscounts,
+        total: totals.total,
+        paymentMethod,
+        status: "completed",
+        date: now.toLocaleDateString(),
+        time: now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        timestamp: now.getTime(),
+      };
 
-  const handlePlaceOrder = () => {
-    if (!orderItems.length) return;
-    const now = new Date();
-    const orderData = {
-      items: orderItems,
-      table: selectedTable,
-      type: selectedOrderType,
-      customerName: localCustomerName || "Guest",
-      orderNumber: localOrderNumber,
-      totalPayment: totals.total,
-      date: now.toLocaleDateString(),
-      time: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
-    setOrderHistory((prev) => [...prev, orderData]);
-    setLastOrderData(orderData);
-    setPrintReceipt(true);
-  };
+      addOrder(orderData);
+      setLastOrderData(orderData);
+      setPrintReceipt(true);
+      clearCart();
+
+      setTimeout(() => {
+        setPaymentModalOpen(false);
+        if (isMobile) toggleCart();
+      }, 100);
+    },
+    [orderItems, localOrderNumber, totals, isMobile]
+  );
+
+  const hasItems = orderItems.length > 0;
 
   return (
-    <div
-      className={`bg-white rounded-2xl flex flex-col overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 ease-in-out ${
-        cartOpen
-          ? "w-[380px] opacity-100 translate-x-0 m-3 ml-1.5"
-          : "w-0 opacity-0 translate-x-full pointer-events-none m-0"
-      }`}
-    >
-      {/* Header */}
-      <header className="px-6 py-5 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {localCustomerName || "Guest"}'s Order
-            </h2>
-            <p className="text-sm text-gray-500">
-              Order Number: #{localOrderNumber.replace("ORD-", "")}
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 rounded-lg hover:bg-gray-100"
-              onClick={openEditCustomerNameModal}
-              aria-label="Edit customer name"
-            >
-              <Edit3 className="w-4 h-4 text-gray-500" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 rounded-lg hover:bg-gray-100 lg:hidden"
-              onClick={toggleCart}
-              aria-label="Close cart"
-            >
-              <X className="w-4 h-4 text-gray-500" />
-            </Button>
-          </div>
-        </div>
-      </header>
+    <>
+      <Card className="flex flex-col h-full overflow-hidden bg-white/90 backdrop-blur-sm border-gray-200 rounded-lg shadow-sm">
+        <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Receipt className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-foreground">
+                  Customer's Order
+                </h2>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Hash className="w-3 h-3" />
+                  <span>{localOrderNumber ?? "..."}</span>
+                </div>
+              </div>
+            </div>
 
-      {/* Cart Items */}
-      <main className="flex-1 px-6 py-4 overflow-y-auto">
-        {orderItems.length === 0 ? (
-          <div className="mt-12 text-center text-gray-400">
-            <p className="text-sm font-medium">No Item Selected</p>
+            {isMobile && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 rounded-md"
+                onClick={toggleCart}
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            )}
           </div>
-        ) : (
-          <div className="space-y-4">
-            {orderItems.map((item, index) => (
-              <OrderItem
-                key={item.id}
-                item={item}
-                showCheckmark={index === 1 || index === 2}
-              />
-            ))}
-          </div>
-        )}
-      </main>
 
-      {/* Totals & Place Order */}
-      <div className="px-6 py-5 border-t border-gray-100 bg-gray-50/50">
-        <div className="mb-4 space-y-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Subtotal</span>
-            <span className="font-medium text-gray-900">
-              ${totals.subtotal.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Tax (10%)</span>
-            <span className="font-medium text-gray-900">
-              ${totals.tax.toFixed(2)}
-            </span>
-          </div>
-          {totals.discount > 0 && (
-            <div className="flex justify-between text-sm">
-              <span className="text-emerald-600">Discount</span>
-              <span className="font-medium text-emerald-600">
-                -${totals.discount.toFixed(2)}
-              </span>
+          {cartDiscount > 0 && (
+            <div className="mt-3 flex justify-end">
+              <Badge className="bg-green-50 text-green-700 border-0 text-[10px] h-5">
+                {cartDiscount}% Cart Discount Applied
+              </Badge>
             </div>
           )}
-        </div>
-        <div className="flex justify-between pt-3 mb-5 text-base font-semibold border-t border-gray-200">
-          <span className="text-gray-900">TOTAL</span>
-          <span className="text-gray-900">${totals.total.toFixed(2)}</span>
-        </div>
-        <Button
-          className="w-full h-12 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handlePlaceOrder}
-          disabled={!orderItems.length}
-        >
-          Place Order
-        </Button>
-      </div>
+        </CardHeader>
 
-      {/* Edit Customer Name Modal */}
-      <Dialog
-        open={editCustomerNameModalOpen}
-        onOpenChange={setEditCustomerNameModalOpen}
-      >
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              Edit Customer Name
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Input
-              autoFocus
-              value={tempCustomerName}
-              onChange={(e) => setTempCustomerName(e.target.value)}
-              className="rounded-lg"
-              placeholder="Enter customer name"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && tempCustomerName.trim())
-                  handleSaveCustomerName();
-              }}
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              className="w-full h-10 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-              onClick={handleSaveCustomerName}
-              disabled={!tempCustomerName.trim()}
-            >
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <CardContent className="flex-1 overflow-y-auto p-3">
+          {!hasItems ? (
+            <EmptyCart />
+          ) : (
+            <div className="space-y-3">
+              {orderItems.map((item) => (
+                <OrderItem key={item.id} item={item} />
+              ))}
+            </div>
+          )}
+        </CardContent>
 
-      {/* Receipt Generator */}
+        {hasItems && (
+          <CartFooter
+            totals={totals}
+            cartDiscount={cartDiscount}
+            setDiscountModalOpen={setDiscountModalOpen}
+            setPaymentModalOpen={setPaymentModalOpen}
+          />
+        )}
+      </Card>
+
+      <DiscountModal
+        open={discountModalOpen}
+        onOpenChange={setDiscountModalOpen}
+        currentDiscount={cartDiscount}
+        type="cart"
+      />
+
+      <PaymentModal
+        open={paymentModalOpen}
+        onOpenChange={setPaymentModalOpen}
+        total={totals.total}
+        onConfirm={handlePlaceOrder}
+      />
+
       <ReceiptGenerator
         open={printReceipt}
         orderData={lastOrderData}
         totals={totals}
         onPrinted={() => setPrintReceipt(false)}
       />
-    </div>
+    </>
+  );
+}
+
+// Extracted components
+const EmptyCart = () => (
+  <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8">
+    <div className="text-6xl mb-4 opacity-20">🛒</div>
+    <p className="text-sm font-medium mb-1">No Item Selected</p>
+    <p className="text-xs text-center">Please add some items from the menu</p>
+  </div>
+);
+
+const CartFooter = ({
+  totals,
+  cartDiscount,
+  setDiscountModalOpen,
+  setPaymentModalOpen,
+}) => {
+  const { clearCart } = useCartStore();
+
+  return (
+    <CardContent className="pt-0 bg-gradient-to-t from-gray-50/30 to-transparent">
+      <div className="space-y-2 mb-4 text-xs">
+        <div className="flex justify-between">
+          <span className="text-gray-600">Subtotal</span>
+          <span className="font-medium">$ {totals.subtotal.toFixed(2)}</span>
+        </div>
+
+        {totals.itemDiscounts > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span>Item Discounts</span>
+            <span>-$ {totals.itemDiscounts.toFixed(2)}</span>
+          </div>
+        )}
+
+        {cartDiscount > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span>Cart Discount</span>
+            <span>-$ {totals.discount.toFixed(2)}</span>
+          </div>
+        )}
+
+        <div className="flex justify-between">
+          <span className="text-gray-600">Tax (10%)</span>
+          <span className="font-medium">$ {totals.tax.toFixed(2)}</span>
+        </div>
+
+        <Separator />
+
+        <div className="flex justify-between font-semibold text-sm">
+          <span>TOTAL</span>
+          <span>$ {totals.total.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs bg-white/70 border-gray-200 hover:bg-white rounded-md"
+            onClick={() => setDiscountModalOpen(true)}
+          >
+            Add Discount
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-3 text-xs bg-white/70 border-gray-200 hover:bg-white rounded-md"
+            onClick={clearCart}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
+
+        <Button
+          className="w-full h-9 font-medium bg-primary hover:bg-primary/90 rounded-md text-sm"
+          onClick={() => setPaymentModalOpen(true)}
+        >
+          Place Order
+        </Button>
+      </div>
+    </CardContent>
   );
 };

@@ -1,77 +1,121 @@
 "use client";
 
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Circle, ShoppingCart } from "lucide-react";
+import { Calendar, Clock, ShoppingCart, BarChart3, Store } from "lucide-react";
+import { StatusIndicator } from "@/components/ui/status-indicator";
+import { useCartStore } from "@/hooks/use-cart-store";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-export const PageHeader = ({
+export function PageHeader({
   title,
   subtitle,
   showCartToggle = false,
-  children,
+  showDashboard = false,
+  showPOS = false,
   toggleCart = () => {},
   orderType = "open",
-}) => {
+}) {
+  const { orderItems } = useCartStore();
+  // Use state for date/time, set after mount
+  const [dateString, setDateString] = useState("");
+  const [timeString, setTimeString] = useState("");
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+    const updateDateTime = () => {
+      const currentDate = new Date();
+      setDateString(
+        currentDate.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      );
+      setTimeString(
+        currentDate.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      );
+    };
+
+    updateDateTime();
+    // Update time every minute
+    const interval = setInterval(updateDateTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
-    <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold leading-tight text-slate-800">
-            {title}
-          </h1>
-          {subtitle && (
-            <div className="text-base font-normal text-slate-500 mt-0.5">
-              {subtitle}
-            </div>
-          )}
+          <h6 className="text-5xl font-semibold text-gray-900 mb-1">{title}</h6>
+          {subtitle && <p className="text-xs text-gray-600">{subtitle}</p>}
+        </div>
+        <div className="hidden sm:flex items-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            <span>{hasMounted ? dateString : "..."}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            <span>{hasMounted ? timeString : "..."}</span>
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
-        {children}
+      <div className="flex items-center gap-2">
+        <StatusIndicator status={orderType} />
 
-        <div className="flex items-center gap-4 text-sm text-slate-600">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            <span className="font-medium">Wed, 29 May 2024</span>
-          </div>
-          <span className="hidden w-px h-5 md:block bg-slate-300" />
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            <span className="font-medium">07:59</span>
-            <span className="text-slate-400">AM</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Circle
-              className={`h-2.5 w-2.5 ${
-                orderType === "open"
-                  ? "fill-emerald-500 text-emerald-500"
-                  : "fill-red-500 text-red-500"
-              }`}
-            />
-            <span
-              className={`text-sm font-semibold ${
-                orderType === "open" ? "text-emerald-600" : "text-red-600"
-              }`}
-            >
-              {orderType === "open" ? "Open Order" : "Close Order"}
-            </span>
-          </div>
-          {showCartToggle && (
+        {showDashboard && (
+          <Link href="/dashboard">
             <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 transition-colors rounded-lg text-slate-600 hover:bg-slate-100"
-              onClick={toggleCart}
+              variant="outline"
+              size="sm"
+              className="h-7 px-3 text-xs bg-white/60 border-gray-200"
             >
-              <ShoppingCart className="w-5 h-5" />
+              <BarChart3 className="w-3 h-3 mr-1" />
+              <span className="hidden sm:inline">Dashboard</span>
             </Button>
-          )}
-        </div>
+          </Link>
+        )}
+
+        {showPOS && (
+          <Link href="/">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-3 text-xs bg-white/60 border-gray-200"
+            >
+              <Store className="w-3 h-3 mr-1" />
+              <span className="hidden sm:inline">POS</span>
+            </Button>
+          </Link>
+        )}
+
+        {showCartToggle && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="relative h-7 px-3 text-xs bg-white/60 border-gray-200"
+            onClick={toggleCart}
+          >
+            <ShoppingCart className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Cart</span>
+            {totalItems > 0 && (
+              <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-[9px] rounded-full h-5 w-5 flex items-center justify-center font-semibold shadow-lg border border-white">
+                {totalItems}
+              </div>
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );
-};
+}
