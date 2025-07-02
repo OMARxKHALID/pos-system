@@ -22,9 +22,9 @@ export function OrderItem({ item }) {
     if (!cartStore) return;
 
     if (item.quantity <= 1) {
-      cartStore.removeFromCart(item.id);
+      cartStore.removeFromCart(item._id);
     } else {
-      cartStore.updateQuantity(item.id, item.quantity - 1);
+      cartStore.updateQuantity(item._id, item.quantity - 1);
     }
   };
 
@@ -37,8 +37,16 @@ export function OrderItem({ item }) {
       <Card className="transition-all duration-200 hover:shadow-sm bg-white/80 border-gray-200 rounded-md overflow-hidden">
         <CardContent className="p-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-md flex items-center justify-center border border-primary/20 flex-shrink-0">
-              <span className="text-3xl">{item.icon}</span>
+            <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-md flex items-center justify-center border border-primary/20 flex-shrink-0 overflow-hidden">
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-10 h-10 object-cover rounded"
+                />
+              ) : (
+                <span className="text-3xl">{item.icon}</span>
+              )}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -56,7 +64,7 @@ export function OrderItem({ item }) {
                   variant="ghost"
                   size="sm"
                   className="h-6 w-6 p-0 text-gray-400 hover:text-destructive hover:bg-destructive/10 rounded-sm"
-                  onClick={() => cartStore?.removeFromCart(item.id)}
+                  onClick={() => cartStore?.removeFromCart(item._id)}
                 >
                   <X className="w-3 h-3" />
                 </Button>
@@ -68,7 +76,7 @@ export function OrderItem({ item }) {
                     quantity={item.quantity}
                     onDecrease={handleDecrease}
                     onIncrease={() =>
-                      cartStore?.updateQuantity(item.id, item.quantity + 1)
+                      cartStore?.updateQuantity(item._id, item.quantity + 1)
                     }
                     size="sm"
                   />
@@ -113,7 +121,7 @@ export function OrderItem({ item }) {
         onOpenChange={setDiscountModalOpen}
         currentDiscount={item.discount || 0}
         type="item"
-        itemId={item.id}
+        itemId={item._id}
         itemName={item.name}
       />
     </>

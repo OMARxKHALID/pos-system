@@ -13,10 +13,13 @@ import { DiscountModal } from "./discount-modal";
 import { ReceiptGenerator } from "./receipt-generator";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { calculateOrderTotals, generateOrderNumber } from "@/utils/pos-utils";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
   const { orderItems, clearCart, cartDiscount } = useCartStore();
   const { addOrder } = useSalesStore();
+  const { status } = useSession();
 
   const [localOrderNumber, setLocalOrderNumber] = useState(null);
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
@@ -34,13 +37,21 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
   }, []);
 
   const handlePlaceOrder = useCallback(
-    (customerName, paymentMethod) => {
+    async (customerName, paymentMethod) => {
       if (!orderItems.length) return;
+      if (status !== "authenticated") {
+        toast.error("You must be logged in to place an order.");
+        return;
+      }
 
       const now = new Date();
       const orderData = {
-        id: crypto.randomUUID(),
-        items: orderItems,
+        items: orderItems.map((item) => ({
+          menuItem: item._id,
+          quantity: item.quantity,
+          price: item.price,
+          discount: item.discount || 0,
+        })),
         customerName: customerName.trim() || "Guest",
         orderNumber: localOrderNumber || "",
         subtotal: totals.subtotal,
@@ -49,13 +60,18 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
         total: totals.total,
         paymentMethod,
         status: "completed",
-        date: now.toLocaleDateString(),
-        time: now.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        timestamp: now.getTime(),
+        createdAt: now,
       };
+
+      try {
+        await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData),
+        });
+      } catch (e) {
+        toast.error("Failed to save order to server.");
+      }
 
       addOrder(orderData);
       setLastOrderData(orderData);
@@ -67,7 +83,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
         if (isMobile) toggleCart();
       }, 100);
     },
-    [orderItems, localOrderNumber, totals, isMobile]
+    [orderItems, localOrderNumber, totals, isMobile, status]
   );
 
   const hasItems = orderItems.length > 0;
@@ -119,7 +135,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
           ) : (
             <div className="space-y-3">
               {orderItems.map((item) => (
-                <OrderItem key={item.id} item={item} />
+                <OrderItem key={item._id} item={item} />
               ))}
             </div>
           )}

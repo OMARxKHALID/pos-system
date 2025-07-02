@@ -10,7 +10,29 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import StatusIndicator from "./StatusIndicator";
+import { Badge } from "@/components/ui/badge";
+
+const statusMap = {
+  open: { label: "Completed", variant: "default" },
+  busy: { label: "In Progress", variant: "secondary" },
+  pending: { label: "Pending", variant: "secondary" },
+  completed: { label: "Completed", variant: "default" },
+  cancelled: { label: "Cancelled", variant: "destructive" },
+};
+
+function formatDateTime(dateString) {
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  return (
+    date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }) +
+    " " +
+    date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+  );
+}
 
 const OrdersTable = ({
   date,
@@ -19,6 +41,8 @@ const OrdersTable = ({
   setTimeFrom,
   timeTo,
   setTimeTo,
+  orders = [],
+  onDetail = () => {},
 }) => (
   <Card className="mx-2">
     <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -52,7 +76,7 @@ const OrdersTable = ({
       </div>
     </CardHeader>
     <CardContent className="p-4 overflow-x-auto">
-      <Table>
+      <Table className="min-w-[600px] w-full">
         <TableHeader>
           <TableRow>
             <TableHead>#</TableHead>
@@ -64,34 +88,42 @@ const OrdersTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>001</TableCell>
-            <TableCell>2024-05-25 09:00 AM</TableCell>
-            <TableCell>George</TableCell>
-            <TableCell>
-              <StatusIndicator status="open" />
-            </TableCell>
-            <TableCell>$25.00</TableCell>
-            <TableCell>
-              <Button variant="outline" size="sm">
-                Detail
-              </Button>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>002</TableCell>
-            <TableCell>2024-05-25 08:45 AM</TableCell>
-            <TableCell>Anna</TableCell>
-            <TableCell>
-              <StatusIndicator status="busy" />
-            </TableCell>
-            <TableCell>$18.00</TableCell>
-            <TableCell>
-              <Button variant="outline" size="sm">
-                Detail
-              </Button>
-            </TableCell>
-          </TableRow>
+          {orders.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-gray-400 py-8">
+                No orders found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            orders.map((order, idx) => (
+              <TableRow key={order._id || idx}>
+                <TableCell>
+                  {order._id ? order._id.slice(-6) : idx + 1}
+                </TableCell>
+                <TableCell>
+                  {order.createdAt ? formatDateTime(order.createdAt) : "-"}
+                </TableCell>
+                <TableCell>{order.customerName || "-"}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={statusMap[order.status]?.variant || "secondary"}
+                  >
+                    {statusMap[order.status]?.label || order.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>${order.total?.toFixed(2) || "-"}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDetail(order)}
+                  >
+                    Detail
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </CardContent>

@@ -4,18 +4,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { BarChart3, Package, FileText, LogOut, Menu } from "lucide-react";
+import {
+  BarChart3,
+  Package,
+  LogOut,
+  Menu,
+  Users,
+  ClipboardList,
+  Home,
+} from "lucide-react";
 import { useAdminSidebarStore } from "@/hooks/use-admin-sidebar-store";
 import {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useUserStore } from "@/hooks/use-user-store";
 
 const NAV_LINKS = [
+  { href: "/", label: "POS", icon: Home },
   { href: "/admin/dashboard", label: "Report", icon: BarChart3 },
-  { href: "/admin/menu", label: "Inventory", icon: Package },
-  { href: "/admin/orders", label: "Activity", icon: FileText },
+  { href: "/admin/menu", label: "Menu", icon: Package },
+  { href: "/admin/orders", label: "Orders", icon: ClipboardList },
+  { href: "/admin/users", label: "Users", icon: Users },
 ];
 
 const NavLink = ({ href, label, icon: Icon }) => {
@@ -44,20 +55,35 @@ const NavLink = ({ href, label, icon: Icon }) => {
 };
 
 const SidebarContent = () => {
+  const { user } = useUserStore();
   return (
     <div className="flex flex-col h-full ">
       {/* User Profile */}
       <div className="p-6 border-b">
         <div className="flex items-center gap-3">
           <Avatar className="w-12 h-12">
-            <AvatarImage src="/placeholder-user.jpg" alt="Admin" />
+            <AvatarImage
+              src="/placeholder-user.jpg"
+              alt={user?.name || "User"}
+            />
             <AvatarFallback className="font-semibold text-blue-600 bg-blue-100">
-              JG
+              {user?.name
+                ? user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                : "U"}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="font-semibold text-gray-900">Jelly Grande</h2>
-            <p className="text-sm text-gray-500">Cashier</p>
+            <h2 className="font-semibold text-gray-900">
+              {user?.name || "Unknown User"}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {user?.role
+                ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                : "Role"}
+            </p>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ export function useMenu() {
     queryKey: ["menu"],
     queryFn: async () => {
       const res = await fetch("/api/menu");
+      if (!res.ok) throw new Error(await res.text());
       return res.json();
     },
   });
@@ -19,6 +20,7 @@ export function useAddMenuItem() {
         body: JSON.stringify(item),
         headers: { "Content-Type": "application/json" },
       });
+      if (!res.ok) throw new Error(await res.text());
       return res.json();
     },
     onSuccess: () => {

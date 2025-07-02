@@ -17,15 +17,17 @@ const FavoriteProductList = ({ products, search, setSearch }) => (
       <CardTitle className="text-base font-semibold">
         Favorite Product
       </CardTitle>
-      <div className="flex items-center gap-2">
-        <Input
-          className="w-32 h-8 p-2 text-sm"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <Search className="w-4 h-4 text-gray-400" />
-      </div>
+      {typeof setSearch === "function" && (
+        <div className="flex items-center gap-2">
+          <Input
+            className="w-32 h-8 p-2 text-sm"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Search className="w-4 h-4 text-gray-400" />
+        </div>
+      )}
     </CardHeader>
     <CardContent>
       <Table>

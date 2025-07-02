@@ -7,6 +7,7 @@ const MenuSchema = new mongoose.Schema(
     category: String,
     description: String,
     image: String,
+    icon: String,
   },
   { timestamps: true }
 );

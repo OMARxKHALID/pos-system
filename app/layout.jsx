@@ -3,6 +3,7 @@ import QueryProvider from "@/providers/query-provider";
 import HydrateMenu from "@/components/hydrate-menu";
 import HydrateOrders from "@/components/hydrate-orders";
 import { Toaster } from "sonner";
+import SessionClientProvider from "@/providers/session-provider";
 
 export const metadata = {
   title: "v0 App",
@@ -14,12 +15,14 @@ const RootLayout = ({ children }) => {
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          <HydrateMenu />
-          <HydrateOrders />
-          {children}
-          <Toaster richColors position="top-right" />
-        </QueryProvider>
+        <SessionClientProvider>
+          <QueryProvider>
+            <HydrateMenu />
+            <HydrateOrders />
+            {children}
+            <Toaster richColors position="top-right" />
+          </QueryProvider>
+        </SessionClientProvider>
       </body>
     </html>
   );

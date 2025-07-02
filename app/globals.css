@@ -42,6 +42,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --chart-1: 220 90% 56%; /* strong blue */
+    --chart-2: 210 100% 85%; /* light blue */
+    --chart-3: 210 100% 95%;
+    --chart-4: 210 100% 98%;
+    --chart-5: 210 100% 99%;
   }
   .dark {
     --sidebar-background: 240 5.9% 10%;
@@ -52,6 +57,11 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --chart-1: 220 100% 70%; /* lighter blue for dark mode */
+    --chart-2: 210 100% 40%; /* deeper blue for dark mode */
+    --chart-3: 210 100% 60%;
+    --chart-4: 210 100% 30%;
+    --chart-5: 210 100% 20%;
   }
 }
 

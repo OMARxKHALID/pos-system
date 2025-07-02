@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 function MenuForm({ onSubmit, initial = {}, loading }) {
   const [form, setForm] = useState({
@@ -22,7 +30,7 @@ function MenuForm({ onSubmit, initial = {}, loading }) {
         e.preventDefault();
         onSubmit(form);
       }}
-      className="space-y-2"
+      className="space-y-4"
     >
       <Input
         placeholder="Name"
@@ -60,7 +68,7 @@ function MenuForm({ onSubmit, initial = {}, loading }) {
         value={form.icon}
         onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
       />
-      <Button type="submit" disabled={loading}>
+      <Button type="submit" disabled={loading} className="w-full">
         {loading ? "Saving..." : "Save"}
       </Button>
     </form>
@@ -73,6 +81,7 @@ export default function AdminMenuPage() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null });
 
   async function handleEdit(item) {
     setEditItem(item);
@@ -80,9 +89,15 @@ export default function AdminMenuPage() {
   }
 
   async function handleDelete(id) {
+    setDeleteDialog({ open: true, id });
+  }
+
+  async function confirmDelete() {
     setFormLoading(true);
     try {
-      const res = await fetch(`/api/menu?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/menu?id=${deleteDialog.id}`, {
+        method: "DELETE",
+      });
       if (!res.ok) throw new Error("Delete failed");
       toast.success("Menu item deleted!");
       refetch();
@@ -90,6 +105,7 @@ export default function AdminMenuPage() {
       toast.error("Delete failed");
     }
     setFormLoading(false);
+    setDeleteDialog({ open: false, id: null });
   }
 
   async function handleSubmit(form) {
@@ -117,42 +133,53 @@ export default function AdminMenuPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4">Admin Menu Management</h1>
-      <Button
-        onClick={() => {
-          setShowForm(true);
-          setEditItem(null);
-        }}
-        className="mb-4"
-      >
-        Add Menu Item
-      </Button>
+    <div className="max-w-5xl mx-auto py-8 px-2 sm:px-4">
+      <h1 className="text-2xl font-bold mb-4 text-center sm:text-left">
+        Admin Menu Management
+      </h1>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+        <Button
+          onClick={() => {
+            setShowForm(true);
+            setEditItem(null);
+          }}
+          className="w-full sm:w-auto"
+        >
+          Add Menu Item
+        </Button>
+      </div>
       {showForm && (
-        <Card className="mb-4 p-4">
-          <MenuForm
-            onSubmit={handleSubmit}
-            initial={editItem || {}}
-            loading={formLoading}
-          />
-        </Card>
+        <Dialog open={showForm} onOpenChange={setShowForm}>
+          <DialogContent className="max-w-md w-full">
+            <DialogHeader>
+              <DialogTitle>
+                {editItem ? "Edit Menu Item" : "Add Menu Item"}
+              </DialogTitle>
+            </DialogHeader>
+            <MenuForm
+              onSubmit={handleSubmit}
+              initial={editItem || {}}
+              loading={formLoading}
+            />
+          </DialogContent>
+        </Dialog>
       )}
       {isLoading ? (
-        <div>Loading menu...</div>
+        <div className="p-8 text-center">Loading menu...</div>
       ) : isError ? (
-        <div className="text-red-500">Failed to load menu.</div>
+        <div className="p-8 text-center text-red-500">Failed to load menu.</div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {data &&
             data.map((item) => (
               <Card
                 key={item._id}
-                className="flex items-center justify-between p-4"
+                className="flex flex-col justify-between p-4 h-full"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-2">
                   {item.icon && <span className="text-2xl">{item.icon}</span>}
                   <div>
-                    <div className="font-semibold">{item.name}</div>
+                    <div className="font-semibold text-lg">{item.name}</div>
                     <div className="text-sm text-gray-500">
                       {item.category} - ${item.price}
                     </div>
@@ -161,8 +188,14 @@ export default function AdminMenuPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => handleEdit(item)}>
+                <div className="flex gap-2 mt-auto">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setEditItem(item);
+                      setShowForm(true);
+                    }}
+                  >
                     Edit
                   </Button>
                   <Button
@@ -177,6 +210,35 @@ export default function AdminMenuPage() {
             ))}
         </div>
       )}
+      <Dialog
+        open={deleteDialog.open}
+        onOpenChange={(open) =>
+          setDeleteDialog({ open, id: open ? deleteDialog.id : null })
+        }
+      >
+        <DialogContent className="max-w-sm w-full">
+          <DialogHeader>
+            <DialogTitle>Delete Menu Item</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this menu item?</p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialog({ open: false, id: null })}
+              disabled={formLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={formLoading}
+            >
+              {formLoading ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

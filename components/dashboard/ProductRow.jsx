@@ -3,8 +3,18 @@ import { TableRow, TableCell } from "@/components/ui/table";
 const ProductRow = ({ product }) => (
   <TableRow>
     <TableCell>
-      <div className="flex items-center justify-center w-10 h-10 text-lg font-bold bg-gray-100 rounded-lg">
-        {product.name.charAt(0)}
+      <div className="flex items-center justify-center w-10 h-10 text-lg font-bold bg-gray-100 rounded-lg overflow-hidden">
+        {product.image ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-8 h-8 object-cover rounded"
+          />
+        ) : product.icon ? (
+          <span className="text-2xl">{product.icon}</span>
+        ) : (
+          product.name.charAt(0)
+        )}
       </div>
     </TableCell>
     <TableCell>

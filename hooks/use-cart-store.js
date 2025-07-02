@@ -16,41 +16,42 @@ const useCartStore = create(
 
       addToCart: (item, quantity = 1) =>
         set(({ orderItems }) => {
-          const existing = orderItems.find((i) => i.id === item.id);
+          const id = item._id;
+          const existing = orderItems.find((i) => i._id === id);
           if (existing) {
             return {
               orderItems: orderItems.map((i) =>
-                i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
+                i._id === id ? { ...i, quantity: i.quantity + quantity } : i
               ),
             };
           } else {
             return {
-              orderItems: [...orderItems, { ...item, quantity }],
+              orderItems: [...orderItems, { ...item, _id: id, quantity }],
             };
           }
         }),
 
-      updateQuantity: (id, quantity) =>
+      updateQuantity: (_id, quantity) =>
         set(({ orderItems }) => ({
           orderItems:
             quantity <= 0
-              ? orderItems.filter((item) => item.id !== id)
+              ? orderItems.filter((item) => item._id !== _id)
               : orderItems.map((item) =>
-                  item.id === id ? { ...item, quantity } : item
+                  item._id === _id ? { ...item, quantity } : item
                 ),
         })),
 
-      removeFromCart: (id) =>
+      removeFromCart: (_id) =>
         set(({ orderItems }) => ({
-          orderItems: orderItems.filter((item) => item.id !== id),
+          orderItems: orderItems.filter((item) => item._id !== _id),
         })),
 
       clearCart: () => set({ orderItems: [], cartDiscount: 0 }),
 
-      applyItemDiscount: (id, discount) =>
+      applyItemDiscount: (_id, discount) =>
         set(({ orderItems }) => ({
           orderItems: orderItems.map((item) =>
-            item.id === id
+            item._id === _id
               ? { ...item, discount: clampDiscount(discount) }
               : item
           ),
@@ -61,10 +62,10 @@ const useCartStore = create(
           cartDiscount: clampDiscount(discount),
         }),
 
-      removeItemDiscount: (id) =>
+      removeItemDiscount: (_id) =>
         set(({ orderItems }) => ({
           orderItems: orderItems.map((item) =>
-            item.id === id ? { ...item, discount: 0 } : item
+            item._id === _id ? { ...item, discount: 0 } : item
           ),
         })),
 

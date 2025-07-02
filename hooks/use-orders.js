@@ -5,6 +5,7 @@ export function useOrders() {
     queryKey: ["orders"],
     queryFn: async () => {
       const res = await fetch("/api/orders");
+      if (!res.ok) throw new Error(await res.text());
       return res.json();
     },
   });
@@ -19,6 +20,7 @@ export function useCreateOrder() {
         body: JSON.stringify(order),
         headers: { "Content-Type": "application/json" },
       });
+      if (!res.ok) throw new Error(await res.text());
       return res.json();
     },
     onSuccess: () => {
