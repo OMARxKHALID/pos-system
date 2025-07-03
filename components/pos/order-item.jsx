@@ -9,6 +9,7 @@ import { DiscountModal } from "./discount-modal";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useState } from "react";
 import {
+  formatCurrency,
   calculateItemOriginalPrice,
   calculateItemDiscountAmount,
   calculateItemFinalPrice,
@@ -95,11 +96,11 @@ export function OrderItem({ item }) {
                 <div className="text-right">
                   {(item.discount || 0) > 0 && (
                     <span className="text-[10px] text-gray-400 line-through block">
-                      $ {originalPrice.toFixed(2)}
+                      {formatCurrency(originalPrice)}
                     </span>
                   )}
                   <span className="text-xs font-semibold text-foreground">
-                    $ {finalPrice.toFixed(2)}
+                    {formatCurrency(finalPrice)}
                   </span>
                 </div>
               </div>

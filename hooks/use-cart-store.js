@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { clampDiscount } from "@/utils/pos-utils";
+import { clampDiscountPercentage } from "@/utils/pos-utils";
 
 const useCartStore = create(
   persist(
@@ -52,14 +52,14 @@ const useCartStore = create(
         set(({ orderItems }) => ({
           orderItems: orderItems.map((item) =>
             item._id === _id
-              ? { ...item, discount: clampDiscount(discount) }
+              ? { ...item, discount: clampDiscountPercentage(discount) }
               : item
           ),
         })),
 
       applyCartDiscount: (discount) =>
         set({
-          cartDiscount: clampDiscount(discount),
+          cartDiscount: clampDiscountPercentage(discount),
         }),
 
       removeItemDiscount: (_id) =>

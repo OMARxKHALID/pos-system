@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 
 export function useAnalytics() {
   return useQuery({
-    queryKey: ["analytics"],
+    queryKey: ["report"],
     queryFn: async () => {
-      const res = await fetch("/api/analytics");
+      const res = await fetch("/api/report");
       return res.json();
     },
   });

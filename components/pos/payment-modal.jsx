@@ -19,19 +19,24 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { CreditCard, Banknote, Smartphone } from "lucide-react";
 import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import { useDownloadReceiptStore } from "@/hooks/use-pos-settings-store";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
   const [customerName, setCustomerName] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cash");
+  const downloadReceipt = useDownloadReceiptStore((state) => state.open);
+  const setDownloadReceipt = useDownloadReceiptStore((state) => state.switch);
 
   const paymentMethods = [
     { value: "cash", label: "Cash", icon: Banknote },
     { value: "card", label: "Credit Card", icon: CreditCard },
-    { value: "mobile", label: "Mobile Pay", icon: Smartphone },
+    { value: "wallet", label: "Mobile Pay", icon: Smartphone },
   ];
 
   const handleConfirm = () => {
-    onConfirm(customerName, selectedPaymentMethod);
+    onConfirm(customerName, selectedPaymentMethod, downloadReceipt);
     setCustomerName("");
     setSelectedPaymentMethod("cash");
   };
@@ -40,7 +45,9 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Complete Order</DialogTitle>
+          <VisuallyHidden>
+            <DialogTitle>Complete Order</DialogTitle>
+          </VisuallyHidden>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -89,6 +96,17 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
               </div>
             </CardContent>
           </Card>
+
+          <div className="flex items-center gap-2">
+            <Switch
+              id="download-receipt-switch"
+              checked={downloadReceipt}
+              onCheckedChange={setDownloadReceipt}
+            />
+            <Label htmlFor="download-receipt-switch" className="text-sm">
+              Download receipt after order
+            </Label>
+          </div>
 
           <Button onClick={handleConfirm} className="w-full">
             Complete Order

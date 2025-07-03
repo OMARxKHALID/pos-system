@@ -1,8 +1,9 @@
 "use client";
 import { useEffect } from "react";
 import {
-  calculateReceiptBreakdown,
   calculateItemFinalPrice,
+  formatCurrency,
+  calculateOrderTotals,
 } from "@/utils/pos-utils";
 
 export function ReceiptGenerator({
@@ -15,7 +16,7 @@ export function ReceiptGenerator({
     if (!open || !orderData || !totals) return;
 
     const generateReceiptContent = () => {
-      const breakdown = calculateReceiptBreakdown(orderData);
+      const breakdown = calculateOrderTotals(orderData);
       return `
 <!DOCTYPE html>
 <html>
@@ -210,8 +211,8 @@ export function ReceiptGenerator({
                 }
               </td>
               <td class="text-center">${item.quantity}</td>
-              <td class="text-right">$${item.price.toFixed(2)}</td>
-              <td class="text-right">$${final.toFixed(2)}</td>
+              <td class="text-right">${formatCurrency(item.price)}</td>
+              <td class="text-right">${formatCurrency(final)}</td>
             </tr>`;
           })
           .join("")}
@@ -219,28 +220,28 @@ export function ReceiptGenerator({
     </table>
 
     <div class="totals-section">
-      <div class="total-row subtotal"><span>Subtotal:</span><span>$${breakdown.actualSubtotal.toFixed(
-        2
+      <div class="total-row subtotal"><span>Subtotal:</span><span>${formatCurrency(
+        breakdown.actualSubtotal
       )}</span></div>
       ${
         breakdown.actualItemDiscounts > 0
-          ? `<div class="total-row discount"><span>Item Discounts:</span><span>-$${breakdown.actualItemDiscounts.toFixed(
-              2
+          ? `<div class="total-row discount"><span>Item Discounts:</span><span>-${formatCurrency(
+              breakdown.actualItemDiscounts
             )}</span></div>`
           : ""
       }
       ${
         breakdown.cartDiscountAmount > 0
-          ? `<div class="total-row discount"><span>Cart Discount:</span><span>-$${breakdown.cartDiscountAmount.toFixed(
-              2
+          ? `<div class="total-row discount"><span>Cart Discount:</span><span>-${formatCurrency(
+              breakdown.cartDiscountAmount
             )}</span></div>`
           : ""
       }
-      <div class="total-row tax"><span>Tax (10%):</span><span>$${breakdown.taxAmount.toFixed(
-        2
+      <div class="total-row tax"><span>Tax (10%):</span><span>${formatCurrency(
+        breakdown.taxAmount
       )}</span></div>
-      <div class="total-row final"><span>TOTAL:</span><span>$${breakdown.finalTotal.toFixed(
-        2
+      <div class="total-row final"><span>TOTAL:</span><span>${formatCurrency(
+        breakdown.finalTotal
       )}</span></div>
     </div>
 
@@ -261,13 +262,6 @@ export function ReceiptGenerator({
     };
 
     const html = generateReceiptContent().trim();
-
-    const printWindow = window.open("", "_blank", "width=400,height=600");
-    if (printWindow) {
-      printWindow.document.open();
-      printWindow.document.write(html);
-      printWindow.document.close();
-    }
 
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);

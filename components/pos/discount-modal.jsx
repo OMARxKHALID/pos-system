@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { useCartStore } from "@/hooks/use-cart-store";
 import { useState, useEffect } from "react";
-import { clampDiscount } from "@/utils/pos-utils";
+import { clampDiscountPercentage } from "@/utils/pos-utils";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function DiscountModal({
   open,
@@ -36,7 +37,9 @@ export function DiscountModal({
   }, [open, currentDiscount]);
 
   const handleApplyDiscount = () => {
-    const discount = clampDiscount(Number.parseFloat(tempDiscount) || 0);
+    const discount = clampDiscountPercentage(
+      Number.parseFloat(tempDiscount) || 0
+    );
 
     if (type === "item" && itemId) {
       applyItemDiscount(itemId, discount);
@@ -64,7 +67,9 @@ export function DiscountModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <VisuallyHidden>
+            <DialogTitle>{title}</DialogTitle>
+          </VisuallyHidden>
         </DialogHeader>
         <div className="space-y-4">
           <div>

@@ -7,3 +7,9 @@ const useAdminSidebarStore = create((set) => ({
 }));
 
 export { useAdminSidebarStore };
+
+const useDownloadReceiptStore = create((set) => ({
+  open: true,
+  switch: () => set((state) => ({ open: !state.open })),
+}));
+export { useDownloadReceiptStore };

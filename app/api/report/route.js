@@ -35,6 +35,9 @@ export async function GET() {
           name: menu?.name || "Unknown",
           quantity: prod.quantity,
           revenue: prod.revenue,
+          image: menu?.image || "",
+          icon: menu?.icon || "",
+          category: menu?.category || "",
         };
       })
     );

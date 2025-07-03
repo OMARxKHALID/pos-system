@@ -5,7 +5,27 @@ export async function GET() {
   try {
     await dbConnect();
     const orders = await Order.find().populate("items.menuItem");
-    return Response.json(orders);
+    // Map icon and name from menuItem to each item
+    const ordersWithIcons = orders.map((order) => {
+      const items = order.items.map((item) => {
+        let icon = "";
+        let name = item.name;
+        if (item.menuItem && typeof item.menuItem === "object") {
+          icon = item.menuItem.icon || "";
+          name = item.menuItem.name || item.name;
+        }
+        return {
+          ...item.toObject(),
+          icon,
+          name,
+        };
+      });
+      return {
+        ...order.toObject(),
+        items,
+      };
+    });
+    return Response.json(ordersWithIcons);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

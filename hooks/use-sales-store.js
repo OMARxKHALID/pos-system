@@ -3,10 +3,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
-  aggregateProducts,
-  aggregateCustomers,
-  getDailySales,
-  aggregatePayments,
+  aggregateProductSales,
+  aggregateCustomerOrders,
+  calculateWeeklySalesTrend,
+  aggregatePaymentMethods,
 } from "@/utils/pos-utils";
 
 const useSalesStore = create(
@@ -51,10 +51,10 @@ const useSalesStore = create(
           totalSales,
           totalOrders,
           averageOrderValue,
-          topProducts: aggregateProducts(completedOrders),
-          topCustomers: aggregateCustomers(completedOrders),
-          salesByDay: getDailySales(completedOrders),
-          salesByPaymentMethod: aggregatePayments(completedOrders),
+          topProducts: aggregateProductSales(completedOrders),
+          topCustomers: aggregateCustomerOrders(completedOrders),
+          salesByDay: calculateWeeklySalesTrend(completedOrders),
+          salesByPaymentMethod: aggregatePaymentMethods(completedOrders),
         };
       },
     }),

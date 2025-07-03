@@ -12,14 +12,20 @@ import { PaymentModal } from "./payment-modal";
 import { DiscountModal } from "./discount-modal";
 import { ReceiptGenerator } from "./receipt-generator";
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { calculateOrderTotals, generateOrderNumber } from "@/utils/pos-utils";
+import {
+  calculateOrderTotals,
+  generateOrderNumber,
+  formatCurrency,
+} from "@/utils/pos-utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { useDownloadReceiptStore } from "@/hooks/use-pos-settings-store";
 
 export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
   const { orderItems, clearCart, cartDiscount } = useCartStore();
   const { addOrder } = useSalesStore();
   const { status } = useSession();
+  const downloadReceipt = useDownloadReceiptStore((state) => state.open);
 
   const [localOrderNumber, setLocalOrderNumber] = useState(null);
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
@@ -37,7 +43,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
   }, []);
 
   const handlePlaceOrder = useCallback(
-    async (customerName, paymentMethod) => {
+    async (customerName, paymentMethod, shouldDownloadReceipt) => {
       if (!orderItems.length) return;
       if (status !== "authenticated") {
         toast.error("You must be logged in to place an order.");
@@ -75,7 +81,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
 
       addOrder(orderData);
       setLastOrderData(orderData);
-      setPrintReceipt(true);
+      setPrintReceipt(!!downloadReceipt);
       clearCart();
 
       setTimeout(() => {
@@ -83,7 +89,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
         if (isMobile) toggleCart();
       }, 100);
     },
-    [orderItems, localOrderNumber, totals, isMobile, status]
+    [orderItems, localOrderNumber, totals, isMobile, status, downloadReceipt]
   );
 
   const hasItems = orderItems.length > 0;
@@ -197,33 +203,33 @@ const CartFooter = ({
       <div className="space-y-2 mb-4 text-xs">
         <div className="flex justify-between">
           <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium">$ {totals.subtotal.toFixed(2)}</span>
+          <span className="font-medium">{formatCurrency(totals.subtotal)}</span>
         </div>
 
         {totals.itemDiscounts > 0 && (
           <div className="flex justify-between text-green-600">
             <span>Item Discounts</span>
-            <span>-$ {totals.itemDiscounts.toFixed(2)}</span>
+            <span>-{formatCurrency(totals.itemDiscounts)}</span>
           </div>
         )}
 
         {cartDiscount > 0 && (
           <div className="flex justify-between text-green-600">
             <span>Cart Discount</span>
-            <span>-$ {totals.discount.toFixed(2)}</span>
+            <span>-{formatCurrency(totals.discount)}</span>
           </div>
         )}
 
         <div className="flex justify-between">
           <span className="text-gray-600">Tax (10%)</span>
-          <span className="font-medium">$ {totals.tax.toFixed(2)}</span>
+          <span className="font-medium">{formatCurrency(totals.tax)}</span>
         </div>
 
         <Separator />
 
         <div className="flex justify-between font-semibold text-sm">
           <span>TOTAL</span>
-          <span>$ {totals.total.toFixed(2)}</span>
+          <span>{formatCurrency(totals.total)}</span>
         </div>
       </div>
 

@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Package, Minus, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useCartStore } from "@/hooks/use-cart-store";
+import { formatCurrency } from "@/utils/pos-utils";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function ItemDetailModal({ selectedItem, onClose }) {
   const { addToCart } = useCartStore();
@@ -38,11 +40,14 @@ export function ItemDetailModal({ selectedItem, onClose }) {
   return (
     <Dialog open={!!selectedItem} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm p-0 bg-transparent border-0 shadow-none">
-        <DialogTitle className="mb-3 text-base font-semibold text-center text-foreground">
-          Detail Menu
-        </DialogTitle>
         <Card className="overflow-hidden border-0 rounded-lg shadow-lg bg-card">
           <CardContent className="p-4">
+            <VisuallyHidden>
+              <DialogTitle className="mb-2 text-center text-lg font-bold">
+                {name}
+              </DialogTitle>
+            </VisuallyHidden>
+
             <div className="relative flex items-center justify-center w-full h-32 mx-auto mb-3 overflow-hidden rounded-md bg-gradient-to-br from-muted/50 to-muted">
               {image ? (
                 <div className="text-8xl text-muted-foreground">
@@ -69,7 +74,7 @@ export function ItemDetailModal({ selectedItem, onClose }) {
                 </p>
               )}
               <p className="text-lg font-bold text-primary">
-                ${price.toFixed(2)}
+                {formatCurrency(price)}
               </p>
             </div>
 
@@ -100,7 +105,7 @@ export function ItemDetailModal({ selectedItem, onClose }) {
               className="w-full text-sm font-medium rounded-md h-9"
               onClick={handleAddToCart}
             >
-              Add to Cart (${(price * quantity).toFixed(2)})
+              Add to Cart ({formatCurrency(price * quantity)})
             </Button>
           </CardContent>
         </Card>

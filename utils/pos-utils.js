@@ -1,27 +1,82 @@
-export function calculateOrderTotals(orderItems, cartDiscount = 0) {
-  const subtotal = orderItems.reduce((sum, item) => {
-    const itemPrice = item.price * item.quantity;
-    const itemDiscount = (item.discount || 0) / 100;
-    const discountedPrice = itemPrice * (1 - itemDiscount);
-    return sum + discountedPrice;
-  }, 0);
+export function calculateOrderTotals(orderItems, cartDiscountPercentage = 0) {
+  const subtotal = calculateSubtotalBeforeDiscounts(orderItems);
+  const itemDiscountsTotal = calculateTotalItemDiscounts(orderItems);
+  const subtotalAfterItemDiscounts = subtotal - itemDiscountsTotal;
 
-  const cartDiscountAmount = (cartDiscount / 100) * subtotal;
-  const discountedSubtotal = subtotal - cartDiscountAmount;
+  const cartDiscountAmount =
+    (cartDiscountPercentage / 100) * subtotalAfterItemDiscounts;
+  const subtotalAfterAllDiscounts =
+    subtotalAfterItemDiscounts - cartDiscountAmount;
+
   const taxRate = 0.1;
-  const tax = discountedSubtotal * taxRate;
-  const total = discountedSubtotal + tax;
+  const taxAmount = subtotalAfterAllDiscounts * taxRate;
+  const grandTotal = subtotalAfterAllDiscounts + taxAmount;
 
   return {
     subtotal,
-    tax,
+    tax: taxAmount,
     discount: cartDiscountAmount,
-    total,
-    itemDiscounts: orderItems.reduce((sum, item) => {
-      const itemPrice = item.price * item.quantity;
-      const itemDiscount = (item.discount || 0) / 100;
-      return sum + itemPrice * itemDiscount;
-    }, 0),
+    total: grandTotal,
+    itemDiscounts: itemDiscountsTotal,
+  };
+}
+
+function calculateSubtotalBeforeDiscounts(orderItems) {
+  return orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+function calculateTotalItemDiscounts(orderItems) {
+  return orderItems.reduce((sum, item) => {
+    const itemPrice = item.price * item.quantity;
+    const itemDiscountPercentage = (item.discount || 0) / 100;
+    return sum + itemPrice * itemDiscountPercentage;
+  }, 0);
+}
+
+export function calculateItemOriginalPrice(item) {
+  return item.price * item.quantity;
+}
+
+export function calculateItemDiscountAmount(item) {
+  return calculateItemOriginalPrice(item) * ((item.discount || 0) / 100);
+}
+
+export function calculateItemFinalPrice(item) {
+  return calculateItemOriginalPrice(item) - calculateItemDiscountAmount(item);
+}
+
+export function clampDiscountPercentage(discount) {
+  return Math.max(0, Math.min(100, discount));
+}
+
+export function analyzeOrderFinancials(order) {
+  const subtotalBeforeDiscounts = order.items.reduce(
+    (sum, item) => sum + calculateItemOriginalPrice(item),
+    0
+  );
+
+  const totalItemDiscounts = order.items.reduce(
+    (sum, item) => sum + calculateItemDiscountAmount(item),
+    0
+  );
+
+  const subtotalAfterItemDiscounts =
+    subtotalBeforeDiscounts - totalItemDiscounts;
+  const cartDiscountAmount =
+    (order.discount / 100) * subtotalAfterItemDiscounts;
+  const subtotalAfterAllDiscounts =
+    subtotalAfterItemDiscounts - cartDiscountAmount;
+
+  const taxAmount = subtotalAfterAllDiscounts * 0.1;
+  const grandTotal = subtotalAfterAllDiscounts + taxAmount;
+
+  return {
+    subtotalBeforeDiscounts,
+    totalItemDiscounts,
+    cartDiscountAmount,
+    subtotalAfterAllDiscounts,
+    taxAmount,
+    grandTotal,
   };
 }
 
@@ -32,6 +87,24 @@ export function formatCurrency(amount) {
   }).format(amount);
 }
 
+export function formatDateTime(timestamp) {
+  if (!timestamp) return "-";
+  const date = new Date(timestamp);
+  return (
+    date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }) +
+    " " +
+    date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+  );
+}
+
+export function normalizeString(str) {
+  return (str || "").toLowerCase().trim();
+}
+
 export function generateOrderNumber() {
   const timestamp = Date.now().toString().slice(-6);
   const random = Math.floor(Math.random() * 1000)
@@ -40,59 +113,9 @@ export function generateOrderNumber() {
   return `ORD-${timestamp}-${random}`;
 }
 
-export function normalizeString(str) {
-  return (str || "").toLowerCase().trim();
-}
-
-// Clamp discount between 0 and 100
-export function clampDiscount(discount) {
-  return Math.max(0, Math.min(100, discount));
-}
-
-// Calculate the original price for a cart item
-export function calculateItemOriginalPrice(item) {
-  return item.price * item.quantity;
-}
-
-// Calculate the discount amount for a cart item
-export function calculateItemDiscountAmount(item) {
-  return calculateItemOriginalPrice(item) * ((item.discount || 0) / 100);
-}
-
-// Calculate the final price for a cart item after discount
-export function calculateItemFinalPrice(item) {
-  return calculateItemOriginalPrice(item) - calculateItemDiscountAmount(item);
-}
-
-// Calculate receipt breakdown (for receipt-generator)
-export function calculateReceiptBreakdown(order) {
-  const actualSubtotal = order.items.reduce(
-    (sum, item) => sum + calculateItemOriginalPrice(item),
-    0
-  );
-  const actualItemDiscounts = order.items.reduce(
-    (sum, item) => sum + calculateItemDiscountAmount(item),
-    0
-  );
-  const subtotalAfterItemDiscounts = actualSubtotal - actualItemDiscounts;
-  const cartDiscountAmount = order.discount - actualItemDiscounts;
-  const finalSubtotal = subtotalAfterItemDiscounts - cartDiscountAmount;
-  const taxAmount = finalSubtotal * 0.1;
-  const finalTotal = finalSubtotal + taxAmount;
-  return {
-    actualSubtotal,
-    actualItemDiscounts,
-    cartDiscountAmount,
-    finalSubtotal,
-    taxAmount,
-    finalTotal,
-  };
-}
-
-// --- Sales Analytics Aggregators ---
-
-export function aggregateProducts(orders) {
+export function aggregateProductSales(orders) {
   const productMap = new Map();
+
   orders.forEach((order) => {
     order.items.forEach((item) => {
       const current = productMap.get(item.name) || {
@@ -100,6 +123,7 @@ export function aggregateProducts(orders) {
         quantity: 0,
         revenue: 0,
       };
+
       productMap.set(item.name, {
         ...current,
         quantity: current.quantity + item.quantity,
@@ -107,69 +131,131 @@ export function aggregateProducts(orders) {
       });
     });
   });
+
   return Array.from(productMap.values())
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 10);
 }
 
-export function aggregateCustomers(orders) {
+export function aggregateCustomerOrders(orders) {
   const customerMap = new Map();
+
   orders.forEach((order) => {
     const current = customerMap.get(order.customerName) || {
       name: order.customerName,
-      orders: 0,
-      total: 0,
+      orderCount: 0,
+      totalSpent: 0,
     };
+
     customerMap.set(order.customerName, {
       ...current,
-      orders: current.orders + 1,
-      total: current.total + order.total,
+      orderCount: current.orderCount + 1,
+      totalSpent: current.totalSpent + order.total,
     });
   });
+
   return Array.from(customerMap.values())
-    .sort((a, b) => b.total - a.total)
+    .sort((a, b) => b.totalSpent - a.totalSpent)
     .slice(0, 10);
 }
 
-export function getDailySales(orders) {
-  const dailyMap = new Map();
+export function calculateWeeklySalesTrend(orders) {
+  const dailySalesMap = new Map();
   const today = new Date();
+
+  // Initialize last 7 days
   for (let i = 0; i < 7; i++) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split("T")[0];
-    dailyMap.set(dateStr, { date: dateStr, sales: 0, orders: 0 });
+    const dateKey = date.toISOString().split("T")[0];
+    dailySalesMap.set(dateKey, {
+      date: dateKey,
+      totalSales: 0,
+      orderCount: 0,
+    });
   }
+
+  // Populate with order data
   orders.forEach((order) => {
     const orderDate = new Date(order.timestamp);
     const dateKey = orderDate.toISOString().split("T")[0];
-    if (dailyMap.has(dateKey)) {
-      const day = dailyMap.get(dateKey);
-      dailyMap.set(dateKey, {
-        ...day,
-        sales: day.sales + order.total,
-        orders: day.orders + 1,
+
+    if (dailySalesMap.has(dateKey)) {
+      const dayData = dailySalesMap.get(dateKey);
+      dailySalesMap.set(dateKey, {
+        ...dayData,
+        totalSales: dayData.totalSales + order.total,
+        orderCount: dayData.orderCount + 1,
       });
     }
   });
-  return Array.from(dailyMap.values()).sort((a, b) =>
+
+  return Array.from(dailySalesMap.values()).sort((a, b) =>
     a.date.localeCompare(b.date)
   );
 }
 
-export function aggregatePayments(orders) {
-  const paymentMap = new Map();
+export function aggregatePaymentMethods(orders) {
+  const paymentMethodMap = new Map();
+
   orders.forEach((order) => {
-    const current = paymentMap.get(order.paymentMethod) || {
+    const current = paymentMethodMap.get(order.paymentMethod) || {
       method: order.paymentMethod,
-      amount: 0,
-      count: 0,
+      totalAmount: 0,
+      usageCount: 0,
     };
-    paymentMap.set(order.paymentMethod, {
+
+    paymentMethodMap.set(order.paymentMethod, {
       ...current,
-      amount: current.amount + order.total,
-      count: current.count + 1,
+      totalAmount: current.totalAmount + order.total,
+      usageCount: current.usageCount + 1,
     });
   });
-  return Array.from(paymentMap.values());
+
+  return Array.from(paymentMethodMap.values());
+}
+
+export function exportAnalyticsToCSV(analyticsData, linkRef) {
+  if (!analyticsData) return;
+
+  const rows = [
+    ["Metric", "Value"],
+    ["Total Sales", analyticsData.totalSales],
+    ["Total Orders", analyticsData.totalOrders],
+    ["Average Order Value", analyticsData.averageOrderValue],
+  ];
+
+  createAndTriggerCSVDownload(rows, "analytics.csv", linkRef);
+}
+
+export function exportOrdersToCSV(orders, linkRef) {
+  if (!orders || orders.length === 0) return;
+
+  const rows = [
+    ["Order ID", "Date", "Status", "Total", "Items"],
+    ...orders.map((order) => [
+      order._id,
+      new Date(order.createdAt).toLocaleString(),
+      order.status,
+      order.total,
+      order.items
+        .map((item) => `${item.menuItem?.name || "Unknown"} x${item.quantity}`)
+        .join("; "),
+    ]),
+  ];
+
+  createAndTriggerCSVDownload(rows, "orders.csv", linkRef);
+}
+
+function createAndTriggerCSVDownload(rows, filename, linkRef) {
+  const csvContent = rows.map((row) => row.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  if (linkRef.current) {
+    linkRef.current.href = url;
+    linkRef.current.download = filename;
+    linkRef.current.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 }

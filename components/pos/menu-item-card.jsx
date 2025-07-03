@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/utils/pos-utils";
 
 export function MenuItemCard({ item, onSelect }) {
   const getCategoryColor = (category) => {
@@ -42,7 +43,7 @@ export function MenuItemCard({ item, onSelect }) {
 
             <div className="mt-auto text-center">
               <p className="text-sm font-semibold text-primary font-quantico">
-                ${item.price.toFixed(2)}
+                {formatCurrency(item.price)}
               </p>
             </div>
           </div>
