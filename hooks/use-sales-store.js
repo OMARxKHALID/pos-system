@@ -36,7 +36,7 @@ const useSalesStore = create(
 
       getAnalytics: () => {
         const completedOrders = get().orders.filter(
-          (order) => order.status === "completed"
+          (order) => order.status === "paid"
         );
 
         const totalSales = completedOrders.reduce(

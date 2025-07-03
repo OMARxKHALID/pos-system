@@ -66,7 +66,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
         discount: totals.discount + totals.itemDiscounts,
         total: totals.total,
         paymentMethod,
-        status: "completed",
+        status: "paid",
         createdAt: now,
       };
 

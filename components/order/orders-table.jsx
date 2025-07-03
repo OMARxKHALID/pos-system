@@ -24,13 +24,24 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { formatDateTime, formatCurrency } from "@/utils/pos-utils";
 import { OrderStatusBadge } from "@/components/ui/status-badge";
+import { ChevronDown, ChevronRight, Eye, Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import OrderDetailModal from "./order-detail-modal";
 
 const OrdersTable = ({ orders = [] }) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
+  const [openItems, setOpenItems] = useState(new Set());
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const pageSize = 5;
 
   const filtered = orders
@@ -52,7 +63,27 @@ const OrdersTable = ({ orders = [] }) => {
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
-  // Responsive: show table on md+ screens, cards on mobile
+  const toggleItem = (orderId) => {
+    const newOpenItems = new Set(openItems);
+    if (newOpenItems.has(orderId)) {
+      newOpenItems.delete(orderId);
+    } else {
+      newOpenItems.add(orderId);
+    }
+    setOpenItems(newOpenItems);
+  };
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
+
+  // Responsive: show table on md+ screens, collapsible cards on mobile
   return (
     <>
       <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
@@ -127,7 +158,15 @@ const OrdersTable = ({ orders = [] }) => {
                           {formatCurrency(order.total)}
                         </TableCell>
                         <TableCell className="py-3 sm:py-4 flex gap-2">
-                          read
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => handleViewOrder(order)}
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
@@ -177,7 +216,8 @@ const OrdersTable = ({ orders = [] }) => {
               )}
             </div>
           </div>
-          {/* Mobile Card/List */}
+
+          {/* Mobile Collapsible Cards */}
           <div className="md:hidden space-y-3">
             {paginated.length === 0 ? (
               <div className="py-6 text-sm text-center text-gray-400 sm:py-8">
@@ -185,27 +225,132 @@ const OrdersTable = ({ orders = [] }) => {
               </div>
             ) : (
               paginated.map((order, index) => (
-                <div
+                <Collapsible
                   key={order._id}
-                  className="rounded-lg border p-3 bg-white flex flex-col gap-2 shadow-sm"
+                  open={openItems.has(order._id)}
+                  onOpenChange={() => toggleItem(order._id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-gray-900">
-                      Order #{order.orderNumber || order._id}
-                    </span>
-                    <OrderStatusBadge status={order.status} />
+                  <div className="rounded-lg border bg-white shadow-sm">
+                    <CollapsibleTrigger asChild>
+                      <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="flex items-center gap-2">
+                            {openItems.has(order._id) ? (
+                              <ChevronDown className="h-4 w-4 text-gray-500" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 text-gray-500" />
+                            )}
+                            <span className="text-xs font-semibold text-gray-900">
+                              #{String(index + 1).padStart(3, "0")}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-medium text-gray-900 truncate">
+                              {order.customerName}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {formatDateTime(order.createdAt)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <OrderStatusBadge status={order.status} />
+                          <span className="text-xs font-medium text-gray-900">
+                            {formatCurrency(order.total)}
+                          </span>
+                        </div>
+                      </div>
+                    </CollapsibleTrigger>
+
+                    <CollapsibleContent>
+                      <div className="px-3 pb-3 space-y-3 border-t bg-gray-50">
+                        {/* Order Details */}
+                        <div className="pt-3 space-y-2">
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <Package className="h-3 w-3" />
+                            <span className="font-medium">Order Items:</span>
+                          </div>
+                          <div className="space-y-1">
+                            {order.items?.map((item, itemIndex) => (
+                              <div
+                                key={itemIndex}
+                                className="flex justify-between items-center text-xs bg-white p-2 rounded border"
+                              >
+                                <span className="text-gray-900">
+                                  {item.name}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500">
+                                    x{item.quantity}
+                                  </span>
+                                  <span className="font-medium text-gray-900">
+                                    {formatCurrency(item.price * item.quantity)}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Order Summary */}
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Subtotal:</span>
+                            <span className="text-gray-900">
+                              {formatCurrency(order.subtotal || order.total)}
+                            </span>
+                          </div>
+                          {order.tax && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Tax:</span>
+                              <span className="text-gray-900">
+                                {formatCurrency(order.tax)}
+                              </span>
+                            </div>
+                          )}
+                          {order.discount && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Discount:</span>
+                              <span className="text-gray-900">
+                                -{formatCurrency(order.discount)}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex justify-between font-medium border-t pt-1">
+                            <span className="text-gray-900">Total:</span>
+                            <span className="text-gray-900">
+                              {formatCurrency(order.total)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs flex-1"
+                            onClick={() => handleViewOrder(order)}
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View Details
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs flex-1"
+                          >
+                            Print Receipt
+                          </Button>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                    <span>{formatDateTime(order.createdAt)}</span>
-                    <span className="text-gray-400">|</span>
-                    <span>{order.customerName}</span>
-                    <span className="text-gray-400">|</span>
-                    <span>{formatCurrency(order.total)}</span>
-                  </div>
-                  <div className="flex gap-2 mt-2">read</div>
-                </div>
+                </Collapsible>
               ))
             )}
+
+            {/* Mobile Pagination */}
             {totalPages > 1 && (
               <Pagination className="mt-4">
                 <PaginationContent>
@@ -249,6 +394,13 @@ const OrdersTable = ({ orders = [] }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Order Detail Modal */}
+      <OrderDetailModal
+        order={selectedOrder}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </>
   );
 };
