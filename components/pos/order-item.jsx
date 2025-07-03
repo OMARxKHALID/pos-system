@@ -40,13 +40,13 @@ export function OrderItem({ item }) {
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-md flex items-center justify-center border border-primary/20 flex-shrink-0 overflow-hidden">
               {item.image ? (
+                <span className="text-3xl">{item.icon}</span>
+              ) : (
                 <img
                   src={item.image}
                   alt={item.name}
                   className="w-10 h-10 object-cover rounded"
                 />
-              ) : (
-                <span className="text-3xl">{item.icon}</span>
               )}
             </div>
 

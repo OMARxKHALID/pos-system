@@ -77,8 +77,6 @@ const OrdersTable = ({ orders = [] }) => {
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="preparing">Preparing</SelectItem>
-                <SelectItem value="served">Served</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>

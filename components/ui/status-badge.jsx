@@ -8,17 +8,9 @@ export function OrderStatusBadge({ status }) {
       color = "secondary";
       label = "Pending";
       break;
-    case "preparing":
-      color = "outline";
-      label = "Preparing";
-      break;
-    case "served":
+    case "paid":
       color = "default";
-      label = "Served";
-      break;
-    case "completed":
-      color = "default";
-      label = "Completed";
+      label = "Paid";
       break;
     case "cancelled":
       color = "destructive";

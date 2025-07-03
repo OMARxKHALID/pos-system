@@ -4,7 +4,9 @@ import Order from "@/models/order";
 export async function GET() {
   try {
     await dbConnect();
-    const orders = await Order.find().populate("items.menuItem");
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .populate("items.menuItem");
     // Map icon and name from menuItem to each item
     const ordersWithIcons = orders.map((order) => {
       const items = order.items.map((item) => {

@@ -54,6 +54,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
       const orderData = {
         items: orderItems.map((item) => ({
           menuItem: item._id,
+          name: item.name || "Unknown Item",
           quantity: item.quantity,
           price: item.price,
           discount: item.discount || 0,
@@ -70,13 +71,19 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
       };
 
       try {
-        await fetch("/api/orders", {
+        const response = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(orderData),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to save order");
+        }
       } catch (e) {
-        toast.error("Failed to save order to server.");
+        toast.error(`Failed to save order: ${e.message}`);
+        return;
       }
 
       addOrder(orderData);
