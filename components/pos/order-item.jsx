@@ -9,11 +9,11 @@ import { DiscountModal } from "./discount-modal";
 import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { useState } from "react";
 import {
-  formatCurrency,
   calculateItemOriginalPrice,
   calculateItemDiscountAmount,
   calculateItemFinalPrice,
-} from "@/utils/pos-utils";
+} from "@/utils/calculations";
+import { formatCurrency } from "@/utils/formatters";
 
 export function OrderItem({ item }) {
   const cartStore = useCartStore();

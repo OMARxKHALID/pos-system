@@ -3,7 +3,7 @@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Menu, Download } from "lucide-react";
-import { exportAnalyticsToCSV } from "@/utils/pos-utils";
+import { exportAnalyticsToCSV } from "@/utils/analytics";
 
 export default function DashboardHeader({ data, linkRef, toggleSidebar }) {
   return (

@@ -1,0 +1,14 @@
+# Restaurant POS System - Robots.txt
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin areas for security
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: http://localhost:3000/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

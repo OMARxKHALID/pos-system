@@ -2,7 +2,8 @@
 // State at top, actions grouped, SSR-safe persist, named export
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+import { createPersistConfig } from "@/lib/zustand-storage";
 
 const useUserStore = create(
   persist(
@@ -15,18 +16,7 @@ const useUserStore = create(
       updateUser: (updates) =>
         set((state) => ({ user: { ...state.user, ...updates } })),
     }),
-    {
-      name: "user-store",
-      storage: createJSONStorage(() =>
-        typeof window !== "undefined"
-          ? localStorage
-          : {
-              getItem: () => null,
-              setItem: () => {},
-              removeItem: () => {},
-            }
-      ),
-    }
+    createPersistConfig("user-store")
   )
 );
 

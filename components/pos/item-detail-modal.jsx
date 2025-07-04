@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Package, Minus, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useCartStore } from "@/hooks/zustand/use-cart-store";
-import { formatCurrency } from "@/utils/pos-utils";
+import { formatCurrency } from "@/utils/formatters";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function ItemDetailModal({ selectedItem, onClose }) {

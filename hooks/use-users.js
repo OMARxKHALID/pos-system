@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 export function useUsers() {
   const queryClient = useQueryClient();
@@ -9,49 +10,25 @@ export function useUsers() {
     isError,
   } = useQuery({
     queryKey: ["users"],
-    queryFn: async () => {
-      const res = await fetch("/api/users");
-      if (!res.ok) throw new Error("Failed to fetch users");
-      return res.json();
-    },
+    queryFn: () => apiClient.get("/users"),
   });
 
   const addUser = useMutation({
-    mutationFn: async (user) => {
-      const res = await fetch("/api/users", {
-        method: "POST",
-        body: JSON.stringify(user),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error("Failed to add user");
-      return res.json();
-    },
+    mutationFn: (user) => apiClient.post("/users", user),
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
     },
   });
 
   const updateUser = useMutation({
-    mutationFn: async ({ id, ...user }) => {
-      const res = await fetch(`/api/users?id=${id}`, {
-        method: "PUT",
-        body: JSON.stringify(user),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error("Failed to update user");
-      return res.json();
-    },
+    mutationFn: ({ id, ...user }) => apiClient.putWithId("/users", id, user),
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
     },
   });
 
   const deleteUser = useMutation({
-    mutationFn: async (id) => {
-      const res = await fetch(`/api/users?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete user");
-      return res.json();
-    },
+    mutationFn: (id) => apiClient.deleteWithId("/users", id),
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
     },
@@ -65,54 +42,4 @@ export function useUsers() {
     updateUser: updateUser.mutateAsync,
     deleteUser: deleteUser.mutateAsync,
   };
-}
-
-export function useAddUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (user) => {
-      const res = await fetch("/api/users", {
-        method: "POST",
-        body: JSON.stringify(user),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error("Failed to add user");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["users"]);
-    },
-  });
-}
-
-export function useUpdateUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, ...user }) => {
-      const res = await fetch(`/api/users?id=${id}`, {
-        method: "PUT",
-        body: JSON.stringify(user),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error("Failed to update user");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["users"]);
-    },
-  });
-}
-
-export function useDeleteUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id) => {
-      const res = await fetch(`/api/users?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete user");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["users"]);
-    },
-  });
 }

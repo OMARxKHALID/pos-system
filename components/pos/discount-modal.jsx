@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { useState, useEffect } from "react";
-import { clampDiscountPercentage } from "@/utils/pos-utils";
+import { clampDiscountPercentage } from "@/utils/calculations";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function DiscountModal({
@@ -30,6 +30,7 @@ export function DiscountModal({
   } = useCartStore();
   const [tempDiscount, setTempDiscount] = useState("");
 
+  // Always sync tempDiscount with currentDiscount for live updates
   useEffect(() => {
     if (open) {
       setTempDiscount(currentDiscount.toString());

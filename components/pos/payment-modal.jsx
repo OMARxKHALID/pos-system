@@ -18,27 +18,52 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { CreditCard, Banknote, Smartphone } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { useDownloadReceiptStore } from "@/hooks/zustand/use-pos-settings-store";
+import { usePaymentSettingsStore } from "@/hooks/zustand/use-payment-settings-store";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
-  const [customerName, setCustomerName] = useState("");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cash");
-  const downloadReceipt = useDownloadReceiptStore((state) => state.open);
-  const setDownloadReceipt = useDownloadReceiptStore((state) => state.switch);
+  const {
+    defaultPaymentMethod,
+    getDefaultCustomerName,
+    updateLastCustomer,
+    downloadReceipt,
+    setDownloadReceipt,
+    preferredPaymentMethods,
+  } = usePaymentSettingsStore();
 
-  const paymentMethods = [
+  // Use store values directly for live updates
+  const [customerName, setCustomerName] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+
+  // Sync with store when modal opens or store values change
+  useEffect(() => {
+    if (open) {
+      setCustomerName(getDefaultCustomerName());
+      setSelectedPaymentMethod(defaultPaymentMethod);
+    }
+  }, [open, getDefaultCustomerName, defaultPaymentMethod]);
+
+  const allPaymentMethods = [
     { value: "cash", label: "Cash", icon: Banknote },
     { value: "card", label: "Credit Card", icon: CreditCard },
     { value: "wallet", label: "Mobile Pay", icon: Smartphone },
   ];
 
+  // Filter payment methods based on preferences
+  const paymentMethods =
+    preferredPaymentMethods.length > 0
+      ? allPaymentMethods.filter((method) =>
+          preferredPaymentMethods.includes(method.value)
+        )
+      : allPaymentMethods;
+
   const handleConfirm = () => {
     onConfirm(customerName, selectedPaymentMethod, downloadReceipt);
-    setCustomerName("");
-    setSelectedPaymentMethod("cash");
+    updateLastCustomer(customerName);
+    setCustomerName(getDefaultCustomerName());
+    setSelectedPaymentMethod(defaultPaymentMethod);
   };
 
   return (

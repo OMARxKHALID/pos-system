@@ -43,7 +43,7 @@ export default function AdminMenuHeader({
             size="icon"
             onClick={() => {
               // TODO: Implement menu export functionality
-              console.log("Export menu");
+              // console.log("Export menu"); // Removed for production
             }}
             aria-label="Download menu"
           >

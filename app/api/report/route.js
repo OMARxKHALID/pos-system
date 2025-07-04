@@ -1,10 +1,13 @@
 import dbConnect from "@/lib/db-connect";
 import Order from "@/models/order";
 import Menu from "@/models/menu";
-import { NextResponse } from "next/server";
+import { requireAuth, apiError, apiSuccess } from "@/lib/api-middleware";
 
-export async function GET() {
+export async function GET(req) {
   try {
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) return authResult;
+
     await dbConnect();
 
     // Total sales
@@ -28,6 +31,7 @@ export async function GET() {
       { $sort: { quantity: -1 } },
       { $limit: 5 },
     ]);
+
     // Populate product names
     const topProducts = await Promise.all(
       topProductsAgg.map(async (prod) => {
@@ -95,7 +99,7 @@ export async function GET() {
     // Top customers (mock, as customer info is not in Order model)
     const topCustomers = [];
 
-    return NextResponse.json({
+    return apiSuccess({
       totalSales,
       totalOrders,
       averageOrderValue,
@@ -106,6 +110,6 @@ export async function GET() {
       topCustomers,
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error.message);
   }
 }

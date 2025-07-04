@@ -1,0 +1,20 @@
+---
+alwaysApply: true
+---
+
+## 🗂️ File Structure & Component Use
+
+- Group files logically according to purpose:
+
+  - `hooks/` for custom hooks
+  - `store/` for Zustand stores
+  - `api/` or `services/` for API handlers
+  - `models/` for Mongoose schemas
+  - `components/` for reusable UI elements
+
+- Maintain consistent **structure, naming, and coding style** across all files of the same type.
+
+---
+
+**Always aim for clean, maintainable, and scalable code.**
+Make intelligent decisions based on the project's current architecture and design system.

@@ -1,117 +1,4 @@
-export function calculateOrderTotals(orderItems, cartDiscountPercentage = 0) {
-  const subtotal = calculateSubtotalBeforeDiscounts(orderItems);
-  const itemDiscountsTotal = calculateTotalItemDiscounts(orderItems);
-  const subtotalAfterItemDiscounts = subtotal - itemDiscountsTotal;
-
-  const cartDiscountAmount =
-    (cartDiscountPercentage / 100) * subtotalAfterItemDiscounts;
-  const subtotalAfterAllDiscounts =
-    subtotalAfterItemDiscounts - cartDiscountAmount;
-
-  const taxRate = 0.1;
-  const taxAmount = subtotalAfterAllDiscounts * taxRate;
-  const grandTotal = subtotalAfterAllDiscounts + taxAmount;
-
-  return {
-    subtotal,
-    tax: taxAmount,
-    discount: cartDiscountAmount,
-    total: grandTotal,
-    itemDiscounts: itemDiscountsTotal,
-  };
-}
-
-function calculateSubtotalBeforeDiscounts(orderItems) {
-  return orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-}
-
-function calculateTotalItemDiscounts(orderItems) {
-  return orderItems.reduce((sum, item) => {
-    const itemPrice = item.price * item.quantity;
-    const itemDiscountPercentage = (item.discount || 0) / 100;
-    return sum + itemPrice * itemDiscountPercentage;
-  }, 0);
-}
-
-export function calculateItemOriginalPrice(item) {
-  return item.price * item.quantity;
-}
-
-export function calculateItemDiscountAmount(item) {
-  return calculateItemOriginalPrice(item) * ((item.discount || 0) / 100);
-}
-
-export function calculateItemFinalPrice(item) {
-  return calculateItemOriginalPrice(item) - calculateItemDiscountAmount(item);
-}
-
-export function clampDiscountPercentage(discount) {
-  return Math.max(0, Math.min(100, discount));
-}
-
-export function analyzeOrderFinancials(order) {
-  const subtotalBeforeDiscounts = order.items.reduce(
-    (sum, item) => sum + calculateItemOriginalPrice(item),
-    0
-  );
-
-  const totalItemDiscounts = order.items.reduce(
-    (sum, item) => sum + calculateItemDiscountAmount(item),
-    0
-  );
-
-  const subtotalAfterItemDiscounts =
-    subtotalBeforeDiscounts - totalItemDiscounts;
-  const cartDiscountAmount =
-    (order.discount / 100) * subtotalAfterItemDiscounts;
-  const subtotalAfterAllDiscounts =
-    subtotalAfterItemDiscounts - cartDiscountAmount;
-
-  const taxAmount = subtotalAfterAllDiscounts * 0.1;
-  const grandTotal = subtotalAfterAllDiscounts + taxAmount;
-
-  return {
-    subtotalBeforeDiscounts,
-    totalItemDiscounts,
-    cartDiscountAmount,
-    subtotalAfterAllDiscounts,
-    taxAmount,
-    grandTotal,
-  };
-}
-
-export function formatCurrency(amount) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-}
-
-export function formatDateTime(timestamp) {
-  if (!timestamp) return "-";
-  const date = new Date(timestamp);
-  return (
-    date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }) +
-    " " +
-    date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
-  );
-}
-
-export function normalizeString(str) {
-  return (str || "").toLowerCase().trim();
-}
-
-export function generateOrderNumber() {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = Math.floor(Math.random() * 1000)
-    .toString()
-    .padStart(3, "0");
-  return `ORD-${timestamp}-${random}`;
-}
+// Pure analytics functions - no side effects
 
 export function aggregateProductSales(orders) {
   const productMap = new Map();
@@ -213,6 +100,60 @@ export function aggregatePaymentMethods(orders) {
   });
 
   return Array.from(paymentMethodMap.values());
+}
+
+export function calculateSalesByCategory(orders, menuItems) {
+  const categoryMap = new Map();
+
+  orders.forEach((order) => {
+    order.items.forEach((item) => {
+      const menuItem = menuItems.find((mi) => mi._id === item.menuItem);
+      const category = menuItem?.category || "Unknown";
+
+      const current = categoryMap.get(category) || {
+        category,
+        totalSales: 0,
+        orderCount: 0,
+      };
+
+      categoryMap.set(category, {
+        ...current,
+        totalSales: current.totalSales + item.price * item.quantity,
+        orderCount: current.orderCount + 1,
+      });
+    });
+  });
+
+  return Array.from(categoryMap.values()).sort(
+    (a, b) => b.totalSales - a.totalSales
+  );
+}
+
+export function calculateHourlySalesTrend(orders) {
+  const hourlyMap = new Map();
+
+  // Initialize 24 hours
+  for (let i = 0; i < 24; i++) {
+    hourlyMap.set(i, {
+      hour: i,
+      totalSales: 0,
+      orderCount: 0,
+    });
+  }
+
+  orders.forEach((order) => {
+    const orderDate = new Date(order.timestamp);
+    const hour = orderDate.getHours();
+
+    const hourData = hourlyMap.get(hour);
+    hourlyMap.set(hour, {
+      ...hourData,
+      totalSales: hourData.totalSales + order.total,
+      orderCount: hourData.orderCount + 1,
+    });
+  });
+
+  return Array.from(hourlyMap.values());
 }
 
 export function exportAnalyticsToCSV(analyticsData, linkRef) {

@@ -6,6 +6,10 @@ import { SearchBar } from "@/components/pos/search-bar";
 import { MenuGrid } from "@/components/pos/menu-grid";
 import { OrderCart } from "@/components/pos/order-cart";
 import { ItemDetailModal } from "@/components/pos/item-detail-modal";
+import { CategoryNavSkeleton } from "@/components/pos/category-nav-skeleton";
+import { SearchBarSkeleton } from "@/components/pos/search-bar-skeleton";
+import { useCategory } from "@/hooks/use-category";
+import { useMenu } from "@/hooks/use-menu";
 import { useState } from "react";
 
 export default function PosPage() {
@@ -14,7 +18,12 @@ export default function PosPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const { isLoading: categoriesLoading } = useCategory();
+  const { isLoading: menuLoading } = useMenu();
+
   const toggleCart = () => setCartOpen((prev) => !prev);
+
+  const isLoading = categoriesLoading || menuLoading;
 
   return (
     <div className="h-screen w-full overflow-hidden">
@@ -27,15 +36,24 @@ export default function PosPage() {
               showCartToggle
               toggleCart={toggleCart}
               showDashboard
+              showDateTime
             />
-            <CategoryNav
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-            />
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
+            {isLoading ? (
+              <CategoryNavSkeleton />
+            ) : (
+              <CategoryNav
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            )}
+            {isLoading ? (
+              <SearchBarSkeleton />
+            ) : (
+              <SearchBar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+              />
+            )}
           </div>
           <div className="flex-1 overflow-hidden">
             <MenuGrid
@@ -62,15 +80,24 @@ export default function PosPage() {
               showCartToggle
               toggleCart={toggleCart}
               showDashboard
+              showDateTime
             />
-            <CategoryNav
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-            />
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
+            {isLoading ? (
+              <CategoryNavSkeleton />
+            ) : (
+              <CategoryNav
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            )}
+            {isLoading ? (
+              <SearchBarSkeleton />
+            ) : (
+              <SearchBar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+              />
+            )}
           </div>
           <div className="flex-1 overflow-hidden">
             <MenuGrid

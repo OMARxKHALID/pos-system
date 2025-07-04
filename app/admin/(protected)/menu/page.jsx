@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useMenu } from "@/hooks/use-menu";
-import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import MenuForm from "@/components/menu/menu-form";
 import MenuTable from "@/components/menu/menu-table";
 import AdminMenuHeader from "@/components/menu/menu-header";

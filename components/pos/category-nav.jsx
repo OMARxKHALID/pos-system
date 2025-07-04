@@ -1,45 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-const getCategoryColor = (categoryId) => {
-  const colors = {
-    all: "bg-blue-50 text-blue-700 border-blue-100",
-    burgers: "bg-orange-50 text-orange-700 border-orange-100",
-    pizza: "bg-red-50 text-red-700 border-red-100",
-    drinks: "bg-cyan-50 text-cyan-700 border-cyan-100",
-    desserts: "bg-pink-50 text-pink-700 border-pink-100",
-    // Add more known categories here as needed
-  };
-  return colors[categoryId] || "bg-gray-50 text-gray-700 border-gray-100";
-};
+import { useCategory } from "@/hooks/use-category";
+import { useMenu } from "@/hooks/use-menu";
+import { normalizeString } from "@/utils/string-utils";
+import { getCategoryColor } from "@/utils/category-colors";
+import { CategoryNavSkeleton } from "./category-nav-skeleton";
 
 export function CategoryNav({ selectedCategory, onCategoryChange }) {
-  const [categories, setCategories] = useState([]);
+  const { categories, isLoading: categoriesLoading } = useCategory();
+  const { menuItems, isLoading: menuLoading } = useMenu();
 
-  useEffect(() => {
-    async function fetchCategories() {
-      const res = await fetch("/api/categories");
-      if (res.ok) {
-        const data = await res.json();
-        setCategories([
-          { _id: "all", name: "All", icon: "🍽️", items: [] },
-          ...data,
-        ]);
-      }
+  // Calculate item counts for each category
+  const getCategoryItemCount = (categoryId) => {
+    if (!menuItems || categoryId === "all") {
+      return menuItems ? menuItems.length : 0;
     }
-    fetchCategories();
-  }, []);
+
+    return menuItems.filter((item) => {
+      // Handle both string and object category values
+      const itemCategory =
+        typeof item.category === "object" && item.category !== null
+          ? item.category._id || item.category.name
+          : item.category;
+
+      return normalizeString(itemCategory) === normalizeString(categoryId);
+    }).length;
+  };
+
+  const allCategories = categories
+    ? [{ _id: "all", name: "All", icon: "🍽️" }, ...categories]
+    : [];
+
+  const isLoading = categoriesLoading || menuLoading;
+
+  if (isLoading) {
+    return <CategoryNavSkeleton />;
+  }
 
   return (
     <div className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
-      {categories.map((category) => (
+      {allCategories.map((category) => (
         <button
           key={category._id}
           className={`flex flex-col items-start p-2 rounded-2xl transition-all duration-200 w-[90px] h-[90px] sm:w-[105px] sm:h-[105px] border-2 flex-shrink-0 ${
             selectedCategory === category._id
               ? "bg-blue-50 border-blue-400"
-              : `bg-white ${getCategoryColor(category._id)}`
+              : `bg-white ${getCategoryColor(category._id, "both")}`
           }`}
           onClick={() => onCategoryChange(category._id)}
         >
@@ -64,7 +70,7 @@ export function CategoryNav({ selectedCategory, onCategoryChange }) {
               {category.name}
             </h3>
             <p className="text-gray-500 text-xs text-left">
-              {category.items?.length || 0} Items
+              {getCategoryItemCount(category._id)} Items
             </p>
           </div>
         </button>

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
+import { useCategory } from "@/hooks/use-category";
 import { Switch } from "@/components/ui/switch";
 
 const MenuTable = ({
@@ -34,18 +34,7 @@ const MenuTable = ({
   categoryFilter,
   setCategoryFilter,
 }) => {
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    async function fetchCategories() {
-      const res = await fetch("/api/categories");
-      if (res.ok) {
-        const data = await res.json();
-        setCategories(data);
-      }
-    }
-    fetchCategories();
-  }, []);
+  const { categories } = useCategory();
 
   // Helper to get category name by id
   const getCategoryName = (category) => {
@@ -57,7 +46,7 @@ const MenuTable = ({
     }
 
     // If category is a string ID, find it in categories array
-    const cat = categories.find((c) => c._id === category);
+    const cat = categories?.find((c) => c._id === category);
     return cat ? cat.name : category;
   };
 
@@ -94,7 +83,7 @@ const MenuTable = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((cat) => (
+              {categories?.map((cat) => (
                 <SelectItem key={cat._id} value={cat._id}>
                   {cat.name}
                 </SelectItem>

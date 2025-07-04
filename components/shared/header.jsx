@@ -6,6 +6,7 @@ import { StatusIndicator } from "@/components/ui/status-indicator";
 import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { HeaderDateTimeSkeleton } from "./header-skeleton";
 
 export function PageHeader({
   title,
@@ -15,6 +16,7 @@ export function PageHeader({
   showPOS = false,
   toggleCart = () => {},
   orderType = "open",
+  showDateTime = false,
 }) {
   const { orderItems } = useCartStore();
   // Use state for date/time, set after mount
@@ -58,16 +60,21 @@ export function PageHeader({
           <h6 className="text-5xl font-semibold text-gray-900 mb-1">{title}</h6>
           {subtitle && <p className="text-xs text-gray-600">{subtitle}</p>}
         </div>
-        <div className="hidden sm:flex items-center gap-4 text-xs text-gray-500">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            <span>{hasMounted ? dateString : "..."}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            <span>{hasMounted ? timeString : "..."}</span>
-          </div>
-        </div>
+        {showDateTime &&
+          (hasMounted ? (
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <div className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                <span>{dateString}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                <span>{timeString}</span>
+              </div>
+            </div>
+          ) : (
+            <HeaderDateTimeSkeleton />
+          ))}
       </div>
 
       <div className="flex items-center gap-2">

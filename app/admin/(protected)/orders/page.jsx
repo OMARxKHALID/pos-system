@@ -3,7 +3,7 @@
 import { useOrders } from "@/hooks/use-orders";
 import OrdersTable from "@/components/order/orders-table";
 import AdminOrdersHeader from "@/components/order/orders-header";
-import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import { useRef } from "react";
 
 export default function AdminOrdersPage() {

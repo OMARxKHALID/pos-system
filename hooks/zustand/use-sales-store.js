@@ -4,13 +4,14 @@
 "use client";
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import {
   aggregateProductSales,
   aggregateCustomerOrders,
   calculateWeeklySalesTrend,
   aggregatePaymentMethods,
-} from "@/utils/pos-utils";
+} from "@/utils/analytics";
+import { createPersistConfig } from "@/lib/zustand-storage";
 
 const useSalesStore = create(
   persist(
@@ -58,20 +59,7 @@ const useSalesStore = create(
         };
       },
     }),
-    {
-      name: "sales-storage",
-      storage: createJSONStorage(() => {
-        if (typeof window !== "undefined") {
-          return localStorage;
-        }
-        // SSR-safe fallback
-        return {
-          getItem: () => null,
-          setItem: () => {},
-          removeItem: () => {},
-        };
-      }),
-    }
+    createPersistConfig("sales-storage")
   )
 );
 

@@ -4,8 +4,9 @@
 "use client";
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { clampDiscountPercentage } from "@/utils/pos-utils";
+import { persist } from "zustand/middleware";
+import { clampDiscountPercentage } from "@/utils/calculations";
+import { createPersistConfig } from "@/lib/zustand-storage";
 
 const useCartStore = create(
   persist(
@@ -72,20 +73,7 @@ const useCartStore = create(
       getTotalQuantity: () =>
         get().orderItems.reduce((sum, item) => sum + item.quantity, 0),
     }),
-    {
-      name: "cart-store",
-      storage: createJSONStorage(() => {
-        if (typeof window !== "undefined") {
-          return localStorage;
-        }
-        // SSR-safe fallback
-        return {
-          getItem: () => null,
-          setItem: () => {},
-          removeItem: () => {},
-        };
-      }),
-    }
+    createPersistConfig("cart-store")
   )
 );
 

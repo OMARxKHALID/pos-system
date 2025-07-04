@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useUsers } from "@/hooks/use-users";
-import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import UserForm from "@/components/user/user-form";
 import UserTable from "@/components/user/user-table";
 import AdminUsersHeader from "@/components/user/users-header";

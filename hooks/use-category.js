@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 export function useCategory() {
   const queryClient = useQueryClient();
@@ -9,49 +10,30 @@ export function useCategory() {
     isError,
   } = useQuery({
     queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await fetch("/api/categories");
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
+    queryFn: () => apiClient.get("/categories"),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const addCategory = useMutation({
-    mutationFn: async (category) => {
-      const res = await fetch("/api/categories", {
-        method: "POST",
-        body: JSON.stringify(category),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
+    mutationFn: (category) => apiClient.post("/categories", category),
     onSuccess: () => {
       queryClient.invalidateQueries(["categories"]);
     },
   });
 
   const updateCategory = useMutation({
-    mutationFn: async ({ id, ...category }) => {
-      const res = await fetch(`/api/categories?id=${id}`, {
-        method: "PUT",
-        body: JSON.stringify(category),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
+    mutationFn: ({ id, ...category }) =>
+      apiClient.putWithId("/categories", id, category),
     onSuccess: () => {
       queryClient.invalidateQueries(["categories"]);
     },
   });
 
   const deleteCategory = useMutation({
-    mutationFn: async (id) => {
-      const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
+    mutationFn: (id) => apiClient.deleteWithId("/categories", id),
     onSuccess: () => {
       queryClient.invalidateQueries(["categories"]);
     },

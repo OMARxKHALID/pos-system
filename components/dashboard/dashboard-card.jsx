@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { formatCurrency } from "@/utils/pos-utils";
+import { formatCurrency } from "@/utils/formatters";
 
 const DashboardCard = ({ title, value, icon: Icon, iconColor, unit }) => (
   <Card className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl sm:p-5 lg:p-6">

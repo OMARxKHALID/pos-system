@@ -29,7 +29,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { formatDateTime, formatCurrency } from "@/utils/pos-utils";
+import { formatDateTime, formatCurrency } from "@/utils/formatters";
 import { OrderStatusBadge } from "@/components/ui/status-badge";
 import { ChevronDown, ChevronRight, Eye, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";

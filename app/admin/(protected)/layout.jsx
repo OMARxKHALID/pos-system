@@ -13,7 +13,7 @@ import {
   ClipboardList,
   Home,
 } from "lucide-react";
-import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import {
   SidebarProvider,
   Sidebar,

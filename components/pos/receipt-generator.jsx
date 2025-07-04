@@ -2,9 +2,9 @@
 import { useEffect } from "react";
 import {
   calculateItemFinalPrice,
-  formatCurrency,
   calculateOrderTotals,
-} from "@/utils/pos-utils";
+} from "@/utils/calculations";
+import { formatCurrency } from "@/utils/formatters";
 
 export function ReceiptGenerator({
   open = false,

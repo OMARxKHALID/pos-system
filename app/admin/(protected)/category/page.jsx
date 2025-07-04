@@ -11,16 +11,32 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogHeader as dheader,
 } from "@/components/ui/dialog";
-import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 
 export default function CategoryPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
-  const { categories, isLoading, isError, updateCategory, deleteCategory } =
-    useCategory();
+  const {
+    categories,
+    isLoading,
+    isError,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+  } = useCategory();
   const toggleSidebar = useAdminSidebarStore((s) => s.toggle);
+
+  const handleAddCategory = async (data) => {
+    try {
+      await addCategory(data);
+      setIsAddDialogOpen(false);
+      toast.success("Category added successfully");
+    } catch (error) {
+      toast.error("Failed to add category");
+    }
+  };
 
   const handleEditCategory = async (data) => {
     try {
@@ -63,7 +79,7 @@ export default function CategoryPage() {
     <div className="min-h-screen p-3">
       <div className="mx-auto space-y-3 sm:space-y-6">
         <CategoryHeader
-          onAdd={() => {}}
+          onAdd={() => setIsAddDialogOpen(true)}
           count={categories?.length}
           toggleSidebar={toggleSidebar}
         />
@@ -76,13 +92,22 @@ export default function CategoryPage() {
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
-            <dheader>
+            <DialogHeader>
               <DialogTitle>Edit Category</DialogTitle>
-            </dheader>
+            </DialogHeader>
             <CategoryForm
               onSubmit={handleEditCategory}
               initialData={editingCategory}
             />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add Category</DialogTitle>
+            </DialogHeader>
+            <CategoryForm onSubmit={handleAddCategory} initialData={null} />
           </DialogContent>
         </Dialog>
       </div>

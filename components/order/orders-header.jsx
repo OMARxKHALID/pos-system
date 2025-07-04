@@ -1,7 +1,7 @@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Menu } from "lucide-react";
-import { exportOrdersToCSV } from "@/utils/pos-utils";
+import { exportOrdersToCSV } from "@/utils/analytics";
 
 export default function AdminOrdersHeader({ toggleSidebar, data, linkRef }) {
   return (

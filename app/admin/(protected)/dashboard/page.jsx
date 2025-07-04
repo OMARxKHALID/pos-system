@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { BarChart3, Package, FileText } from "lucide-react";
-import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import { useAnalytics } from "@/hooks/use-report";
 import DashboardCard from "@/components/dashboard/dashboard-card";
 import ReportGraph from "@/components/dashboard/report-graph";
@@ -12,7 +12,7 @@ import DashboardHeader from "@/components/dashboard/dashboard-header";
 const AdminDashboardPage = () => {
   const [productSearch, setProductSearch] = useState("");
   const linkRef = useRef(null);
-  const { data, isLoading, isError } = useAnalytics();
+  const { data, isLoading, isError, error } = useAnalytics();
   const toggleSidebar = useAdminSidebarStore((s) => s.toggle);
 
   if (isLoading) {
@@ -20,9 +20,15 @@ const AdminDashboardPage = () => {
   }
 
   if (isError || !data) {
+    console.error("Dashboard error:", error);
     return (
       <div className="p-8 text-center text-red-500">
-        Failed to load dashboard data.
+        <div className="mb-4">Failed to load dashboard data.</div>
+        {error && (
+          <div className="text-sm text-gray-600">
+            Error: {error.message || "Unknown error"}
+          </div>
+        )}
       </div>
     );
   }

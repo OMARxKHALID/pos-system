@@ -12,21 +12,19 @@ import { PaymentModal } from "./payment-modal";
 import { DiscountModal } from "./discount-modal";
 import { ReceiptGenerator } from "./receipt-generator";
 import { useState, useMemo, useEffect, useCallback } from "react";
-import {
-  calculateOrderTotals,
-  generateOrderNumber,
-  formatCurrency,
-} from "@/utils/pos-utils";
+import { calculateOrderTotals } from "@/utils/calculations";
+import { formatCurrency } from "@/utils/formatters";
+import { generateOrderNumber } from "@/utils/string-utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { useDownloadReceiptStore } from "@/hooks/zustand/use-pos-settings-store";
+import { usePaymentSettingsStore } from "@/hooks/zustand/use-payment-settings-store";
 import { useCreateOrder } from "@/hooks/use-orders";
 
 export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
   const { orderItems, clearCart, cartDiscount } = useCartStore();
   const { addOrder } = useSalesStore();
   const { status } = useSession();
-  const downloadReceipt = useDownloadReceiptStore((state) => state.open);
+  const { downloadReceipt } = usePaymentSettingsStore();
   const createOrder = useCreateOrder();
 
   const [localOrderNumber, setLocalOrderNumber] = useState(null);
@@ -45,7 +43,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
   }, []);
 
   const handlePlaceOrder = useCallback(
-    async (customerName, paymentMethod, shouldDownloadReceipt) => {
+    async (customerName, paymentMethod) => {
       if (!orderItems.length) return;
       if (status !== "authenticated") {
         toast.error("You must be logged in to place an order.");

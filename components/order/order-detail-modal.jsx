@@ -8,15 +8,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { OrderStatusBadge } from "@/components/ui/status-badge";
-import { formatDateTime, formatCurrency } from "@/utils/pos-utils";
+import { formatDateTime, formatCurrency } from "@/utils/formatters";
 import {
   Printer,
   Download,
-  X,
   Package,
   User,
   CreditCard,
@@ -187,19 +185,11 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
-        <DialogHeader className="flex flex-row items-center justify-between p-6 pb-4 border-b">
+        <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
             <Receipt className="h-6 w-6 text-blue-600" />
             Order #{order.orderNumber}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
 
         <div className="p-6 space-y-6">

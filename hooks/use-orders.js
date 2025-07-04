@@ -1,28 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 export function useOrders() {
   return useQuery({
     queryKey: ["orders"],
-    queryFn: async () => {
-      const res = await fetch("/api/orders");
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
+    queryFn: () => apiClient.get("/orders"),
   });
 }
 
 export function useCreateOrder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (order) => {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        body: JSON.stringify(order),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
+    mutationFn: (order) => apiClient.post("/orders", order),
     onSuccess: () => {
       queryClient.invalidateQueries(["orders"]);
     },

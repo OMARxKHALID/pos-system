@@ -21,12 +21,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { menuSchema, menuEditSchema } from "@/lib/schemas";
-import { useEffect, useState } from "react";
+import { useCategory } from "@/hooks/use-category";
 import { Switch } from "@/components/ui/switch";
 
 const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
   const isEditing = !!initialData;
-  const [categories, setCategories] = useState([]);
+  const { categories } = useCategory();
 
   const form = useForm({
     resolver: zodResolver(isEditing ? menuEditSchema : menuSchema),
@@ -39,17 +39,6 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
       available: initialData?.available !== false,
     },
   });
-
-  useEffect(() => {
-    async function fetchCategories() {
-      const res = await fetch("/api/categories");
-      if (res.ok) {
-        const data = await res.json();
-        setCategories(data);
-      }
-    }
-    fetchCategories();
-  }, []);
 
   const handleSubmit = (data) => {
     onSubmit(data);
