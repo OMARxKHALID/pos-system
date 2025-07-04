@@ -57,13 +57,34 @@ export async function GET(req) {
         },
       },
       { $sort: { _id: 1 } },
-      { $limit: 7 },
     ]);
-    const salesByDay = salesByDayAgg.map((d) => ({
-      date: d._id,
-      sales: d.sales,
-      orders: d.orders,
-    }));
+
+    // Create a map of existing sales data
+    const salesMap = new Map();
+    salesByDayAgg.forEach((d) => {
+      salesMap.set(d._id, {
+        date: d._id,
+        sales: d.sales,
+        orders: d.orders,
+      });
+    });
+
+    // Generate all 7 days with default values for missing days
+    const today = new Date();
+    const salesByDay = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateKey = date.toISOString().split("T")[0];
+
+      salesByDay.push(
+        salesMap.get(dateKey) || {
+          date: dateKey,
+          sales: 0,
+          orders: 0,
+        }
+      );
+    }
 
     // Sales by category
     const salesByCategoryAgg = await Order.aggregate([
@@ -78,8 +99,17 @@ export async function GET(req) {
       },
       { $unwind: "$menuInfo" },
       {
+        $lookup: {
+          from: "categories",
+          localField: "menuInfo.category",
+          foreignField: "_id",
+          as: "categoryInfo",
+        },
+      },
+      { $unwind: "$categoryInfo" },
+      {
         $group: {
-          _id: "$menuInfo.category",
+          _id: "$categoryInfo.name",
           sales: { $sum: "$items.price" },
           quantity: { $sum: "$items.quantity" },
         },

@@ -1,25 +1,71 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Area, AreaChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
+// Custom minimal tooltip component
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) {
+    return null;
+  }
+
+  const data = payload[0];
+  const sales = data.value || 0;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2">
+      <div className="text-xs text-gray-600 mb-1">{label}</div>
+      <div className="text-sm font-semibold text-gray-900">
+        ${sales.toFixed(2)}
+      </div>
+    </div>
+  );
+};
+
 const ReportGraph = ({ data = [] }) => {
+  // Debug: Log the incoming data
+  console.log("ReportGraph data:", data);
+
+  // Format dates and map data correctly
   const chartData =
     Array.isArray(data) && data.length > 0
       ? data.map((d) => ({
-          date: d.date,
-          sales: d.sales,
+          date: formatDate(d.date),
+          sales: d.sales || 0,
         }))
       : [];
+
+  console.log("Chart data:", chartData);
 
   const chartConfig = {
     sales: {
       label: "Sales",
       color: "#3B82F6",
     },
+  };
+
+  // Format date for display (e.g., "Mon", "Tue", etc.)
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { weekday: "short" });
+  }
+
+  // Custom tick formatter for X-axis
+  const CustomXAxisTick = ({ x, y, payload }) => {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text
+          x={0}
+          y={0}
+          dy={16}
+          textAnchor="middle"
+          fill="#9CA3AF"
+          fontSize={window.innerWidth < 640 ? 8 : 10}
+          className="font-medium"
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
   };
 
   return (
@@ -32,15 +78,15 @@ const ReportGraph = ({ data = [] }) => {
           </CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="px-4 pb-4 sm:px-5 lg:px-6 sm:pb-5 lg:pb-6">
+      <CardContent className="px-2 pb-4 sm:px-5 lg:px-6 sm:pb-5 lg:pb-6">
         <ChartContainer
           config={chartConfig}
-          className="h-[200px] sm:h-[240px] lg:h-[280px] w-full"
+          className="h-[250px] sm:h-[280px] lg:h-[320px] xl:h-[350px] w-full"
         >
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={chartData}
-              margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+              margin={{ top: 10, right: 20, left: 20, bottom: 30 }}
             >
               <defs>
                 <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
@@ -52,21 +98,27 @@ const ReportGraph = ({ data = [] }) => {
                 dataKey="date"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 10, fill: "#9CA3AF" }}
-                dy={5}
+                tick={<CustomXAxisTick />}
                 interval={0}
+                height={70}
+                padding={{ left: 10, right: 10 }}
               />
-              <YAxis hide />
-              <ChartTooltip content={<ChartTooltipContent />} cursor={false} />
+              <YAxis hide domain={[0, "dataMax + 10"]} />
+              <ChartTooltip content={<CustomTooltip />} cursor={false} />
               <Area
                 type="monotone"
                 dataKey="sales"
                 stroke="#3B82F6"
                 strokeWidth={2}
                 fill="url(#salesGradient)"
-                dot={false}
+                dot={{
+                  r: window.innerWidth < 640 ? 2 : 3,
+                  stroke: "#3B82F6",
+                  strokeWidth: 2,
+                  fill: "white",
+                }}
                 activeDot={{
-                  r: 3,
+                  r: window.innerWidth < 640 ? 3 : 4,
                   stroke: "#3B82F6",
                   strokeWidth: 2,
                   fill: "white",

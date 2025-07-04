@@ -1,23 +1,20 @@
 "use client";
 
-import { useOrders } from "@/hooks/use-orders";
 import OrdersTable from "@/components/order/orders-table";
 import AdminOrdersHeader from "@/components/order/orders-header";
 import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
+import { useSalesStore } from "@/hooks/zustand/use-sales-store";
+import { useHydrateOrders } from "@/hooks/hydration/use-hydrate-orders";
 import { useRef } from "react";
 
 export default function AdminOrdersPage() {
-  const { data, isLoading, isError } = useOrders();
+  const orders = useSalesStore((s) => s.orders);
+  const { isHydrated, isLoading } = useHydrateOrders();
   const linkRef = useRef(null);
   const toggleSidebar = useAdminSidebarStore((s) => s.toggle);
 
-  if (isLoading) {
+  if (isLoading || !isHydrated) {
     return <div className="p-8 text-center">Loading orders...</div>;
-  }
-  if (isError) {
-    return (
-      <div className="p-8 text-center text-red-500">Failed to load orders.</div>
-    );
   }
 
   return (
@@ -25,10 +22,10 @@ export default function AdminOrdersPage() {
       <div className="mx-auto space-y-3 sm:space-y-6">
         <AdminOrdersHeader
           toggleSidebar={toggleSidebar}
-          data={data || []}
+          data={orders || []}
           linkRef={linkRef}
         />
-        <OrdersTable orders={data || []} />
+        <OrdersTable orders={orders || []} />
       </div>
     </div>
   );

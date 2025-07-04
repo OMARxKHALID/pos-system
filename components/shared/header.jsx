@@ -5,6 +5,8 @@ import { Calendar, Clock, ShoppingCart, BarChart3, Store } from "lucide-react";
 import { StatusIndicator } from "@/components/ui/status-indicator";
 import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { HeaderDateTimeSkeleton } from "./header-skeleton";
 
@@ -19,6 +21,8 @@ export function PageHeader({
   showDateTime = false,
 }) {
   const { orderItems } = useCartStore();
+  const router = useRouter();
+  const { status } = useSession();
   // Use state for date/time, set after mount
   const [dateString, setDateString] = useState("");
   const [timeString, setTimeString] = useState("");
@@ -53,6 +57,14 @@ export function PageHeader({
 
   const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  const handleDashboardClick = () => {
+    if (status === "authenticated") {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/admin/login");
+    }
+  };
+
   return (
     <div className="flex items-center justify-between mb-1">
       <div className="flex items-center gap-4">
@@ -62,7 +74,7 @@ export function PageHeader({
         </div>
         {showDateTime &&
           (hasMounted ? (
-            <div className="flex items-center gap-4 text-xs text-gray-500">
+            <div className="hidden md:flex items-center gap-4 text-xs text-gray-500">
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 <span>{dateString}</span>
@@ -73,7 +85,9 @@ export function PageHeader({
               </div>
             </div>
           ) : (
-            <HeaderDateTimeSkeleton />
+            <div className="hidden md:block">
+              <HeaderDateTimeSkeleton />
+            </div>
           ))}
       </div>
 
@@ -81,16 +95,15 @@ export function PageHeader({
         <StatusIndicator status={orderType} />
 
         {showDashboard && (
-          <Link href="/admin/login">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 px-3 text-xs bg-white/60 border-gray-200"
-            >
-              <BarChart3 className="w-3 h-3 mr-1" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-3 text-xs bg-white/60 border-gray-200"
+            onClick={handleDashboardClick}
+          >
+            <BarChart3 className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Dashboard</span>
+          </Button>
         )}
 
         {showPOS && (

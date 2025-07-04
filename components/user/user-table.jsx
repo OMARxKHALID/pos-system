@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -20,6 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePagination } from "@/hooks/use-pagination";
+import TablePagination from "@/components/ui/table-pagination";
 
 const UserTable = ({
   users = [],
@@ -41,6 +43,23 @@ const UserTable = ({
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
+
+  // Pagination
+  const {
+    currentPage,
+    paginatedItems,
+    totalPages,
+    totalItems,
+    goToPage,
+    hasNextPage,
+    hasPreviousPage,
+    resetPagination,
+  } = usePagination(filteredUsers, 10);
+
+  // Reset pagination when search or filter changes
+  useEffect(() => {
+    resetPagination();
+  }, [search, roleFilter, resetPagination]);
 
   return (
     <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
@@ -92,7 +111,7 @@ const UserTable = ({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.length === 0 ? (
+                    {paginatedItems.length === 0 ? (
                       <TableRow>
                         <TableCell
                           colSpan={4}
@@ -102,7 +121,7 @@ const UserTable = ({
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredUsers.map((user) => (
+                      paginatedItems.map((user) => (
                         <TableRow key={user._id}>
                           <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
                             {user.name}
@@ -149,12 +168,12 @@ const UserTable = ({
 
             {/* Mobile Card/List */}
             <div className="md:hidden space-y-3">
-              {filteredUsers.length === 0 ? (
+              {paginatedItems.length === 0 ? (
                 <div className="py-6 text-sm text-center text-gray-400 sm:py-8">
                   No users found
                 </div>
               ) : (
-                filteredUsers.map((user) => (
+                paginatedItems.map((user) => (
                   <div
                     key={user._id}
                     className="rounded-lg border p-3 bg-white flex flex-col gap-2 shadow-sm"
@@ -194,6 +213,19 @@ const UserTable = ({
                   </div>
                 ))
               )}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-6">
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                hasNextPage={hasNextPage}
+                hasPreviousPage={hasPreviousPage}
+                totalItems={totalItems}
+                itemsPerPage={10}
+              />
             </div>
           </>
         )}

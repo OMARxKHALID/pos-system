@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,14 +8,6 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-} from "@/components/ui/pagination";
 import {
   Table,
   TableHeader,
@@ -34,15 +26,15 @@ import { OrderStatusBadge } from "@/components/ui/status-badge";
 import { ChevronDown, ChevronRight, Eye, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import OrderDetailModal from "./order-detail-modal";
+import { usePagination } from "@/hooks/use-pagination";
+import TablePagination from "@/components/ui/table-pagination";
 
 const OrdersTable = ({ orders = [] }) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [page, setPage] = useState(1);
   const [openItems, setOpenItems] = useState(new Set());
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const pageSize = 5;
 
   const filtered = orders
     .filter((order) =>
@@ -60,8 +52,22 @@ const OrdersTable = ({ orders = [] }) => {
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+  // Pagination
+  const {
+    currentPage,
+    paginatedItems,
+    totalPages,
+    totalItems,
+    goToPage,
+    hasNextPage,
+    hasPreviousPage,
+    resetPagination,
+  } = usePagination(filtered, 10);
+
+  // Reset pagination when search or filter changes
+  useEffect(() => {
+    resetPagination();
+  }, [search, statusFilter, resetPagination]);
 
   const toggleItem = (orderId) => {
     const newOpenItems = new Set(openItems);
@@ -130,7 +136,7 @@ const OrdersTable = ({ orders = [] }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginated.length === 0 ? (
+                  {paginatedItems.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
@@ -140,7 +146,7 @@ const OrdersTable = ({ orders = [] }) => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    paginated.map((order, index) => (
+                    paginatedItems.map((order, index) => (
                       <TableRow key={order._id}>
                         <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
                           {String(index + 1).padStart(3, "0")}
@@ -173,58 +179,30 @@ const OrdersTable = ({ orders = [] }) => {
                   )}
                 </TableBody>
               </Table>
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <Pagination className="mt-4">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage((p) => Math.max(1, p - 1));
-                        }}
-                        aria-disabled={page === 1}
-                      />
-                    </PaginationItem>
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                      <PaginationItem key={i}>
-                        <PaginationLink
-                          href="#"
-                          isActive={page === i + 1}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setPage(i + 1);
-                          }}
-                        >
-                          {i + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    <PaginationItem>
-                      <PaginationNext
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage((p) => Math.min(totalPages, p + 1));
-                        }}
-                        aria-disabled={page === totalPages}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
             </div>
+          </div>
+
+          {/* Pagination */}
+          <div className="mt-6">
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              hasNextPage={hasNextPage}
+              hasPreviousPage={hasPreviousPage}
+              totalItems={totalItems}
+              itemsPerPage={10}
+            />
           </div>
 
           {/* Mobile Collapsible Cards */}
           <div className="md:hidden space-y-3">
-            {paginated.length === 0 ? (
+            {paginatedItems.length === 0 ? (
               <div className="py-6 text-sm text-center text-gray-400 sm:py-8">
                 No orders found
               </div>
             ) : (
-              paginated.map((order, index) => (
+              paginatedItems.map((order, index) => (
                 <Collapsible
                   key={order._id}
                   open={openItems.has(order._id)}
@@ -348,48 +326,6 @@ const OrdersTable = ({ orders = [] }) => {
                   </div>
                 </Collapsible>
               ))
-            )}
-
-            {/* Mobile Pagination */}
-            {totalPages > 1 && (
-              <Pagination className="mt-4">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage((p) => Math.max(1, p - 1));
-                      }}
-                      aria-disabled={page === 1}
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <PaginationItem key={i}>
-                      <PaginationLink
-                        href="#"
-                        isActive={page === i + 1}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage(i + 1);
-                        }}
-                      >
-                        {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage((p) => Math.min(totalPages, p + 1));
-                      }}
-                      aria-disabled={page === totalPages}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
             )}
           </div>
         </CardContent>

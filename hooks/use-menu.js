@@ -11,6 +11,11 @@ export function useMenu() {
   } = useQuery({
     queryKey: ["menu"],
     queryFn: () => apiClient.get("/menu"),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   const addMenuItem = useMutation({

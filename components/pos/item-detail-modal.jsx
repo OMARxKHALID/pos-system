@@ -22,7 +22,18 @@ export function ItemDetailModal({ selectedItem, onClose }) {
 
   const handleAddToCart = () => {
     if (!selectedItem) return;
-    addToCart(selectedItem, quantity);
+
+    // Create a safe item object with validated values
+    const safeItem = {
+      ...selectedItem,
+      name: displayName,
+      icon: displayIcon,
+      price: displayPrice,
+      category: categoryName,
+      description: displayDescription,
+    };
+
+    addToCart(safeItem, quantity);
     onClose();
   };
 
@@ -37,6 +48,18 @@ export function ItemDetailModal({ selectedItem, onClose }) {
     description,
   } = selectedItem;
 
+  // Ensure category is always a string
+  const categoryName =
+    typeof category === "object" && category !== null
+      ? category.name || "Uncategorized"
+      : category || "Uncategorized";
+
+  // Ensure all displayed values are strings
+  const displayName = typeof name === "string" ? name : "Unknown Item";
+  const displayDescription = typeof description === "string" ? description : "";
+  const displayIcon = typeof icon === "string" ? icon : "🍔";
+  const displayPrice = typeof price === "number" && !isNaN(price) ? price : 0;
+
   return (
     <Dialog open={!!selectedItem} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm p-0 bg-transparent border-0 shadow-none">
@@ -44,18 +67,18 @@ export function ItemDetailModal({ selectedItem, onClose }) {
           <CardContent className="p-4">
             <VisuallyHidden>
               <DialogTitle className="mb-2 text-center text-lg font-bold">
-                {name}
+                {displayName}
               </DialogTitle>
             </VisuallyHidden>
 
             <div className="relative flex items-center justify-center w-full h-32 mx-auto mb-3 overflow-hidden rounded-md bg-gradient-to-br from-muted/50 to-muted">
               {image ? (
                 <div className="text-8xl text-muted-foreground">
-                  {icon || "🍔"}
+                  {displayIcon}
                 </div>
               ) : (
                 <div className="text-8xl text-muted-foreground">
-                  {icon || "🍔"}
+                  {displayIcon}
                 </div>
               )}
             </div>
@@ -63,18 +86,18 @@ export function ItemDetailModal({ selectedItem, onClose }) {
             <div className="mb-3 text-center">
               <Badge variant="secondary" className="mb-2 text-[10px] h-4 px-2">
                 <Package className="w-2 h-2 mr-1" />
-                {category}
+                {categoryName}
               </Badge>
               <h3 className="mb-1 text-sm font-semibold text-foreground">
-                {name}
+                {displayName}
               </h3>
-              {description && (
+              {displayDescription && (
                 <p className="mb-2 text-xs text-muted-foreground">
-                  {description}
+                  {displayDescription}
                 </p>
               )}
               <p className="text-lg font-bold text-primary">
-                {formatCurrency(price)}
+                {formatCurrency(displayPrice)}
               </p>
             </div>
 
@@ -105,7 +128,7 @@ export function ItemDetailModal({ selectedItem, onClose }) {
               className="w-full text-sm font-medium rounded-md h-9"
               onClick={handleAddToCart}
             >
-              Add to Cart ({formatCurrency(price * quantity)})
+              Add to Cart ({formatCurrency(displayPrice * quantity)})
             </Button>
           </CardContent>
         </Card>

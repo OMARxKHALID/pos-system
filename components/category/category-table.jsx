@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -13,12 +13,31 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { usePagination } from "@/hooks/use-pagination";
+import TablePagination from "@/components/ui/table-pagination";
 
 const CategoryTable = ({ categories = [], onEdit, onDelete }) => {
   const [search, setSearch] = useState("");
   const filteredCategories = categories.filter((cat) =>
     cat.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Pagination
+  const {
+    currentPage,
+    paginatedItems,
+    totalPages,
+    totalItems,
+    goToPage,
+    hasNextPage,
+    hasPreviousPage,
+    resetPagination,
+  } = usePagination(filteredCategories, 10);
+
+  // Reset pagination when search changes
+  useEffect(() => {
+    resetPagination();
+  }, [search, resetPagination]);
 
   return (
     <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
@@ -52,7 +71,7 @@ const CategoryTable = ({ categories = [], onEdit, onDelete }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCategories.length === 0 ? (
+                {paginatedItems.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={4}
@@ -62,7 +81,7 @@ const CategoryTable = ({ categories = [], onEdit, onDelete }) => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredCategories.map((cat) => (
+                  paginatedItems.map((cat) => (
                     <TableRow key={cat._id}>
                       <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
                         {cat.name}
@@ -112,12 +131,12 @@ const CategoryTable = ({ categories = [], onEdit, onDelete }) => {
         </div>
         {/* Mobile Card/List */}
         <div className="md:hidden space-y-3">
-          {filteredCategories.length === 0 ? (
+          {paginatedItems.length === 0 ? (
             <div className="py-6 text-sm text-center text-gray-400 sm:py-8">
               No categories found
             </div>
           ) : (
-            filteredCategories.map((cat) => (
+            paginatedItems.map((cat) => (
               <div
                 key={cat._id}
                 className="rounded-lg border p-3 bg-white flex flex-col gap-2 shadow-sm"
@@ -164,6 +183,19 @@ const CategoryTable = ({ categories = [], onEdit, onDelete }) => {
               </div>
             ))
           )}
+        </div>
+
+        {/* Pagination */}
+        <div className="mt-6">
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            hasNextPage={hasNextPage}
+            hasPreviousPage={hasPreviousPage}
+            totalItems={totalItems}
+            itemsPerPage={10}
+          />
         </div>
       </CardContent>
     </Card>

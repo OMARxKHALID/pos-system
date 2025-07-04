@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/select";
 import { useCategory } from "@/hooks/use-category";
 import { Switch } from "@/components/ui/switch";
+import { usePagination } from "@/hooks/use-pagination";
+import TablePagination from "@/components/ui/table-pagination";
+import { useEffect } from "react";
 
 const MenuTable = ({
   menuItems = [],
@@ -60,6 +63,23 @@ const MenuTable = ({
       categoryFilter === "all" || item.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  // Pagination
+  const {
+    currentPage,
+    paginatedItems,
+    totalPages,
+    totalItems,
+    goToPage,
+    hasNextPage,
+    hasPreviousPage,
+    resetPagination,
+  } = usePagination(filteredItems, 10);
+
+  // Reset pagination when search or filter changes
+  useEffect(() => {
+    resetPagination();
+  }, [search, categoryFilter, resetPagination]);
 
   return (
     <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
@@ -116,7 +136,7 @@ const MenuTable = ({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredItems.length === 0 ? (
+                    {paginatedItems.length === 0 ? (
                       <TableRow>
                         <TableCell
                           colSpan={6}
@@ -126,7 +146,7 @@ const MenuTable = ({
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredItems.map((item) => (
+                      paginatedItems.map((item) => (
                         <TableRow key={item._id}>
                           <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
                             {item.name}
@@ -193,12 +213,12 @@ const MenuTable = ({
 
             {/* Mobile Card/List */}
             <div className="md:hidden space-y-3">
-              {filteredItems.length === 0 ? (
+              {paginatedItems.length === 0 ? (
                 <div className="py-6 text-sm text-center text-gray-400 sm:py-8">
                   No menu items found
                 </div>
               ) : (
-                filteredItems.map((item) => (
+                paginatedItems.map((item) => (
                   <div
                     key={item._id}
                     className="rounded-lg border p-3 bg-white flex flex-col gap-2 shadow-sm"
@@ -259,6 +279,19 @@ const MenuTable = ({
                   </div>
                 ))
               )}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-6">
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                hasNextPage={hasNextPage}
+                hasPreviousPage={hasPreviousPage}
+                totalItems={totalItems}
+                itemsPerPage={10}
+              />
             </div>
           </>
         )}

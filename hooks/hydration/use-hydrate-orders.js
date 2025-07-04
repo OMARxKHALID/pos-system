@@ -1,18 +1,27 @@
 "use client";
 
-import { useOrders } from "@/hooks/use-orders";
+import { useLazyOrders } from "@/hooks/use-orders";
 import { useSalesStore } from "@/hooks/zustand/use-sales-store";
 import { useEffect } from "react";
 
 export function useHydrateOrders() {
-  const { data, isSuccess } = useOrders();
+  const { orders, isLoading, isError, refetch } = useLazyOrders();
   const setOrders = useSalesStore((s) => s.setOrders);
 
   useEffect(() => {
-    if (isSuccess && data) {
-      setOrders(data);
-    }
-  }, [isSuccess, data, setOrders]);
+    // Only fetch orders when this hook is used
+    refetch();
+  }, [refetch]);
 
-  return { isHydrated: isSuccess && !!data };
+  useEffect(() => {
+    if (orders && !isLoading && !isError) {
+      setOrders(orders);
+    }
+  }, [orders, isLoading, isError, setOrders]);
+
+  return {
+    isHydrated: !isLoading && !isError && !!orders,
+    isLoading,
+    isError,
+  };
 }

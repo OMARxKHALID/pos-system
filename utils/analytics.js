@@ -64,7 +64,7 @@ export function calculateWeeklySalesTrend(orders) {
 
   // Populate with order data
   orders.forEach((order) => {
-    const orderDate = new Date(order.timestamp);
+    const orderDate = new Date(order.createdAt);
     const dateKey = orderDate.toISOString().split("T")[0];
 
     if (dailySalesMap.has(dateKey)) {
@@ -142,7 +142,7 @@ export function calculateHourlySalesTrend(orders) {
   }
 
   orders.forEach((order) => {
-    const orderDate = new Date(order.timestamp);
+    const orderDate = new Date(order.createdAt);
     const hour = orderDate.getHours();
 
     const hourData = hourlyMap.get(hour);
@@ -172,16 +172,16 @@ export function exportAnalyticsToCSV(analyticsData, linkRef) {
 export function exportOrdersToCSV(orders, linkRef) {
   if (!orders || orders.length === 0) return;
 
+  const headers = ["Order #", "Customer", "Items", "Total", "Status", "Date"];
   const rows = [
-    ["Order ID", "Date", "Status", "Total", "Items"],
+    headers,
     ...orders.map((order) => [
-      order._id,
-      new Date(order.createdAt).toLocaleString(),
+      order.orderNumber,
+      order.customerName,
+      order.items.length,
+      formatCurrency(order.total),
       order.status,
-      order.total,
-      order.items
-        .map((item) => `${item.menuItem?.name || "Unknown"} x${item.quantity}`)
-        .join("; "),
+      new Date(order.createdAt).toLocaleDateString(),
     ]),
   ];
 

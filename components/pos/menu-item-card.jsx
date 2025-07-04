@@ -51,8 +51,8 @@ export function MenuItemCard({ item, onSelect }) {
                 {category
                   ? `${category.icon} ${category.name}`
                   : typeof item.category === "object"
-                  ? item.category.name
-                  : item.category}
+                  ? item.category.name || "Unknown"
+                  : item.category || "Unknown"}
               </Badge>
               {!item.available && (
                 <Badge variant="secondary" className="text-xs mt-1">

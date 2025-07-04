@@ -12,6 +12,7 @@ import {
   Users,
   ClipboardList,
   Home,
+  Settings,
 } from "lucide-react";
 import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import {
@@ -20,17 +21,25 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useUserStore } from "@/hooks/zustand/use-user-store";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const NAV_LINKS = [
   { href: "/", label: "POS", icon: Home },
-  { href: "/admin/dashboard", label: "Report", icon: BarChart3 },
+  {
+    href: "/admin/dashboard",
+    label: "Report",
+    icon: BarChart3,
+    prefetch: true,
+  },
   { href: "/admin/menu", label: "Menu", icon: Package },
   { href: "/admin/category", label: "Category", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
-const NavLink = ({ href, label, icon: Icon }) => {
+const NavLink = ({ href, label, icon: Icon, prefetch = false }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -45,7 +54,7 @@ const NavLink = ({ href, label, icon: Icon }) => {
             : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
         }
       `}
-      prefetch={false}
+      prefetch={prefetch}
     >
       <Icon
         className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-400"}`}
@@ -57,35 +66,50 @@ const NavLink = ({ href, label, icon: Icon }) => {
 
 const SidebarContent = () => {
   const { user } = useUserStore();
+  const { status } = useSession();
+  const isLoading = status === "loading";
+
   return (
     <div className="flex flex-col h-full ">
       {/* User Profile */}
       <div className="p-6 border-b">
         <div className="flex items-center gap-3">
-          <Avatar className="w-12 h-12">
-            <AvatarImage
-              src="/placeholder-user.jpg"
-              alt={user?.name || "User"}
-            />
-            <AvatarFallback className="font-semibold text-blue-600 bg-blue-100">
-              {user?.name
-                ? user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                : "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="font-semibold text-gray-900">
-              {user?.name || "Unknown User"}
-            </h2>
-            <p className="text-sm text-gray-500">
-              {user?.role
-                ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-                : "Role"}
-            </p>
-          </div>
+          {isLoading ? (
+            <>
+              <Skeleton className="w-12 h-12 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </>
+          ) : (
+            <>
+              <Avatar className="w-12 h-12">
+                <AvatarImage
+                  src="/placeholder-user.jpg"
+                  alt={user?.name || "User"}
+                />
+                <AvatarFallback className="font-semibold text-blue-600 bg-blue-100">
+                  {user?.name
+                    ? user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                    : "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h2 className="font-semibold text-gray-900">
+                  {user?.name || "Unknown User"}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {user?.role
+                    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                    : "Role"}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

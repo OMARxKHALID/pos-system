@@ -1,7 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/utils/formatters";
 
-const DashboardCard = ({ title, value, icon: Icon, iconColor, unit }) => (
+const DashboardCard = ({
+  title,
+  value,
+  icon: Icon,
+  iconColor,
+  unit,
+  subtitle,
+}) => (
   <Card className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl sm:p-5 lg:p-6">
     <div className="flex items-start justify-between mb-3 sm:mb-4">
       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
@@ -20,6 +27,11 @@ const DashboardCard = ({ title, value, icon: Icon, iconColor, unit }) => (
           ? formatCurrency(value)
           : value}
       </div>
+      {subtitle && (
+        <div className="text-xs text-gray-500 truncate sm:text-sm">
+          {subtitle}
+        </div>
+      )}
     </div>
   </Card>
 );

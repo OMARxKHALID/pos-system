@@ -27,14 +27,14 @@ const useSalesStore = create(
       updateOrderStatus: (id, status) =>
         set((state) => ({
           orders: state.orders.map((order) =>
-            order.id === id ? { ...order, status } : order
+            order._id === id ? { ...order, status } : order
           ),
         })),
       // Selectors
-      getOrderById: (id) => get().orders.find((order) => order.id === id),
+      getOrderById: (id) => get().orders.find((order) => order._id === id),
       getOrdersByDateRange: (startDate, endDate) =>
         get().orders.filter((order) => {
-          const orderDate = new Date(order.timestamp);
+          const orderDate = new Date(order.createdAt);
           return orderDate >= startDate && orderDate <= endDate;
         }),
       getAnalytics: () => {
