@@ -92,13 +92,13 @@ const OrdersTable = ({ orders = [] }) => {
   // Responsive: show table on md+ screens, collapsible cards on mobile
   return (
     <>
-      <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
-        <CardHeader className="flex flex-col items-start justify-between px-4 pt-4 pb-3 space-y-4 lg:flex-row lg:items-center sm:pb-4 sm:px-5 lg:px-6 sm:pt-5 lg:pt-6 lg:space-y-0">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
+        <div className="flex flex-col items-start justify-between px-4 pt-4 pb-3 space-y-4 lg:flex-row lg:items-center sm:pb-4 sm:px-5 lg:px-6 sm:pt-5 lg:pt-6 lg:space-y-0">
           <div className="flex items-center gap-2">
             <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full"></div>
-            <CardTitle className="text-base font-semibold text-gray-900 sm:text-lg">
+            <h3 className="text-base font-semibold text-gray-900 sm:text-lg">
               All Orders
-            </CardTitle>
+            </h3>
           </div>
           <div className="flex flex-col items-start w-full gap-3 sm:flex-row sm:items-center sm:gap-6 lg:w-auto">
             <Input
@@ -119,8 +119,8 @@ const OrdersTable = ({ orders = [] }) => {
               </SelectContent>
             </Select>
           </div>
-        </CardHeader>
-        <CardContent className="px-2 pb-4 sm:px-5 lg:px-6 sm:pb-5 lg:pb-6">
+        </div>
+        <div className="px-2 pb-4 sm:px-5 lg:px-6 sm:pb-5 lg:pb-6">
           {/* Desktop Table */}
           <div className="hidden md:block -mx-4 overflow-x-auto sm:mx-0">
             <div className="min-w-[700px] px-4 sm:px-0">
@@ -328,8 +328,8 @@ const OrdersTable = ({ orders = [] }) => {
               ))
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Order Detail Modal */}
       <OrderDetailModal

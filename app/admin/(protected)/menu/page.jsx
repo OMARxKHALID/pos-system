@@ -14,7 +14,9 @@ import { useMenu } from "@/hooks/use-menu";
 import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import MenuForm from "@/components/menu/menu-form";
 import MenuTable from "@/components/menu/menu-table";
-import AdminMenuHeader from "@/components/menu/menu-header";
+import { Package, ChevronRight, Home, Plus, Search } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function MenuPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -70,27 +72,182 @@ export default function MenuPage() {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-center">Loading menu items...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="mb-4 text-gray-600 text-base sm:text-lg font-medium">
+            Loading menu items...
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (isError) {
     return (
-      <div className="p-8 text-center text-red-500">
-        Failed to load menu items.
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="mb-4 text-red-500 text-base sm:text-lg font-medium">
+            Failed to load menu items.
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-3">
-      <div className="mx-auto space-y-3 sm:space-y-6">
-        {/* Header */}
-        <AdminMenuHeader
-          toggleSidebar={toggleSidebar}
-          data={menuItems}
-          linkRef={linkRef}
-          onAdd={() => setIsAddDialogOpen(true)}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+      <div className="mx-auto max-w-7xl p-3 sm:p-4 md:p-6 lg:p-8">
+        {/* Enhanced Header */}
+        <div className="mb-6 sm:mb-8">
+          {/* Breadcrumb */}
+          <nav className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+            <Home className="w-3 h-3 sm:w-4 sm:h-4" />
+            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>Admin</span>
+            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="text-gray-900 font-medium">Menu</span>
+          </nav>
+
+          {/* Main Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
+                  <Package className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                    Menu Management
+                  </h1>
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-600">
+                    Manage your restaurant menu items and categories
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Badge
+                variant="secondary"
+                className="bg-blue-100 text-blue-700 text-xs sm:text-sm px-2 sm:px-3 py-1"
+              >
+                <Package className="w-3 h-3 mr-1.5 sm:mr-2" />
+                {menuItems?.length || 0} Items
+              </Badge>
+              <Button
+                onClick={() => setIsAddDialogOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm px-3 sm:px-4 py-2"
+              >
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                Add Item
+              </Button>
+              <button
+                ref={linkRef}
+                onClick={toggleSidebar}
+                className="p-2 sm:p-3 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg sm:rounded-xl transition-all duration-200 shadow-sm border border-gray-200"
+              >
+                <Package className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <Card className="bg-white/80 backdrop-blur-sm border-0">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
+                    Total Items
+                  </p>
+                  <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
+                    {menuItems?.length || 0}
+                  </p>
+                </div>
+                <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-blue-100 rounded-lg">
+                  <Package className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/80 backdrop-blur-sm border-0">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
+                    Available Items
+                  </p>
+                  <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
+                    {menuItems?.filter((item) => item.available)?.length || 0}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {menuItems?.length > 0
+                      ? `${Math.round(
+                          (menuItems.filter((item) => item.available).length /
+                            menuItems.length) *
+                            100
+                        )}% of total`
+                      : "0% of total"}
+                  </p>
+                </div>
+                <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-green-100 rounded-lg">
+                  <Package className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/80 backdrop-blur-sm border-0">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
+                    Categories
+                  </p>
+                  <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
+                    {
+                      new Set(menuItems?.map((item) => item.category) || [])
+                        .size
+                    }
+                  </p>
+                </div>
+                <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-purple-100 rounded-lg">
+                  <Package className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/80 backdrop-blur-sm border-0">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
+                    Unavailable Items
+                  </p>
+                  <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
+                    {menuItems?.filter((item) => !item.available)?.length || 0}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {menuItems?.length > 0
+                      ? `${Math.round(
+                          (menuItems.filter((item) => !item.available).length /
+                            menuItems.length) *
+                            100
+                        )}% of total`
+                      : "0% of total"}
+                  </p>
+                </div>
+                <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-red-100 rounded-lg">
+                  <Package className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-red-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Menu Table */}
         <MenuTable
@@ -115,6 +272,7 @@ export default function MenuPage() {
             <MenuForm onSubmit={handleEditItem} initialData={editingItem} />
           </DialogContent>
         </Dialog>
+
         {/* Add Menu Item Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>

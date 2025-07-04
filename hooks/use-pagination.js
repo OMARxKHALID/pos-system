@@ -1,7 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 
 export function usePagination(items = [], itemsPerPage = 10) {
   const [currentPage, setCurrentPage] = useState(1);
+  const totalItems = items.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
   const paginatedItems = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -9,28 +11,42 @@ export function usePagination(items = [], itemsPerPage = 10) {
     return items.slice(startIndex, endIndex);
   }, [items, currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-  const totalItems = items.length;
+  // Reset page if it exceeds total pages
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
 
-  const goToPage = (page) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  };
+  const goToPage = useCallback(
+    (page) => {
+      if (totalItems === 0) return;
+      const validPage = Math.max(1, Math.min(page, totalPages));
+      if (validPage !== currentPage) {
+        setCurrentPage(validPage);
+      }
+    },
+    [totalItems, totalPages, currentPage]
+  );
 
-  const nextPage = () => {
+  const nextPage = useCallback(() => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
-  };
+  }, [currentPage, totalPages]);
 
-  const previousPage = () => {
+  const previousPage = useCallback(() => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
-  };
+  }, [currentPage]);
 
-  const resetPagination = () => {
+  const resetPagination = useCallback(() => {
     setCurrentPage(1);
-  };
+  }, []);
+
+  const hasNextPage = currentPage < totalPages && totalPages > 1;
+  const hasPreviousPage = currentPage > 1;
 
   return {
     currentPage,
@@ -41,7 +57,7 @@ export function usePagination(items = [], itemsPerPage = 10) {
     nextPage,
     previousPage,
     resetPagination,
-    hasNextPage: currentPage < totalPages,
-    hasPreviousPage: currentPage > 1,
+    hasNextPage,
+    hasPreviousPage,
   };
 }

@@ -23,7 +23,7 @@ import { useCategory } from "@/hooks/use-category";
 import { Switch } from "@/components/ui/switch";
 import { usePagination } from "@/hooks/use-pagination";
 import TablePagination from "@/components/ui/table-pagination";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const MenuTable = ({
   menuItems = [],
@@ -37,6 +37,7 @@ const MenuTable = ({
   categoryFilter,
   setCategoryFilter,
 }) => {
+  const [statusFilter, setStatusFilter] = useState("all");
   const { categories } = useCategory();
 
   // Helper to get category name by id
@@ -53,7 +54,7 @@ const MenuTable = ({
     return cat ? cat.name : category;
   };
 
-  // Filter menu items based on search and category filter
+  // Filter menu items based on search, category filter, and status filter
   const filteredItems = menuItems.filter((item) => {
     const matchesSearch =
       !search ||
@@ -61,7 +62,11 @@ const MenuTable = ({
       item.description?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
       categoryFilter === "all" || item.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "available" && item.available) ||
+      (statusFilter === "unavailable" && !item.available);
+    return matchesSearch && matchesCategory && matchesStatus;
   });
 
   // Pagination
@@ -79,7 +84,7 @@ const MenuTable = ({
   // Reset pagination when search or filter changes
   useEffect(() => {
     resetPagination();
-  }, [search, categoryFilter, resetPagination]);
+  }, [search, categoryFilter, statusFilter, resetPagination]);
 
   return (
     <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
@@ -89,6 +94,9 @@ const MenuTable = ({
           <CardTitle className="text-base font-semibold text-gray-900 sm:text-lg">
             All Menu Items
           </CardTitle>
+          <Badge variant="outline" className="text-xs ml-2">
+            {filteredItems.length} of {menuItems?.length || 0} items
+          </Badge>
         </div>
         <div className="flex flex-col items-start w-full gap-3 sm:flex-row sm:items-center sm:gap-6 lg:w-auto">
           <Input
@@ -108,6 +116,16 @@ const MenuTable = ({
                   {cat.name}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40 h-8 text-xs border-gray-200">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="available">Available</SelectItem>
+              <SelectItem value="unavailable">Unavailable</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -180,9 +198,18 @@ const MenuTable = ({
                                     : "Set available"
                                 }
                               />
-                              <span className="text-xs">
+                              <Badge
+                                variant={
+                                  item.available ? "default" : "secondary"
+                                }
+                                className={`text-xs ${
+                                  item.available
+                                    ? "bg-green-100 text-green-700 border-green-200"
+                                    : "bg-red-100 text-red-700 border-red-200"
+                                }`}
+                              >
                                 {item.available ? "Available" : "Unavailable"}
-                              </span>
+                              </Badge>
                             </div>
                           </TableCell>
                           <TableCell className="py-3 sm:py-4 flex gap-2">
@@ -242,9 +269,16 @@ const MenuTable = ({
                             item.available ? "Set unavailable" : "Set available"
                           }
                         />
-                        <span className="text-xs">
+                        <Badge
+                          variant={item.available ? "default" : "secondary"}
+                          className={`text-xs ${
+                            item.available
+                              ? "bg-green-100 text-green-700 border-green-200"
+                              : "bg-red-100 text-red-700 border-red-200"
+                          }`}
+                        >
                           {item.available ? "Available" : "Unavailable"}
-                        </span>
+                        </Badge>
                       </div>
                     </div>
                     <div className="text-xs text-gray-600 line-clamp-2">

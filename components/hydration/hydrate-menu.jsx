@@ -1,19 +1,11 @@
 "use client";
 
 import { useHydrateMenu } from "@/hooks/hydration/use-hydrate-menu";
-import { usePathname } from "next/navigation";
 
 export default function HydrateMenu() {
-  const pathname = usePathname();
-
-  // Only hydrate menu data on pages that need it
-  const shouldHydrate =
-    pathname === "/" ||
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/pos");
-
-  if (!shouldHydrate) return null;
-
+  // Always call the hook to maintain hook order consistency
+  // The hook internally handles whether to hydrate based on the current path
   useHydrateMenu();
+
   return null;
 }

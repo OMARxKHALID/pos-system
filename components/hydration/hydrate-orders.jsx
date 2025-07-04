@@ -1,19 +1,11 @@
 "use client";
 
 import { useHydrateOrders } from "@/hooks/hydration/use-hydrate-orders";
-import { usePathname } from "next/navigation";
 
 export default function HydrateOrders() {
-  const pathname = usePathname();
-
-  // Only hydrate orders data on admin pages that need it
-  const shouldHydrate =
-    pathname.startsWith("/admin/dashboard") ||
-    pathname.startsWith("/admin/orders") ||
-    pathname.startsWith("/admin/reports");
-
-  if (!shouldHydrate) return null;
-
+  // Always call the hook to maintain hook order consistency
+  // The hook internally handles whether to hydrate based on the current path
   useHydrateOrders();
+
   return null;
 }

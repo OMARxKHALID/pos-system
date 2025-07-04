@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -18,9 +19,10 @@ const TablePagination = ({
   itemsPerPage,
   className = "",
 }) => {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1 || totalItems === 0) return null;
 
-  const getVisiblePages = () => {
+  // Calculate visible page range
+  const visiblePages = useMemo(() => {
     const delta = 2;
     const range = [];
     const rangeWithDots = [];
@@ -48,9 +50,9 @@ const TablePagination = ({
     }
 
     return rangeWithDots;
-  };
+  }, [currentPage, totalPages]);
 
-  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
@@ -62,7 +64,11 @@ const TablePagination = ({
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              onClick={() => onPageChange(currentPage - 1)}
+              onClick={
+                hasPreviousPage
+                  ? () => onPageChange(currentPage - 1)
+                  : undefined
+              }
               className={
                 !hasPreviousPage
                   ? "pointer-events-none opacity-50"
@@ -71,8 +77,8 @@ const TablePagination = ({
             />
           </PaginationItem>
 
-          {getVisiblePages().map((page, index) => (
-            <PaginationItem key={index}>
+          {visiblePages.map((page, index) => (
+            <PaginationItem key={`${page}-${index}`}>
               {page === "..." ? (
                 <PaginationEllipsis />
               ) : (
@@ -89,7 +95,9 @@ const TablePagination = ({
 
           <PaginationItem>
             <PaginationNext
-              onClick={() => onPageChange(currentPage + 1)}
+              onClick={
+                hasNextPage ? () => onPageChange(currentPage + 1) : undefined
+              }
               className={
                 !hasNextPage
                   ? "pointer-events-none opacity-50"
