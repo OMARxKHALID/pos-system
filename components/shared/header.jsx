@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ShoppingCart, BarChart3, Store } from "lucide-react";
 import { StatusIndicator } from "@/components/ui/status-indicator";
-import { useCartStore } from "@/hooks/use-cart-store";
+import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

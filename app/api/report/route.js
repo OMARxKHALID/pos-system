@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/db-connect";
 import Order from "@/models/order";
 import Menu from "@/models/menu";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -94,7 +95,7 @@ export async function GET() {
     // Top customers (mock, as customer info is not in Order model)
     const topCustomers = [];
 
-    return Response.json({
+    return NextResponse.json({
       totalSales,
       totalOrders,
       averageOrderValue,
@@ -105,6 +106,6 @@ export async function GET() {
       topCustomers,
     });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

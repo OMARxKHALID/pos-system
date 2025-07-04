@@ -1,6 +1,6 @@
 "use client";
 import { useMenu } from "@/hooks/use-menu";
-import { useCartStore } from "@/hooks/use-cart-store";
+import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { useEffect } from "react";
 
 export default function HydrateMenu() {

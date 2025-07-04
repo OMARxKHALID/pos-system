@@ -13,18 +13,19 @@ import {
   ClipboardList,
   Home,
 } from "lucide-react";
-import { useAdminSidebarStore } from "@/hooks/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
 import {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useUserStore } from "@/hooks/use-user-store";
+import { useUserStore } from "@/hooks/zustand/use-user-store";
 
 const NAV_LINKS = [
   { href: "/", label: "POS", icon: Home },
   { href: "/admin/dashboard", label: "Report", icon: BarChart3 },
   { href: "/admin/menu", label: "Menu", icon: Package },
+  { href: "/admin/category", label: "Category", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/users", label: "Users", icon: Users },
 ];

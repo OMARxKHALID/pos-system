@@ -1,6 +1,6 @@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download, Menu } from "lucide-react";
+import { Download, FileText, Menu } from "lucide-react";
 import { exportOrdersToCSV } from "@/utils/pos-utils";
 
 export default function AdminOrdersHeader({ toggleSidebar, data, linkRef }) {
@@ -17,32 +17,24 @@ export default function AdminOrdersHeader({ toggleSidebar, data, linkRef }) {
           >
             <Menu className="h-6 w-6 text-gray-600" />
           </Button>
-
-          <h1 className="truncate text-base sm:text-lg md:text-xl font-semibold text-gray-900 max-w-[60vw] sm:max-w-none">
-            {" "}
+          <FileText className="h-7 w-7 text-gray-600" />
+          <h1 className="truncate text-xl sm:text-2xl font-semibold text-gray-900 max-w-[60vw] sm:max-w-none">
             Order Management
           </h1>
         </div>
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex items-center gap-4">
+          <span className="truncate text-xs font-medium text-gray-700 sm:text-sm">
+            {data?.length || 0} Orders
+          </span>
           <Button
-            className="flex w-full items-center gap-2 sm:w-auto"
+            variant="ghost"
+            size="icon"
             onClick={() => exportOrdersToCSV(data, linkRef)}
+            aria-label="Download orders"
           >
-            <Download className="h-4 w-4" />
-            <span>Download</span>
+            <Download className="h-5 w-5 text-gray-600" />
           </Button>
           <a ref={linkRef} style={{ display: "none" }} />
-          <div className="flex w-full items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 sm:w-auto sm:px-4">
-            <Calendar className="h-4 w-4 flex-shrink-0 text-gray-400" />
-            <span className="truncate text-xs font-medium text-gray-700 sm:text-sm">
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
         </div>
       </CardHeader>
     </Card>

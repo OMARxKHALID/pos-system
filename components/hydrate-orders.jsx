@@ -1,7 +1,7 @@
 "use client";
 
 import { useOrders } from "@/hooks/use-orders";
-import { useSalesStore } from "@/hooks/use-sales-store";
+import { useSalesStore } from "@/hooks/zustand/use-sales-store";
 import { useEffect } from "react";
 
 export default function HydrateOrders() {

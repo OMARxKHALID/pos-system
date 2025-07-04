@@ -9,7 +9,7 @@ export function MenuGrid({
   searchQuery = "",
   onItemSelect,
 }) {
-  const { data: menuItems, isLoading, isError } = useMenu();
+  const { menuItems, isLoading, isError } = useMenu();
 
   if (isLoading) {
     return (

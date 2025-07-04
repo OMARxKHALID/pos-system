@@ -5,10 +5,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Area, AreaChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { formatCurrency } from "@/utils/pos-utils";
 
-const ReportGraph = ({ data = [], totalSales = 0 }) => {
-  // Use backend data for chart
+const ReportGraph = ({ data = [] }) => {
   const chartData =
     Array.isArray(data) && data.length > 0
       ? data.map((d) => ({
@@ -77,18 +75,6 @@ const ReportGraph = ({ data = [], totalSales = 0 }) => {
             </AreaChart>
           </ResponsiveContainer>
         </ChartContainer>
-
-        <div className="flex flex-col items-start justify-between gap-4 pt-4 space-y-4 border-t border-gray-200 sm:flex-row sm:items-center sm:pt-6 sm:space-y-0">
-          <div className="text-center sm:text-left">
-            <div className="mb-1 text-xs font-medium text-gray-500 sm:text-sm">
-              Total Sales
-            </div>
-            <div className="text-lg font-bold leading-tight text-gray-900 sm:text-xl lg:text-2xl">
-              {formatCurrency(totalSales)}
-            </div>
-            <div className="mt-1 text-xs text-gray-400">USD</div>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );

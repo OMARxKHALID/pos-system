@@ -1,3 +1,6 @@
+// Zustand store for sales/order analytics
+// State at top, actions grouped, SSR-safe persist, named export
+
 "use client";
 
 import { create } from "zustand";
@@ -12,33 +15,31 @@ import {
 const useSalesStore = create(
   persist(
     (set, get) => ({
+      // State
       orders: [],
+      // Actions
       setOrders: (orders) => set({ orders }),
       addOrder: (order) =>
         set((state) => ({
           orders: [...state.orders, order],
         })),
-
       updateOrderStatus: (id, status) =>
         set((state) => ({
           orders: state.orders.map((order) =>
             order.id === id ? { ...order, status } : order
           ),
         })),
-
+      // Selectors
       getOrderById: (id) => get().orders.find((order) => order.id === id),
-
       getOrdersByDateRange: (startDate, endDate) =>
         get().orders.filter((order) => {
           const orderDate = new Date(order.timestamp);
           return orderDate >= startDate && orderDate <= endDate;
         }),
-
       getAnalytics: () => {
         const completedOrders = get().orders.filter(
           (order) => order.status === "paid"
         );
-
         const totalSales = completedOrders.reduce(
           (sum, order) => sum + order.total,
           0
@@ -46,7 +47,6 @@ const useSalesStore = create(
         const totalOrders = completedOrders.length;
         const averageOrderValue =
           totalOrders > 0 ? totalSales / totalOrders : 0;
-
         return {
           totalSales,
           totalOrders,
@@ -61,11 +61,10 @@ const useSalesStore = create(
     {
       name: "sales-storage",
       storage: createJSONStorage(() => {
-        // Check if we're in a browser environment before accessing localStorage
         if (typeof window !== "undefined") {
           return localStorage;
         }
-        // Return a mock storage for SSR
+        // SSR-safe fallback
         return {
           getItem: () => null,
           setItem: () => {},

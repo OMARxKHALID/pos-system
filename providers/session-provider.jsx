@@ -1,6 +1,6 @@
 "use client";
 import { SessionProvider, useSession } from "next-auth/react";
-import { useUserStore } from "@/hooks/use-user-store";
+import { useUserStore } from "@/hooks/zustand/use-user-store";
 import { useEffect } from "react";
 
 function UserSessionSync() {

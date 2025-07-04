@@ -1,5 +1,6 @@
 import dbConnect from "@/lib/db-connect";
 import Order from "@/models/order";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -27,9 +28,9 @@ export async function GET() {
         items,
       };
     });
-    return Response.json(ordersWithIcons);
+    return NextResponse.json(ordersWithIcons);
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -43,7 +44,7 @@ export async function POST(req) {
       typeof data.total !== "number" ||
       !data.status
     ) {
-      return Response.json(
+      return NextResponse.json(
         {
           error:
             "Missing required fields: items (array), total (number), status",
@@ -52,9 +53,9 @@ export async function POST(req) {
       );
     }
     const order = await Order.create(data);
-    return Response.json(order, { status: 201 });
+    return NextResponse.json(order, { status: 201 });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -63,16 +64,17 @@ export async function PUT(req) {
     await dbConnect();
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
-    if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
+    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
     const { status } = await req.json();
     const updated = await Order.findByIdAndUpdate(
       id,
       { status },
       { new: true }
     );
-    if (!updated) return Response.json({ error: "Not found" }, { status: 404 });
-    return Response.json(updated);
+    if (!updated)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(updated);
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

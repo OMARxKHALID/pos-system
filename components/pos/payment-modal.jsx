@@ -20,7 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CreditCard, Banknote, Smartphone } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { useDownloadReceiptStore } from "@/hooks/use-pos-settings-store";
+import { useDownloadReceiptStore } from "@/hooks/zustand/use-pos-settings-store";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function PaymentModal({ open, onOpenChange, total, onConfirm }) {

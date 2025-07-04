@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { BarChart3, Package, FileText } from "lucide-react";
-import { useAdminSidebarStore } from "@/hooks/use-pos-settings-store";
+import { useAdminSidebarStore } from "@/hooks/zustand/use-pos-settings-store";
 import { useAnalytics } from "@/hooks/use-report";
 import DashboardCard from "@/components/dashboard/dashboard-card";
 import ReportGraph from "@/components/dashboard/report-graph";

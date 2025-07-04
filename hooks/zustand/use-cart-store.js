@@ -1,3 +1,6 @@
+// Zustand store for cart management
+// State at top, actions grouped, SSR-safe persist, named export
+
 "use client";
 
 import { create } from "zustand";
@@ -7,13 +10,14 @@ import { clampDiscountPercentage } from "@/utils/pos-utils";
 const useCartStore = create(
   persist(
     (set, get) => ({
+      // State
       menu: [],
       cart: [],
       orderItems: [],
       cartDiscount: 0,
 
+      // Actions
       setMenu: (menu) => set({ menu }),
-
       addToCart: (item, quantity = 1) =>
         set(({ orderItems }) => {
           const id = item._id;
@@ -30,7 +34,6 @@ const useCartStore = create(
             };
           }
         }),
-
       updateQuantity: (_id, quantity) =>
         set(({ orderItems }) => ({
           orderItems:
@@ -40,14 +43,11 @@ const useCartStore = create(
                   item._id === _id ? { ...item, quantity } : item
                 ),
         })),
-
       removeFromCart: (_id) =>
         set(({ orderItems }) => ({
           orderItems: orderItems.filter((item) => item._id !== _id),
         })),
-
       clearCart: () => set({ orderItems: [], cartDiscount: 0 }),
-
       applyItemDiscount: (_id, discount) =>
         set(({ orderItems }) => ({
           orderItems: orderItems.map((item) =>
@@ -56,34 +56,29 @@ const useCartStore = create(
               : item
           ),
         })),
-
       applyCartDiscount: (discount) =>
         set({
           cartDiscount: clampDiscountPercentage(discount),
         }),
-
       removeItemDiscount: (_id) =>
         set(({ orderItems }) => ({
           orderItems: orderItems.map((item) =>
             item._id === _id ? { ...item, discount: 0 } : item
           ),
         })),
-
       removeCartDiscount: () => set({ cartDiscount: 0 }),
-
+      // Selectors
       getTotalItems: () => get().orderItems.length,
-
       getTotalQuantity: () =>
         get().orderItems.reduce((sum, item) => sum + item.quantity, 0),
     }),
     {
       name: "cart-store",
       storage: createJSONStorage(() => {
-        // Check if we're in a browser environment before accessing localStorage
         if (typeof window !== "undefined") {
           return localStorage;
         }
-        // Return a mock storage for SSR
+        // SSR-safe fallback
         return {
           getItem: () => null,
           setItem: () => {},

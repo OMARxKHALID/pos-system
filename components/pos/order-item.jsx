@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Edit3 } from "lucide-react";
 import { QuantityControl } from "@/components/ui/quantity-control";
 import { DiscountModal } from "./discount-modal";
-import { useCartStore } from "@/hooks/use-cart-store";
+import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { useState } from "react";
 import {
   formatCurrency,

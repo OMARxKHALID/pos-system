@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCartStore } from "@/hooks/use-cart-store";
+import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { useState, useEffect } from "react";
 import { clampDiscountPercentage } from "@/utils/pos-utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";

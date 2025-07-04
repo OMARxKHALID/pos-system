@@ -22,6 +22,7 @@ import {
   CreditCard,
   Calendar,
   Hash,
+  Receipt,
 } from "lucide-react";
 
 const OrderDetailModal = ({ order, isOpen, onClose }) => {
@@ -185,80 +186,90 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle className="flex items-center gap-2">
-            <Hash className="h-5 w-5" />
-            Order Details - #{order.orderNumber}
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
+        <DialogHeader className="flex flex-row items-center justify-between p-6 pb-4 border-b">
+          <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+            <Receipt className="h-6 w-6 text-blue-600" />
+            Order #{order.orderNumber}
           </DialogTitle>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-6 w-6"
+            className="h-8 w-8"
           >
             <X className="h-4 w-4" />
           </Button>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="p-6 space-y-6">
           {/* Order Header Info */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Order Information</CardTitle>
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900">
+                Order Information
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-gray-500" />
-                  <div>
-                    <div className="text-sm font-medium">Date & Time</div>
-                    <div className="text-sm text-gray-600">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Calendar className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-gray-900">
+                      Date & Time
+                    </div>
+                    <div className="text-sm text-gray-600 truncate">
                       {formatDateTime(order.createdAt)}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-500" />
-                  <div>
-                    <div className="text-sm font-medium">Customer</div>
-                    <div className="text-sm text-gray-600">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <User className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-gray-900">
+                      Customer
+                    </div>
+                    <div className="text-sm text-gray-600 truncate">
                       {order.customerName}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 text-gray-500">#</div>
-                  <div>
-                    <div className="text-sm font-medium">Order Number</div>
-                    <div className="text-sm text-gray-600">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Hash className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-gray-900">
+                      Order Number
+                    </div>
+                    <div className="text-sm text-gray-600 font-mono">
                       {order.orderNumber}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   {getPaymentMethodIcon(order.paymentMethod)}
-                  <div>
-                    <div className="text-sm font-medium">Payment Method</div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-gray-900">
+                      Payment Method
+                    </div>
                     <div className="text-sm text-gray-600 capitalize">
                       {order.paymentMethod}
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="text-sm font-medium">Status:</div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div className="text-sm font-medium text-gray-900">Status:</div>
                 <OrderStatusBadge status={order.status} />
               </div>
             </CardContent>
           </Card>
 
           {/* Order Items */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Order Items
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Package className="h-5 w-5 text-blue-600" />
+                Order Items ({order.items.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -266,23 +277,23 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
                 {order.items.map((item, index) => (
                   <div
                     key={index}
-                    className="flex justify-between items-start p-3 bg-gray-50 rounded-lg"
+                    className="flex justify-between items-start p-4 bg-gray-50 rounded-lg border border-gray-100"
                   >
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 text-sm sm:text-base">
                         {item.name}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 mt-1">
                         Quantity: {item.quantity}
                       </div>
                       {item.discount > 0 && (
-                        <div className="text-sm text-green-600">
+                        <div className="text-sm text-green-600 mt-1">
                           Discount: {formatCurrency(item.discount)}
                         </div>
                       )}
                     </div>
-                    <div className="text-right">
-                      <div className="font-medium text-gray-900">
+                    <div className="text-right ml-4">
+                      <div className="font-medium text-gray-900 text-sm sm:text-base">
                         {formatCurrency(item.price * item.quantity)}
                       </div>
                       <div className="text-sm text-gray-600">
@@ -296,50 +307,57 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
           </Card>
 
           {/* Order Summary */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Order Summary</CardTitle>
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900">
+                Order Summary
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center py-2">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium">
+                  <span className="font-medium text-gray-900">
                     {formatCurrency(order.subtotal)}
                   </span>
                 </div>
                 {order.tax > 0 && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center py-2">
                     <span className="text-gray-600">Tax:</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-gray-900">
                       {formatCurrency(order.tax)}
                     </span>
                   </div>
                 )}
                 {order.discount > 0 && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center py-2">
                     <span className="text-gray-600">Discount:</span>
                     <span className="font-medium text-green-600">
                       -{formatCurrency(order.discount)}
                     </span>
                   </div>
                 )}
-                <Separator />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total:</span>
-                  <span>{formatCurrency(order.total)}</span>
+                <Separator className="my-3" />
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-lg font-bold text-gray-900">
+                    Total:
+                  </span>
+                  <span className="text-lg font-bold text-gray-900">
+                    {formatCurrency(order.total)}
+                  </span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
             <Button
               onClick={handlePrint}
               disabled={isPrinting}
               className="flex-1"
               variant="outline"
+              size="lg"
             >
               <Printer className="h-4 w-4 mr-2" />
               {isPrinting ? "Printing..." : "Print Receipt"}
@@ -349,6 +367,7 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
               disabled={isDownloading}
               className="flex-1"
               variant="outline"
+              size="lg"
             >
               <Download className="h-4 w-4 mr-2" />
               {isDownloading ? "Downloading..." : "Download Receipt"}

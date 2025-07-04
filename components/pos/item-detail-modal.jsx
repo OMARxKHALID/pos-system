@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Package, Minus, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useCartStore } from "@/hooks/use-cart-store";
+import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { formatCurrency } from "@/utils/pos-utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 

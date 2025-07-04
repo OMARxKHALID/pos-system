@@ -1,6 +1,6 @@
 "use client";
 
-import { categories } from "@/data/menu-data";
+import { useEffect, useState } from "react";
 
 const getCategoryColor = (categoryId) => {
   const colors = {
@@ -9,33 +9,46 @@ const getCategoryColor = (categoryId) => {
     pizza: "bg-red-50 text-red-700 border-red-100",
     drinks: "bg-cyan-50 text-cyan-700 border-cyan-100",
     desserts: "bg-pink-50 text-pink-700 border-pink-100",
+    // Add more known categories here as needed
   };
   return colors[categoryId] || "bg-gray-50 text-gray-700 border-gray-100";
 };
 
 export function CategoryNav({ selectedCategory, onCategoryChange }) {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const res = await fetch("/api/categories");
+      if (res.ok) {
+        const data = await res.json();
+        setCategories([
+          { _id: "all", name: "All", icon: "🍽️", items: [] },
+          ...data,
+        ]);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   return (
     <div className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
       {categories.map((category) => (
         <button
-          key={category.id}
+          key={category._id}
           className={`flex flex-col items-start p-2 rounded-2xl transition-all duration-200 w-[90px] h-[90px] sm:w-[105px] sm:h-[105px] border-2 flex-shrink-0 ${
-            selectedCategory === category.id
+            selectedCategory === category._id
               ? "bg-blue-50 border-blue-400"
-              : `bg-white ${getCategoryColor(category.id)}`
+              : `bg-white ${getCategoryColor(category._id)}`
           }`}
-          onClick={() => onCategoryChange(category.id)}
+          onClick={() => onCategoryChange(category._id)}
         >
           <div className="mb-2 sm:mb-3">
-            {selectedCategory === category.id ? (
+            {selectedCategory === category._id ? (
               <div className="w-7 h-7 sm:w-9 sm:h-9 bg-blue-500 rounded-full flex items-center justify-center">
-                {category.icon === "🍽️" ? (
-                  <span className="text-white text-sm sm:text-lg">🍽️</span>
-                ) : (
-                  <span className="text-white text-sm sm:text-lg">
-                    {category.icon}
-                  </span>
-                )}
+                <span className="text-white text-sm sm:text-lg">
+                  {category.icon}
+                </span>
               </div>
             ) : (
               <div className="w-7 h-7 sm:w-9 sm:h-9 bg-gray-100 rounded-full flex items-center justify-center">
@@ -51,7 +64,7 @@ export function CategoryNav({ selectedCategory, onCategoryChange }) {
               {category.name}
             </h3>
             <p className="text-gray-500 text-xs text-left">
-              {category.count} Items
+              {category.items?.length || 0} Items
             </p>
           </div>
         </button>

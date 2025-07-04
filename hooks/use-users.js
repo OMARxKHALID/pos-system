@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUsers() {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
       const res = await fetch("/api/users");
@@ -9,6 +15,56 @@ export function useUsers() {
       return res.json();
     },
   });
+
+  const addUser = useMutation({
+    mutationFn: async (user) => {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        body: JSON.stringify(user),
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to add user");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
+
+  const updateUser = useMutation({
+    mutationFn: async ({ id, ...user }) => {
+      const res = await fetch(`/api/users?id=${id}`, {
+        method: "PUT",
+        body: JSON.stringify(user),
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to update user");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
+
+  const deleteUser = useMutation({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/users?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete user");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
+
+  return {
+    users,
+    isLoading,
+    isError,
+    addUser: addUser.mutateAsync,
+    updateUser: updateUser.mutateAsync,
+    deleteUser: deleteUser.mutateAsync,
+  };
 }
 
 export function useAddUser() {

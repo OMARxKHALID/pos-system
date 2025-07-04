@@ -15,9 +15,9 @@ const MenuSchema = new mongoose.Schema(
     },
 
     category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
-      trim: true,
     },
 
     description: {
@@ -34,6 +34,11 @@ const MenuSchema = new mongoose.Schema(
     icon: {
       type: String,
       default: "",
+    },
+
+    available: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }

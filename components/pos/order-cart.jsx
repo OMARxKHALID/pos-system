@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { X, Trash2, Receipt, Hash } from "lucide-react";
-import { useCartStore } from "@/hooks/use-cart-store";
-import { useSalesStore } from "@/hooks/use-sales-store";
+import { useCartStore } from "@/hooks/zustand/use-cart-store";
+import { useSalesStore } from "@/hooks/zustand/use-sales-store";
 import { OrderItem } from "./order-item";
 import { PaymentModal } from "./payment-modal";
 import { DiscountModal } from "./discount-modal";
@@ -19,13 +19,15 @@ import {
 } from "@/utils/pos-utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { useDownloadReceiptStore } from "@/hooks/use-pos-settings-store";
+import { useDownloadReceiptStore } from "@/hooks/zustand/use-pos-settings-store";
+import { useCreateOrder } from "@/hooks/use-orders";
 
 export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
   const { orderItems, clearCart, cartDiscount } = useCartStore();
   const { addOrder } = useSalesStore();
   const { status } = useSession();
   const downloadReceipt = useDownloadReceiptStore((state) => state.open);
+  const createOrder = useCreateOrder();
 
   const [localOrderNumber, setLocalOrderNumber] = useState(null);
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
@@ -71,16 +73,7 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
       };
 
       try {
-        const response = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderData),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to save order");
-        }
+        await createOrder.mutateAsync(orderData);
       } catch (e) {
         toast.error(`Failed to save order: ${e.message}`);
         return;
@@ -96,7 +89,15 @@ export function OrderCart({ toggleCart = () => {}, isMobile = false }) {
         if (isMobile) toggleCart();
       }, 100);
     },
-    [orderItems, localOrderNumber, totals, isMobile, status, downloadReceipt]
+    [
+      orderItems,
+      localOrderNumber,
+      totals,
+      isMobile,
+      status,
+      downloadReceipt,
+      createOrder,
+    ]
   );
 
   const hasItems = orderItems.length > 0;
