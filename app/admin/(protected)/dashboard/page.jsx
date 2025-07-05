@@ -35,11 +35,8 @@ const DashboardSkeleton = () => (
       {/* Metrics Cards Skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         {[...Array(4)].map((_, i) => (
-          <Card
-            key={i}
-            className="bg-white/80 backdrop-blur-sm border-0 shadow-sm"
-          >
-            <CardContent className="p-4 sm:p-6">
+          <Card key={i} className="bg-white/80 backdrop-blur-sm border-0">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <Skeleton className="h-3 sm:h-4 w-16 sm:w-20 mb-2" />
@@ -55,7 +52,7 @@ const DashboardSkeleton = () => (
       {/* Charts and Lists Skeleton */}
       <div className="grid grid-cols-1 gap-6 sm:gap-8 xl:grid-cols-2">
         {/* Chart Skeleton */}
-        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
           <CardContent className="p-4 sm:p-6 lg:p-8">
             <Skeleton className="h-5 sm:h-6 w-24 sm:w-32 mb-4" />
             <Skeleton className="h-[250px] sm:h-[300px] lg:h-[350px] w-full" />
@@ -63,7 +60,7 @@ const DashboardSkeleton = () => (
         </Card>
 
         {/* Products List Skeleton */}
-        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm sm:rounded-xl">
           <CardContent className="p-4 sm:p-6 lg:p-8">
             <Skeleton className="h-5 sm:h-6 w-24 sm:w-32 mb-4" />
             <div className="space-y-3">
@@ -124,6 +121,17 @@ const AdminDashboardPage = () => {
   const topCategory = data.salesByCategory?.[0];
   const topCategoryName = topCategory?.category || "N/A";
   const topCategorySales = topCategory?.sales || 0;
+
+  // Calculate today's and yesterday's sales from salesByDay data
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0]; // YYYY-MM-DD format
+
+  const todaySales =
+    data.salesByDay?.find((day) => day.date === today)?.sales || 0;
+  const yesterdaySales =
+    data.salesByDay?.find((day) => day.date === yesterday)?.sales || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
@@ -256,7 +264,12 @@ const AdminDashboardPage = () => {
 
         {/* Charts and Lists */}
         <div className="grid grid-cols-1 gap-6 sm:gap-8 xl:grid-cols-2">
-          <ReportGraph data={data.salesByDay} totalSales={data.totalSales} />
+          <ReportGraph
+            data={data.salesByDay}
+            totalSales={data.totalSales}
+            todaySales={todaySales}
+            yesterdaySales={yesterdaySales}
+          />
 
           <FavoriteProducts
             products={filteredTopProducts}

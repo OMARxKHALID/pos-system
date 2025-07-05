@@ -13,6 +13,7 @@ import {
   ClipboardList,
   Home,
   Settings,
+  Tag,
 } from "lucide-react";
 import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
 import {
@@ -28,12 +29,12 @@ const NAV_LINKS = [
   { href: "/", label: "POS", icon: Home },
   {
     href: "/admin/dashboard",
-    label: "Report",
+    label: "Dashboard",
     icon: BarChart3,
     prefetch: true,
   },
   { href: "/admin/menu", label: "Menu", icon: Package },
-  { href: "/admin/category", label: "Category", icon: Package },
+  { href: "/admin/category", label: "Categories", icon: Tag },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/settings", label: "Settings", icon: Settings },

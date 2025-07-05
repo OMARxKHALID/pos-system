@@ -16,7 +16,6 @@ const TablePagination = ({
   hasNextPage,
   hasPreviousPage,
   totalItems,
-  itemsPerPage,
   className = "",
 }) => {
   if (totalPages <= 1 || totalItems === 0) return null;
@@ -52,16 +51,13 @@ const TablePagination = ({
     return rangeWithDots;
   }, [currentPage, totalPages]);
 
-  const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-
   return (
-    <div className={`flex items-center justify-between ${className}`}>
-      <div className="text-sm text-gray-500">
-        Showing {startItem} to {endItem} of {totalItems} results
-      </div>
+    <div
+      className={`flex flex-col sm:flex-row items-center justify-between gap-4 ${className}`}
+    >
+      {/* Pagination Controls */}
       <Pagination>
-        <PaginationContent>
+        <PaginationContent className="flex-wrap">
           <PaginationItem>
             <PaginationPrevious
               onClick={
@@ -77,21 +73,31 @@ const TablePagination = ({
             />
           </PaginationItem>
 
-          {visiblePages.map((page, index) => (
-            <PaginationItem key={`${page}-${index}`}>
-              {page === "..." ? (
-                <PaginationEllipsis />
-              ) : (
-                <PaginationLink
-                  onClick={() => onPageChange(page)}
-                  isActive={currentPage === page}
-                  className="cursor-pointer"
-                >
-                  {page}
-                </PaginationLink>
-              )}
-            </PaginationItem>
-          ))}
+          {/* Page Numbers - Hidden on mobile, visible on tablet+ */}
+          <div className="hidden md:flex items-center gap-1">
+            {visiblePages.map((page, index) => (
+              <PaginationItem key={`${page}-${index}`}>
+                {page === "..." ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink
+                    onClick={() => onPageChange(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+          </div>
+
+          {/* Mobile Page Indicator */}
+          <div className="md:hidden flex items-center gap-2">
+            <span className="text-xs text-gray-500 px-2">
+              {currentPage} / {totalPages}
+            </span>
+          </div>
 
           <PaginationItem>
             <PaginationNext
