@@ -94,17 +94,14 @@ export async function DELETE(req) {
     const id = extractId(req);
     if (id instanceof Response) return id;
 
-    const deleted = await Menu.findByIdAndDelete(id);
+    const deleted = await Menu.findByIdAndUpdate(
+      id,
+      { available: false },
+      { new: true }
+    );
 
     if (!deleted) {
       return apiError("Menu item not found", 404);
-    }
-
-    // Remove from category's items array
-    if (deleted.category) {
-      await Category.findByIdAndUpdate(deleted.category, {
-        $pull: { items: id },
-      });
     }
 
     return apiSuccess({ success: true });

@@ -8,7 +8,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { HeaderDateTimeSkeleton } from "./header-skeleton";
+import {
+  HeaderDateTimeSkeleton,
+  StatusIndicatorSkeleton,
+} from "./header-skeleton";
 
 export function PageHeader({
   title,
@@ -17,7 +20,7 @@ export function PageHeader({
   showDashboard = false,
   showPOS = false,
   toggleCart = () => {},
-  orderType = "open",
+  connectionStatus,
   showDateTime = false,
 }) {
   const { orderItems } = useCartStore();
@@ -65,6 +68,10 @@ export function PageHeader({
     }
   };
 
+  // Determine status based on authentication if not provided
+  const displayStatus =
+    connectionStatus || (status === "authenticated" ? "online" : "offline");
+
   return (
     <div className="flex items-center justify-between mb-1">
       <div className="flex items-center gap-4">
@@ -92,7 +99,11 @@ export function PageHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        <StatusIndicator status={orderType} />
+        {status === "loading" ? (
+          <StatusIndicatorSkeleton />
+        ) : (
+          <StatusIndicator status={displayStatus} />
+        )}
 
         {showDashboard && (
           <Button

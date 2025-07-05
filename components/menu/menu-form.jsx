@@ -34,7 +34,7 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
       name: initialData?.name || "",
       description: initialData?.description || "",
       price: initialData?.price || "",
-      category: initialData?.category || "main",
+      category: initialData?.category?._id || initialData?.category || "main",
       image: initialData?.image || "",
       available: initialData?.available !== false,
     },
@@ -100,7 +100,7 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />

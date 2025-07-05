@@ -61,7 +61,10 @@ const MenuTable = ({
       item.name?.toLowerCase().includes(search.toLowerCase()) ||
       item.description?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
-      categoryFilter === "all" || item.category === categoryFilter;
+      categoryFilter === "all" ||
+      (typeof item.category === "object" &&
+        item.category?._id === categoryFilter) ||
+      (typeof item.category === "string" && item.category === categoryFilter);
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "available" && item.available) ||
@@ -145,6 +148,7 @@ const MenuTable = ({
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>#</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Price</TableHead>
@@ -157,15 +161,18 @@ const MenuTable = ({
                     {paginatedItems.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={6}
+                          colSpan={7}
                           className="py-6 text-sm text-center text-gray-400 sm:py-8"
                         >
                           No menu items found
                         </TableCell>
                       </TableRow>
                     ) : (
-                      paginatedItems.map((item) => (
+                      paginatedItems.map((item, index) => (
                         <TableRow key={item._id}>
+                          <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
+                            {String(index + 1).padStart(3, "0")}
+                          </TableCell>
                           <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
                             {item.name}
                           </TableCell>

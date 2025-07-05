@@ -4,8 +4,9 @@ const CategorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Name is required"],
       trim: true,
+      minlength: [1, "Name is required"],
     },
     items: [
       {
@@ -20,6 +21,12 @@ const CategorySchema = new mongoose.Schema(
     image: {
       type: String,
       default: "",
+      validate: {
+        validator: function (v) {
+          return v === "" || /^https?:\/\/.+/.test(v);
+        },
+        message: "Image must be a valid URL",
+      },
     },
   },
   { timestamps: true }

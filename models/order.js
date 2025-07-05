@@ -4,20 +4,41 @@ const OrderItemSchema = new mongoose.Schema({
   menuItem: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Menu",
-    required: true,
+    required: [true, "Menu item is required"],
   },
-  name: { type: String, required: true },
-  quantity: { type: Number, required: true, min: 1 },
-  price: { type: Number, required: true, min: 0 },
-  discount: { type: Number, default: 0, min: 0 },
+  name: {
+    type: String,
+    required: [true, "Name is required"],
+    trim: true,
+  },
+  quantity: {
+    type: Number,
+    required: [true, "Quantity is required"],
+    min: [1, "Quantity must be at least 1"],
+  },
+  price: {
+    type: Number,
+    required: [true, "Price is required"],
+    min: [0, "Price cannot be negative"],
+  },
+  discount: {
+    type: Number,
+    default: 0,
+    min: [0, "Discount cannot be negative"],
+  },
 });
 
 const OrderSchema = new mongoose.Schema(
   {
     items: {
       type: [OrderItemSchema],
-      required: true,
-      validate: (v) => Array.isArray(v) && v.length > 0,
+      required: [true, "At least one item is required"],
+      validate: {
+        validator: function (v) {
+          return Array.isArray(v) && v.length > 0;
+        },
+        message: "At least one item is required",
+      },
     },
 
     customerName: {
@@ -29,7 +50,7 @@ const OrderSchema = new mongoose.Schema(
     orderNumber: {
       type: String,
       unique: true,
-      required: true,
+      required: [true, "Order number is required"],
       index: true,
     },
 
@@ -41,37 +62,43 @@ const OrderSchema = new mongoose.Schema(
 
     subtotal: {
       type: Number,
-      required: true,
-      min: 0,
+      required: [true, "Subtotal is required"],
+      min: [0, "Subtotal cannot be negative"],
     },
 
     tax: {
       type: Number,
-      required: true,
-      min: 0,
+      required: [true, "Tax is required"],
+      min: [0, "Tax cannot be negative"],
     },
 
     discount: {
       type: Number,
       default: 0,
-      min: 0,
+      min: [0, "Discount cannot be negative"],
     },
 
     total: {
       type: Number,
-      required: true,
-      min: 0,
+      required: [true, "Total is required"],
+      min: [0, "Total cannot be negative"],
     },
 
     paymentMethod: {
       type: String,
-      enum: ["cash", "card", "wallet"],
-      required: true,
+      enum: {
+        values: ["cash", "card", "wallet"],
+        message: "Payment method must be cash, card, or wallet",
+      },
+      required: [true, "Payment method is required"],
     },
 
     status: {
       type: String,
-      enum: ["pending", "paid", "cancelled"],
+      enum: {
+        values: ["pending", "paid", "cancelled"],
+        message: "Status must be pending, paid, or cancelled",
+      },
       default: "pending",
     },
   },

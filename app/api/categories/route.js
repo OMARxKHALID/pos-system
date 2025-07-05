@@ -1,6 +1,5 @@
 import dbConnect from "@/lib/db-connect";
 import Category from "@/models/category";
-import Menu from "@/models/menu";
 import {
   requireAuth,
   apiError,

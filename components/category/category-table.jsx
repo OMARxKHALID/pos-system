@@ -64,6 +64,7 @@ const CategoryTable = ({ categories = [], onEdit, onDelete }) => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>#</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Icon</TableHead>
                   <TableHead>Image</TableHead>
@@ -74,15 +75,18 @@ const CategoryTable = ({ categories = [], onEdit, onDelete }) => {
                 {paginatedItems.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="py-6 text-sm text-center text-gray-400 sm:py-8"
                     >
                       No categories found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedItems.map((cat) => (
+                  paginatedItems.map((cat, index) => (
                     <TableRow key={cat._id}>
+                      <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
+                        {String(index + 1).padStart(3, "0")}
+                      </TableCell>
                       <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
                         {cat.name}
                       </TableCell>

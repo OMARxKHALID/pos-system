@@ -10,6 +10,16 @@ export function StatusIndicator({
   className,
 }) {
   const statusConfig = {
+    online: {
+      color: "text-green-500 fill-green-500",
+      text: "Online",
+      textColor: "text-green-600",
+    },
+    offline: {
+      color: "text-red-500 fill-red-500",
+      text: "Offline",
+      textColor: "text-red-600",
+    },
     open: {
       color: "text-green-500 fill-green-500",
       text: "Open",
@@ -38,7 +48,7 @@ export function StatusIndicator({
     lg: "h-4 w-4",
   };
 
-  const config = statusConfig[status];
+  const config = statusConfig[status] || statusConfig.offline;
 
   return (
     <div className={cn("flex items-center gap-2", className)}>

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { loginSchema } from "@/lib/schemas";
-import { Lock, Mail, Shield } from "lucide-react";
+import { Lock, Mail, Store } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
@@ -67,21 +67,21 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Brand Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <Shield className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-lg mb-4 shadow-lg">
+            <Store className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
             Restaurant POS
           </h1>
           <p className="text-sm text-gray-600">Admin Dashboard Access</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border border-gray-200 shadow-lg bg-white/80 backdrop-blur-sm">
+        <Card className="border border-gray-200 shadow-sm bg-white">
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-xl font-semibold text-center text-gray-900">
               Sign In

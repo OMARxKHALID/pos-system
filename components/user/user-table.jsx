@@ -104,6 +104,7 @@ const UserTable = ({
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>#</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
@@ -114,15 +115,18 @@ const UserTable = ({
                     {paginatedItems.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={4}
+                          colSpan={5}
                           className="py-6 text-sm text-center text-gray-400 sm:py-8"
                         >
                           No users found
                         </TableCell>
                       </TableRow>
                     ) : (
-                      paginatedItems.map((user) => (
+                      paginatedItems.map((user, index) => (
                         <TableRow key={user._id}>
+                          <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
+                            {String(index + 1).padStart(3, "0")}
+                          </TableCell>
                           <TableCell className="py-3 text-xs font-medium text-gray-900 sm:py-4 sm:text-sm">
                             {user.name}
                           </TableCell>
