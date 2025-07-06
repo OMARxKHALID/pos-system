@@ -1,12 +1,9 @@
 "use client";
 
-import { Card, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { BarChart3, Menu, Download, ChevronRight, Home } from "lucide-react";
-import { exportDashboardToCSV } from "@/utils/dashboard";
+import { BarChart3, ChevronRight, Home } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export function DashboardHeader({ toggleSidebar, linkRef }) {
+export function DashboardHeader({ toggleSidebar }) {
   return (
     <div className="mb-6 sm:mb-8">
       {/* Breadcrumb */}
@@ -45,7 +42,6 @@ export function DashboardHeader({ toggleSidebar, linkRef }) {
             Live Data
           </Badge>
           <button
-            ref={linkRef}
             onClick={toggleSidebar}
             className="p-2 sm:p-3 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg sm:rounded-xl transition-all duration-200 shadow-sm border border-gray-200"
           >

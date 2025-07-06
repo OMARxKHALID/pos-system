@@ -70,3 +70,10 @@ export const FILE_LIMITS = {
   MAX_SIZE: 5 * 1024 * 1024, // 5MB
   ALLOWED_TYPES: ["image/jpeg", "image/png", "image/webp"],
 };
+
+// Payment Method Options
+export const paymentMethodOptions = [
+  { value: "cash", label: "Cash", icon: "Banknote" },
+  { value: "card", label: "Credit Card", icon: "CreditCard" },
+  { value: "wallet", label: "Mobile Pay", icon: "Smartphone" },
+];

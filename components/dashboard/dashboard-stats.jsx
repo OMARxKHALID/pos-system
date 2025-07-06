@@ -61,7 +61,9 @@ export function DashboardStats({ data }) {
                 {stat.title}
               </CardTitle>
               <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <Icon className={`h-4 w-4 ${stat.color}`} />
+                <Icon
+                  className={`w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 ${stat.color}`}
+                />
               </div>
             </CardHeader>
             <CardContent>

@@ -35,12 +35,28 @@ export function slugify(str) {
     .replace(/^-+|-+$/g, "");
 }
 
+// Sequential order number generation
+let orderCounter = 0;
+let currentDate = "";
+
 export function generateOrderNumber() {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = Math.floor(Math.random() * 1000)
-    .toString()
-    .padStart(3, "0");
-  return `ORD-${timestamp}-${random}`;
+  const now = new Date();
+  const date = now.getDate().toString().padStart(2, "0");
+  const month = (now.getMonth() + 1).toString().padStart(2, "0");
+  const dateKey = `${date}-${month}`;
+
+  // Reset counter if it's a new date
+  if (dateKey !== currentDate) {
+    orderCounter = 0;
+    currentDate = dateKey;
+  }
+
+  // Increment counter
+  orderCounter++;
+
+  // Format: #ORD-DD-MM-001, #ORD-DD-MM-002, etc.
+  const sequentialNumber = orderCounter.toString().padStart(3, "0");
+  return `#ORD-${date}-${month}-${sequentialNumber}`;
 }
 
 export function generateId(prefix = "ID") {

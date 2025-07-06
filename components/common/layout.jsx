@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/header";
+import { PageHeader } from "@/components/common/header";
 
 const PageLayout = ({ title, subtitle, children, headerActions }) => {
   return (

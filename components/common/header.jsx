@@ -112,8 +112,17 @@ export function PageHeader({
             className="h-7 px-3 text-xs bg-white/60 border-gray-200"
             onClick={handleDashboardClick}
           >
-            <BarChart3 className="w-3 h-3 mr-1" />
-            <span className="hidden sm:inline">Dashboard</span>
+            {status === "authenticated" ? (
+              <>
+                <BarChart3 className="w-3 h-3 mr-1" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </>
+            ) : (
+              <>
+                <BarChart3 className="w-3 h-3 mr-1" />
+                <span className="hidden sm:inline">Login</span>
+              </>
+            )}
           </Button>
         )}
 

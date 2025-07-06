@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ReportGraph from "./report-graph";
 import FavoriteProducts from "./favorite-products";
 

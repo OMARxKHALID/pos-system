@@ -1,30 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
-import HydrateDashboard from "@/components/hydration/hydrate-dashboard";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
-import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { PageLoading } from "@/components/ui/loading";
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
-  const { toggle } = useAdminSidebarStore();
-  const linkRef = useRef(null);
   const [isClient, setIsClient] = useState(false);
+  const toggleSidebar = useAdminSidebarStore((s) => s.toggle);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   if (!isClient) {
-    return <HydrateDashboard />;
+    return <PageLoading />;
   }
 
   if (isLoading) {
-    return <DashboardSkeleton />;
+    return <PageLoading />;
   }
 
   if (error) {
@@ -60,7 +58,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
-      <DashboardHeader toggleSidebar={toggle} linkRef={linkRef} />
+      <DashboardHeader toggleSidebar={toggleSidebar} />
 
       <DashboardStats data={data} />
 

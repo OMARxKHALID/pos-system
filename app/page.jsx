@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/header";
+import { PageHeader } from "@/components/common/header";
 import { CategoryNav } from "@/components/pos/category-nav";
 import { SearchBar } from "@/components/pos/search-bar";
 import { MenuGrid } from "@/components/pos/menu-grid";

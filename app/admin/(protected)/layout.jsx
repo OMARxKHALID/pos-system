@@ -20,6 +20,7 @@ import {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
+  SidebarInset,
 } from "@/components/ui/sidebar";
 import { useUserStore } from "@/hooks/zustand/use-user-store";
 import { useSession } from "next-auth/react";
@@ -139,9 +140,8 @@ export default function AdminLayout({ children }) {
       <div className="flex min-h-screen bg-gray-50">
         {/* Desktop Sidebar */}
         <Sidebar
-          className={`hidden bg-white border-r shadow-sm transition-all duration-200 md:flex ${
-            sidebarOpen ? "w-64" : "w-0"
-          }`}
+          className="hidden bg-white border-r shadow-sm md:flex"
+          collapsible="offcanvas"
         >
           <SidebarContent />
         </Sidebar>
@@ -154,9 +154,9 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 w-full sm:w-auto">
-          <div>{children}</div>
-        </main>
+        <SidebarInset className="flex-1">
+          <div className="min-h-screen">{children}</div>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );

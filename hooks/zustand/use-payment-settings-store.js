@@ -17,12 +17,9 @@ const usePaymentSettingsStore = create(
 
       // Receipt Settings
       downloadReceipt: true,
-      autoPrintReceipt: false,
-      receiptTemplate: "standard", // "standard", "compact", "detailed"
 
       // Payment Method Preferences
       preferredPaymentMethods: ["cash", "card", "wallet"],
-      hideUnusedPaymentMethods: false,
 
       // Actions
       setDefaultPaymentMethod: (method) =>
@@ -40,15 +37,8 @@ const usePaymentSettingsStore = create(
 
       setDownloadReceipt: (enabled) => set({ downloadReceipt: enabled }),
 
-      setAutoPrintReceipt: (enabled) => set({ autoPrintReceipt: enabled }),
-
-      setReceiptTemplate: (template) => set({ receiptTemplate: template }),
-
       setPreferredPaymentMethods: (methods) =>
         set({ preferredPaymentMethods: methods }),
-
-      setHideUnusedPaymentMethods: (hide) =>
-        set({ hideUnusedPaymentMethods: hide }),
 
       // Helper functions
       getDefaultCustomerName: () => {
@@ -76,10 +66,7 @@ const usePaymentSettingsStore = create(
           rememberLastCustomer: false,
           lastCustomerName: "",
           downloadReceipt: true,
-          autoPrintReceipt: false,
-          receiptTemplate: "standard",
           preferredPaymentMethods: ["cash", "card", "wallet"],
-          hideUnusedPaymentMethods: false,
         }),
     }),
     createPersistConfig("payment-settings-store")

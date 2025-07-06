@@ -2,7 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OrderStatusBadge } from "@/components/ui/status-badge";
 import { Separator } from "@/components/ui/separator";
 import { formatDateTime, formatCurrency } from "@/utils/formatters";
-import { Package, User, CreditCard, Calendar, Hash } from "lucide-react";
+import {
+  Package,
+  User,
+  CreditCard,
+  Calendar,
+  Hash,
+  Smartphone,
+} from "lucide-react";
 
 export function OrderDetailContent({ order }) {
   const getPaymentMethodIcon = (method) => {
@@ -12,7 +19,7 @@ export function OrderDetailContent({ order }) {
       case "cash":
         return <Package className="h-5 w-5 text-gray-500 flex-shrink-0" />;
       case "wallet":
-        return <CreditCard className="h-5 w-5 text-gray-500 flex-shrink-0" />;
+        return <Smartphone className="h-5 w-5 text-gray-500 flex-shrink-0" />;
       default:
         return <CreditCard className="h-5 w-5 text-gray-500 flex-shrink-0" />;
     }

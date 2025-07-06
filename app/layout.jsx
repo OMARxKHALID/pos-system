@@ -4,7 +4,7 @@ import HydrateMenu from "@/components/hydration/hydrate-menu";
 import HydrateOrders from "@/components/hydration/hydrate-orders";
 import { Toaster } from "sonner";
 import SessionClientProvider from "@/providers/session-provider";
-import ErrorBoundary from "@/components/shared/error-boundary";
+import ErrorBoundary from "@/components/common/error-boundary";
 
 export const metadata = {
   title: "Restaurant POS System",
