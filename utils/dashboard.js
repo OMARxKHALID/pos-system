@@ -1,20 +1,30 @@
-// Pure analytics functions - no side effects
-
-export function aggregateProductSales(orders) {
+export function totalProductSales(orders) {
   const productMap = new Map();
 
   orders.forEach((order) => {
     order.items.forEach((item) => {
-      const current = productMap.get(item.name) || {
-        name: item.name,
+      // Handle both populated and non-populated menu items
+      const menuItem = item.menuItem;
+      const productId = menuItem?._id || item.menuItem;
+      const productName = menuItem?.name || item.name;
+      const productIcon = menuItem?.icon || "";
+      const productImage = menuItem?.image || "";
+      const productCategory = menuItem?.category || "";
+
+      const existing = productMap.get(productId) || {
+        _id: productId,
+        name: productName,
+        icon: productIcon,
+        image: productImage,
+        category: productCategory,
         quantity: 0,
         revenue: 0,
       };
 
-      productMap.set(item.name, {
-        ...current,
-        quantity: current.quantity + item.quantity,
-        revenue: current.revenue + item.price * item.quantity,
+      productMap.set(productId, {
+        ...existing,
+        quantity: existing.quantity + item.quantity,
+        revenue: existing.revenue + item.price * item.quantity,
       });
     });
   });
@@ -24,20 +34,20 @@ export function aggregateProductSales(orders) {
     .slice(0, 10);
 }
 
-export function aggregateCustomerOrders(orders) {
+export function totalCustomerOrders(orders) {
   const customerMap = new Map();
 
   orders.forEach((order) => {
-    const current = customerMap.get(order.customerName) || {
+    const existing = customerMap.get(order.customerName) || {
       name: order.customerName,
       orderCount: 0,
       totalSpent: 0,
     };
 
     customerMap.set(order.customerName, {
-      ...current,
-      orderCount: current.orderCount + 1,
-      totalSpent: current.totalSpent + order.total,
+      ...existing,
+      orderCount: existing.orderCount + 1,
+      totalSpent: existing.totalSpent + order.total,
     });
   });
 
@@ -50,11 +60,12 @@ export function calculateWeeklySalesTrend(orders) {
   const dailySalesMap = new Map();
   const today = new Date();
 
-  // Initialize last 7 days
-  for (let i = 0; i < 7; i++) {
+  // Initialize the last 7 days
+  for (let i = 6; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     const dateKey = date.toISOString().split("T")[0];
+
     dailySalesMap.set(dateKey, {
       date: dateKey,
       totalSales: 0,
@@ -62,7 +73,6 @@ export function calculateWeeklySalesTrend(orders) {
     });
   }
 
-  // Populate with order data
   orders.forEach((order) => {
     const orderDate = new Date(order.createdAt);
     const dateKey = orderDate.toISOString().split("T")[0];
@@ -82,20 +92,20 @@ export function calculateWeeklySalesTrend(orders) {
   );
 }
 
-export function aggregatePaymentMethods(orders) {
+export function totalPaymentMethods(orders) {
   const paymentMethodMap = new Map();
 
   orders.forEach((order) => {
-    const current = paymentMethodMap.get(order.paymentMethod) || {
+    const existing = paymentMethodMap.get(order.paymentMethod) || {
       method: order.paymentMethod,
       totalAmount: 0,
       usageCount: 0,
     };
 
     paymentMethodMap.set(order.paymentMethod, {
-      ...current,
-      totalAmount: current.totalAmount + order.total,
-      usageCount: current.usageCount + 1,
+      ...existing,
+      totalAmount: existing.totalAmount + order.total,
+      usageCount: existing.usageCount + 1,
     });
   });
 
@@ -107,19 +117,32 @@ export function calculateSalesByCategory(orders, menuItems) {
 
   orders.forEach((order) => {
     order.items.forEach((item) => {
-      const menuItem = menuItems.find((mi) => mi._id === item.menuItem);
-      const category = menuItem?.category || "Unknown";
+      // Handle both populated and non-populated menu items
+      const menuItem = item.menuItem;
+      let category = "Unknown";
 
-      const current = categoryMap.get(category) || {
+      if (menuItem) {
+        if (typeof menuItem === "object" && menuItem.category) {
+          category = menuItem.category.name || menuItem.category;
+        } else {
+          // Find the menu item in the menuItems array
+          const foundMenuItem = menuItems.find(
+            (mi) => mi._id.toString() === (menuItem._id || menuItem).toString()
+          );
+          category = foundMenuItem?.category || "Unknown";
+        }
+      }
+
+      const existing = categoryMap.get(category) || {
         category,
         totalSales: 0,
         orderCount: 0,
       };
 
       categoryMap.set(category, {
-        ...current,
-        totalSales: current.totalSales + item.price * item.quantity,
-        orderCount: current.orderCount + 1,
+        ...existing,
+        totalSales: existing.totalSales + item.price * item.quantity,
+        orderCount: existing.orderCount + 1,
       });
     });
   });
@@ -132,7 +155,6 @@ export function calculateSalesByCategory(orders, menuItems) {
 export function calculateHourlySalesTrend(orders) {
   const hourlyMap = new Map();
 
-  // Initialize 24 hours
   for (let i = 0; i < 24; i++) {
     hourlyMap.set(i, {
       hour: i,
@@ -156,21 +178,21 @@ export function calculateHourlySalesTrend(orders) {
   return Array.from(hourlyMap.values());
 }
 
-export function exportAnalyticsToCSV(analyticsData, linkRef) {
-  if (!analyticsData) return;
+export function exportDashboardToCSV(dashboardData, linkRef) {
+  if (!dashboardData) return;
 
   const rows = [
     ["Metric", "Value"],
-    ["Total Sales", analyticsData.totalSales],
-    ["Total Orders", analyticsData.totalOrders],
-    ["Average Order Value", analyticsData.averageOrderValue],
+    ["Total Sales", dashboardData.totalSales],
+    ["Total Orders", dashboardData.totalOrders],
+    ["Average Order Value", dashboardData.averageOrderValue],
   ];
 
-  createAndTriggerCSVDownload(rows, "analytics.csv", linkRef);
+  createAndTriggerCSVDownload(rows, "dashboard.csv", linkRef);
 }
 
 export function exportOrdersToCSV(orders, linkRef) {
-  if (!orders || orders.length === 0) return;
+  if (!orders?.length) return;
 
   const headers = ["Order #", "Customer", "Items", "Total", "Status", "Date"];
   const rows = [
@@ -199,4 +221,11 @@ function createAndTriggerCSVDownload(rows, filename, linkRef) {
     linkRef.current.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+}
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
 }

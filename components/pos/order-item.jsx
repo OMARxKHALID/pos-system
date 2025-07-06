@@ -35,7 +35,7 @@ export function OrderItem({ item }) {
         {/* Item Image/Icon */}
         <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
           {item.icon ? (
-            <span className="text-lg">{item.icon}</span>
+            <span className="text-3xl">{item.icon}</span>
           ) : item.image ? (
             <img
               src={item.image}

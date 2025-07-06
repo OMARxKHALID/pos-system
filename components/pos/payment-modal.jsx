@@ -22,6 +22,8 @@ import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { usePaymentSettingsStore } from "@/hooks/zustand/use-payment-settings-store";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { formatCurrency } from "@/utils/formatters";
+import { PAYMENT_METHODS } from "@/utils/constants";
 
 export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
   const {
@@ -46,9 +48,9 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
   }, [open, getDefaultCustomerName, defaultPaymentMethod]);
 
   const allPaymentMethods = [
-    { value: "cash", label: "Cash", icon: Banknote },
-    { value: "card", label: "Credit Card", icon: CreditCard },
-    { value: "wallet", label: "Mobile Pay", icon: Smartphone },
+    { value: PAYMENT_METHODS.CASH, label: "Cash", icon: Banknote },
+    { value: PAYMENT_METHODS.CARD, label: "Credit Card", icon: CreditCard },
+    { value: PAYMENT_METHODS.DIGITAL, label: "Mobile Pay", icon: Smartphone },
   ];
 
   // Filter payment methods based on preferences
@@ -117,7 +119,7 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
             <CardContent className="p-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatCurrency(total)}</span>
               </div>
             </CardContent>
           </Card>

@@ -3,16 +3,13 @@
 import { OrderItem } from "./order-item";
 import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { formatCurrency } from "@/utils/formatters";
+import { calculateOrderTotals } from "@/utils/calculations";
 
 export default function CartPage() {
   const cartStore = useCartStore();
 
   const totalItems = cartStore.getTotalQuantity();
-  const totalPrice = cartStore.orderItems.reduce((sum, item) => {
-    const finalPrice =
-      item.price * item.quantity * (1 - (item.discount || 0) / 100);
-    return sum + finalPrice;
-  }, 0);
+  const { total } = calculateOrderTotals(cartStore.orderItems, 0);
 
   return (
     <div className="max-w-xs mx-auto py-4 px-3">
@@ -38,7 +35,7 @@ export default function CartPage() {
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-900">Total</span>
               <span className="text-base font-semibold text-gray-900">
-                {formatCurrency(totalPrice)}
+                {formatCurrency(total)}
               </span>
             </div>
           </div>

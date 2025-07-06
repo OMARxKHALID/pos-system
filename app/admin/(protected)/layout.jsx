@@ -24,6 +24,8 @@ import {
 import { useUserStore } from "@/hooks/zustand/use-user-store";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { capitalizeFirst, extractInitials } from "@/utils/string-utils";
 
 const NAV_LINKS = [
   { href: "/", label: "POS", icon: Home },
@@ -47,18 +49,16 @@ const NavLink = ({ href, label, icon: Icon, prefetch = false }) => {
   return (
     <Link
       href={href}
-      className={`
-        flex items-center gap-4 px-4 py-3 rounded-lg font-medium transition-all duration-200
-        ${
-          isActive
-            ? "bg-blue-50 text-blue-600 border-l-4 border-blue-600"
-            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-        }
-      `}
+      className={cn(
+        "flex items-center gap-4 px-4 py-3 rounded-lg font-medium transition-all duration-200",
+        isActive
+          ? "bg-blue-50 text-blue-600 border-l-4 border-blue-600"
+          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+      )}
       prefetch={prefetch}
     >
       <Icon
-        className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-400"}`}
+        className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400")}
       />
       <span>{label}</span>
     </Link>
@@ -91,12 +91,7 @@ const SidebarContent = () => {
                   alt={user?.name || "User"}
                 />
                 <AvatarFallback className="font-semibold text-blue-600 bg-blue-100">
-                  {user?.name
-                    ? user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                    : "U"}
+                  {user?.name ? extractInitials(user.name) : "U"}
                 </AvatarFallback>
               </Avatar>
               <div>
@@ -104,9 +99,7 @@ const SidebarContent = () => {
                   {user?.name || "Unknown User"}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  {user?.role
-                    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-                    : "Role"}
+                  {user?.role ? capitalizeFirst(user.role) : "Role"}
                 </p>
               </div>
             </>

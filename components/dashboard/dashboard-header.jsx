@@ -2,48 +2,57 @@
 
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart3, Menu, Download } from "lucide-react";
-import { exportAnalyticsToCSV } from "@/utils/analytics";
+import { BarChart3, Menu, Download, ChevronRight, Home } from "lucide-react";
+import { exportDashboardToCSV } from "@/utils/dashboard";
+import { Badge } from "@/components/ui/badge";
 
-export default function DashboardHeader({ data, linkRef, toggleSidebar }) {
+export function DashboardHeader({ toggleSidebar, linkRef }) {
   return (
-    <Card className="border border-gray-200 bg-white shadow-sm sm:rounded-xl">
-      <CardHeader className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="flex-shrink-0 p-2 hover:bg-gray-100 sm:p-2"
+    <div className="mb-6 sm:mb-8">
+      {/* Breadcrumb */}
+      <nav className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+        <Home className="w-3 h-3 sm:w-4 sm:h-4" />
+        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span>Admin</span>
+        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="text-gray-900 font-medium">Dashboard</span>
+      </nav>
+
+      {/* Main Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
+              <BarChart3 className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                Dashboard
+              </h1>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600">
+                Overview of your restaurant performance and dashboard
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Badge
+            variant="secondary"
+            className="bg-green-100 text-green-700 text-xs sm:text-sm px-2 sm:px-3 py-1"
+          >
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mr-1.5 sm:mr-2"></div>
+            Live Data
+          </Badge>
+          <button
+            ref={linkRef}
             onClick={toggleSidebar}
-            aria-label="Toggle sidebar"
+            className="p-2 sm:p-3 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg sm:rounded-xl transition-all duration-200 shadow-sm border border-gray-200"
           >
-            <Menu className="h-6 w-6 text-gray-600" />
-          </Button>
-          <BarChart3 className="h-7 w-7 text-gray-600" />
-          <h1 className="truncate text-xl sm:text-2xl font-semibold text-gray-900 max-w-[60vw] sm:max-w-none">
-            Report
-          </h1>
+            <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
         </div>
-        <div className="flex items-center gap-4 justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => exportAnalyticsToCSV(data, linkRef)}
-            aria-label="Download report"
-          >
-            <Download className="h-5 w-5 text-gray-600" />
-          </Button>
-          <a ref={linkRef} style={{ display: "none" }} />
-          <span className="truncate text-xs sm:text-sm font-medium text-gray-700 max-w-[40vw] sm:max-w-none">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
-        </div>
-      </CardHeader>
-    </Card>
+      </div>
+    </div>
   );
 }

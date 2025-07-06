@@ -8,6 +8,8 @@ import {
   validateRequiredFields,
   extractId,
 } from "@/lib/api-middleware";
+import { validatePrice, validateRequired } from "@/utils/validation";
+import { VALIDATION_LIMITS } from "@/utils/constants";
 
 export async function GET() {
   try {
@@ -33,6 +35,32 @@ export async function POST(req) {
       "category",
     ]);
     if (validationError) return validationError;
+
+    // Additional validation using utility functions
+    if (!validateRequired(data.name)) {
+      return apiError("Name is required", 400);
+    }
+
+    if (data.name.length > VALIDATION_LIMITS.NAME_MAX_LENGTH) {
+      return apiError(
+        `Name must be less than ${VALIDATION_LIMITS.NAME_MAX_LENGTH} characters`,
+        400
+      );
+    }
+
+    if (!validatePrice(data.price)) {
+      return apiError("Price must be greater than 0", 400);
+    }
+
+    if (
+      data.description &&
+      data.description.length > VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH
+    ) {
+      return apiError(
+        `Description must be less than ${VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH} characters`,
+        400
+      );
+    }
 
     // Validate that category exists
     const category = await Category.findById(data.category);
@@ -64,6 +92,34 @@ export async function PUT(req) {
     if (id instanceof Response) return id;
 
     const data = await req.json();
+
+    // Additional validation for updates
+    if (data.name) {
+      if (!validateRequired(data.name)) {
+        return apiError("Name is required", 400);
+      }
+
+      if (data.name.length > VALIDATION_LIMITS.NAME_MAX_LENGTH) {
+        return apiError(
+          `Name must be less than ${VALIDATION_LIMITS.NAME_MAX_LENGTH} characters`,
+          400
+        );
+      }
+    }
+
+    if (data.price && !validatePrice(data.price)) {
+      return apiError("Price must be greater than 0", 400);
+    }
+
+    if (
+      data.description &&
+      data.description.length > VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH
+    ) {
+      return apiError(
+        `Description must be less than ${VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH} characters`,
+        400
+      );
+    }
 
     // If category is being updated, validate it exists
     if (data.category) {

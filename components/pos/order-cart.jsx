@@ -10,7 +10,7 @@ import { useSalesStore } from "@/hooks/zustand/use-sales-store";
 import { OrderItem } from "./order-item";
 import { PaymentModal } from "./payment-modal";
 import { DiscountModal } from "./discount-modal";
-import { ReceiptGenerator } from "./receipt-generator";
+import { ReceiptGenerator } from "../receipt/receipt-generator";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { calculateOrderTotals } from "@/utils/calculations";
 import { formatCurrency } from "@/utils/formatters";

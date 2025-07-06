@@ -1,4 +1,4 @@
-// Zustand store for sales/order analytics
+// Zustand store for sales/order dashboard
 // State at top, actions grouped, SSR-safe persist, named export
 
 "use client";
@@ -6,11 +6,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
-  aggregateProductSales,
-  aggregateCustomerOrders,
+  totalProductSales,
+  totalCustomerOrders,
   calculateWeeklySalesTrend,
-  aggregatePaymentMethods,
-} from "@/utils/analytics";
+  totalPaymentMethods,
+} from "@/utils/dashboard";
 import { createPersistConfig } from "@/lib/zustand-storage";
 
 const useSalesStore = create(
@@ -37,7 +37,7 @@ const useSalesStore = create(
           const orderDate = new Date(order.createdAt);
           return orderDate >= startDate && orderDate <= endDate;
         }),
-      getAnalytics: () => {
+      getDashboard: () => {
         const completedOrders = get().orders.filter(
           (order) => order.status === "paid"
         );
@@ -52,10 +52,10 @@ const useSalesStore = create(
           totalSales,
           totalOrders,
           averageOrderValue,
-          topProducts: aggregateProductSales(completedOrders),
-          topCustomers: aggregateCustomerOrders(completedOrders),
+          topProducts: totalProductSales(completedOrders),
+          topCustomers: totalCustomerOrders(completedOrders),
           salesByDay: calculateWeeklySalesTrend(completedOrders),
-          salesByPaymentMethod: aggregatePaymentMethods(completedOrders),
+          salesByPaymentMethod: totalPaymentMethods(completedOrders),
         };
       },
     }),

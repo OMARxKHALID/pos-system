@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 export function useHydrateMenu() {
   const pathname = usePathname();
-  const { data, isSuccess } = useMenu();
+  const { menuItems, isLoading, isError } = useMenu();
   const setMenu = useCartStore((s) => s.setMenu);
 
   // Check if we should hydrate on this page
@@ -17,12 +17,14 @@ export function useHydrateMenu() {
     pathname.startsWith("/pos");
 
   useEffect(() => {
-    if (shouldHydrate && isSuccess && data) {
-      setMenu(data);
+    if (shouldHydrate && menuItems && !isLoading && !isError) {
+      setMenu(menuItems);
     }
-  }, [isSuccess, data, setMenu, shouldHydrate]);
+  }, [menuItems, isLoading, isError, setMenu, shouldHydrate]);
 
   return {
-    isHydrated: shouldHydrate ? isSuccess && !!data : true,
+    isHydrated: shouldHydrate ? !isLoading && !isError && !!menuItems : true,
+    isLoading: shouldHydrate ? isLoading : false,
+    isError: shouldHydrate ? isError : false,
   };
 }

@@ -35,14 +35,16 @@ const ReportGraph = ({ data = [], todaySales = 0, yesterdaySales = 0 }) => {
     Array.isArray(data) && data.length > 0
       ? data.map((d) => ({
           date: formatDate(d.date),
-          sales: d.sales || 0,
+          sales: d.totalSales || 0,
         }))
       : [];
 
   // Format date for display (e.g., "Mon", "Tue", etc.)
   function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { weekday: "short" });
+    // Use a consistent format that doesn't depend on locale
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return days[date.getDay()];
   }
 
   // Custom tick formatter for X-axis

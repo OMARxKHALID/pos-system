@@ -6,7 +6,6 @@ import { create } from "zustand";
 const useAdminSidebarStore = create((set) => ({
   // State
   open: true,
-  // Actions
   setOpen: (open) => set({ open }),
   toggle: () => set((state) => ({ open: !state.open })),
 }));

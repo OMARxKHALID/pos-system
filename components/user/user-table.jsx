@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { usePagination } from "@/hooks/use-pagination";
 import TablePagination from "@/components/ui/table-pagination";
+import { capitalizeFirst } from "@/utils/string-utils";
 
 const UserTable = ({
   users = [],
@@ -140,8 +141,7 @@ const UserTable = ({
                               }
                               className="text-xs"
                             >
-                              {user.role.charAt(0).toUpperCase() +
-                                user.role.slice(1)}
+                              {capitalizeFirst(user.role)}
                             </Badge>
                           </TableCell>
                           <TableCell className="py-3 sm:py-4 flex gap-2">
@@ -192,7 +192,7 @@ const UserTable = ({
                         }
                         className="text-xs"
                       >
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        {capitalizeFirst(user.role)}
                       </Badge>
                     </div>
                     <div className="text-xs text-gray-600">{user.email}</div>

@@ -23,6 +23,8 @@ import {
 import { menuSchema, menuEditSchema } from "@/lib/schemas";
 import { useCategory } from "@/hooks/use-category";
 import { Switch } from "@/components/ui/switch";
+import { validatePrice, validateRequired } from "@/utils/validation";
+import { VALIDATION_LIMITS } from "@/utils/constants";
 
 const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
   const isEditing = !!initialData;
@@ -41,6 +43,27 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
   });
 
   const handleSubmit = (data) => {
+    // Additional validation using utility functions
+    if (!validateRequired(data.name)) {
+      form.setError("name", { message: "Name is required" });
+      return;
+    }
+
+    if (!validatePrice(data.price)) {
+      form.setError("price", { message: "Price must be greater than 0" });
+      return;
+    }
+
+    if (
+      data.description &&
+      data.description.length > VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH
+    ) {
+      form.setError("description", {
+        message: `Description must be less than ${VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH} characters`,
+      });
+      return;
+    }
+
     onSubmit(data);
   };
 
@@ -54,7 +77,11 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter item name" {...field} />
+                <Input
+                  placeholder="Enter item name"
+                  {...field}
+                  maxLength={VALIDATION_LIMITS.NAME_MAX_LENGTH}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,7 +95,11 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter item description" {...field} />
+                <Textarea
+                  placeholder="Enter item description"
+                  {...field}
+                  maxLength={VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,6 +117,7 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
                   type="number"
                   step="0.01"
                   placeholder="Enter price"
+                  min={VALIDATION_LIMITS.PRICE_MIN}
                   {...field}
                 />
               </FormControl>

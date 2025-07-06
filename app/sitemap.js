@@ -38,7 +38,7 @@ export default function sitemap() {
     "/api/menu",
     "/api/orders",
     "/api/users",
-    "/api/report",
+    "/api/dashboard",
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),

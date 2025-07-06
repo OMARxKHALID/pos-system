@@ -11,19 +11,19 @@ export function formatDateTime(timestamp) {
   if (!timestamp) return "-";
   const date = new Date(timestamp);
   return (
-    date.toLocaleDateString(undefined, {
+    date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     }) +
     " " +
-    date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+    date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
   );
 }
 
 export function formatDate(date) {
   if (!date) return "-";
-  return new Date(date).toLocaleDateString(undefined, {
+  return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -32,7 +32,7 @@ export function formatDate(date) {
 
 export function formatTime(time) {
   if (!time) return "-";
-  return new Date(time).toLocaleTimeString(undefined, {
+  return new Date(time).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   });

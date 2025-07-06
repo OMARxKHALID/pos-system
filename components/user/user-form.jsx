@@ -20,6 +20,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { userSchema, userEditSchema } from "@/lib/schemas";
+import {
+  validateEmail,
+  validateName,
+  validateRequired,
+} from "@/utils/validation";
+import { VALIDATION_LIMITS, USER_ROLES } from "@/utils/constants";
 
 const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
   const isEditing = !!initialData;
@@ -30,11 +36,34 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
       name: initialData?.name || "",
       email: initialData?.email || "",
       password: "",
-      role: initialData?.role || "staff",
+      role: initialData?.role || USER_ROLES.STAFF,
     },
   });
 
   const handleSubmit = (data) => {
+    // Additional validation using utility functions
+    if (!validateRequired(data.name)) {
+      form.setError("name", { message: "Name is required" });
+      return;
+    }
+
+    if (!validateName(data.name)) {
+      form.setError("name", {
+        message: "Name can only contain letters and spaces",
+      });
+      return;
+    }
+
+    if (!validateEmail(data.email)) {
+      form.setError("email", { message: "Please enter a valid email address" });
+      return;
+    }
+
+    if (!isEditing && !validateRequired(data.password)) {
+      form.setError("password", { message: "Password is required" });
+      return;
+    }
+
     onSubmit(data);
   };
 
@@ -48,7 +77,11 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter full name" {...field} />
+                <Input
+                  placeholder="Enter full name"
+                  {...field}
+                  maxLength={VALIDATION_LIMITS.NAME_MAX_LENGTH}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,6 +119,7 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
                   type="password"
                   placeholder="Enter password"
                   {...field}
+                  maxLength={VALIDATION_LIMITS.PASSWORD_MAX_LENGTH}
                 />
               </FormControl>
               <FormMessage />
@@ -106,8 +140,8 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="staff">Staff</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value={USER_ROLES.STAFF}>Staff</SelectItem>
+                  <SelectItem value={USER_ROLES.ADMIN}>Admin</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
