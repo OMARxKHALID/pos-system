@@ -25,7 +25,6 @@ import {
   validateName,
   validateRequired,
 } from "@/utils/validation";
-import { VALIDATION_LIMITS, USER_ROLES } from "@/utils/constants";
 
 const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
   const isEditing = !!initialData;
@@ -36,7 +35,7 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
       name: initialData?.name || "",
       email: initialData?.email || "",
       password: "",
-      role: initialData?.role || USER_ROLES.STAFF,
+      role: initialData?.role || "staff",
     },
   });
 
@@ -80,7 +79,7 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
                 <Input
                   placeholder="Enter full name"
                   {...field}
-                  maxLength={VALIDATION_LIMITS.NAME_MAX_LENGTH}
+                  maxLength={50}
                 />
               </FormControl>
               <FormMessage />
@@ -119,7 +118,7 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
                   type="password"
                   placeholder="Enter password"
                   {...field}
-                  maxLength={VALIDATION_LIMITS.PASSWORD_MAX_LENGTH}
+                  maxLength={100}
                 />
               </FormControl>
               <FormMessage />
@@ -140,8 +139,8 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value={USER_ROLES.STAFF}>Staff</SelectItem>
-                  <SelectItem value={USER_ROLES.ADMIN}>Admin</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

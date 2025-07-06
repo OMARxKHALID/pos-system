@@ -24,7 +24,6 @@ import { menuSchema, menuEditSchema } from "@/lib/schemas";
 import { useCategory } from "@/hooks/use-category";
 import { Switch } from "@/components/ui/switch";
 import { validatePrice, validateRequired } from "@/utils/validation";
-import { VALIDATION_LIMITS } from "@/utils/constants";
 
 const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
   const isEditing = !!initialData;
@@ -54,12 +53,9 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
       return;
     }
 
-    if (
-      data.description &&
-      data.description.length > VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH
-    ) {
+    if (data.description && data.description.length > 500) {
       form.setError("description", {
-        message: `Description must be less than ${VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH} characters`,
+        message: `Description must be less than 500 characters`,
       });
       return;
     }
@@ -80,7 +76,7 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
                 <Input
                   placeholder="Enter item name"
                   {...field}
-                  maxLength={VALIDATION_LIMITS.NAME_MAX_LENGTH}
+                  maxLength={100}
                 />
               </FormControl>
               <FormMessage />
@@ -98,7 +94,7 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
                 <Textarea
                   placeholder="Enter item description"
                   {...field}
-                  maxLength={VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH}
+                  maxLength={500}
                 />
               </FormControl>
               <FormMessage />
@@ -117,7 +113,7 @@ const MenuForm = ({ onSubmit, initialData = null, loading = false }) => {
                   type="number"
                   step="0.01"
                   placeholder="Enter price"
-                  min={VALIDATION_LIMITS.PRICE_MIN}
+                  min={0.01}
                   {...field}
                 />
               </FormControl>

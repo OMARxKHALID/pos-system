@@ -24,6 +24,12 @@ const createUserMutations = (queryClient) => ({
     mutationFn: (id) => apiClient.deleteWithId("/users", id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
   }),
+
+  toggleUserStatus: useMutation({
+    mutationFn: ({ id, active }) =>
+      apiClient.putWithId("/users", id, { active }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
+  }),
 });
 
 export function useUsers() {
@@ -35,7 +41,10 @@ export function useUsers() {
     isError,
   } = useQuery({
     queryKey: ["users"],
-    queryFn: () => apiClient.get("/users"),
+    queryFn: async () => {
+      const result = await apiClient.get("/users");
+      return result;
+    },
     ...usersQueryConfig,
   });
 
@@ -48,5 +57,6 @@ export function useUsers() {
     addUser: mutations.addUser.mutateAsync,
     updateUser: mutations.updateUser.mutateAsync,
     deleteUser: mutations.deleteUser.mutateAsync,
+    toggleUserStatus: mutations.toggleUserStatus.mutateAsync,
   };
 }

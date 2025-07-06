@@ -1,3 +1,5 @@
+import { formatCurrency } from "./formatters";
+
 export function totalProductSales(orders) {
   const productMap = new Map();
 
@@ -221,11 +223,4 @@ function createAndTriggerCSVDownload(rows, filename, linkRef) {
     linkRef.current.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-}
-
-function formatCurrency(amount) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
 }

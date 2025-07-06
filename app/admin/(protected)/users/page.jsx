@@ -1,30 +1,20 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { useUsers } from "@/hooks/use-users";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
-import UserForm from "@/components/user/user-form";
+import { useUserManagement } from "@/hooks/use-user-management";
+import { UserManagementHeader } from "@/components/user/user-management-header";
+import { UserStatsCards } from "@/components/user/user-stats-cards";
 import UserTable from "@/components/user/user-table";
-import {
-  Users,
-  ChevronRight,
-  Home,
-  Plus,
-  Shield,
-  UserCheck,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { UserDialogs } from "@/components/user/user-dialogs";
 import { PageLoading } from "@/components/ui/loading";
+import { AlertTriangle } from "lucide-react";
+import {
+  calculateUserStats,
+  filterUsers,
+  filterOutCurrentUser,
+} from "@/utils/user-utils";
 
 export default function UsersPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -33,48 +23,54 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [isClient, setIsClient] = useState(false);
-  const toggleSidebar = useAdminSidebarStore((s) => s.toggle);
 
+  const { data: session } = useSession();
+  const toggleSidebar = useAdminSidebarStore((s) => s.toggle);
+  const {
+    users,
+    isLoading,
+    isError,
+    handleAddUser,
+    handleEditUser,
+    handleDeleteUser,
+    handleToggleUserStatus,
+  } = useUserManagement();
+
+  // Prevent hydration mismatch
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const { users, isLoading, isError, addUser, updateUser, deleteUser } =
-    useUsers();
+  // Filter out current user using utility function
+  const filteredUsers = filterOutCurrentUser(users, session?.user);
 
-  const handleAddUser = async (data) => {
-    try {
-      await addUser(data);
-      setIsAddDialogOpen(false);
-      toast.success("User added successfully");
-    } catch (error) {
-      toast.error("Failed to add user");
-    }
+  // Apply search and role filters
+  const displayUsers = filterUsers(filteredUsers, search, roleFilter);
+
+  // Calculate statistics
+  const userStats = calculateUserStats(filteredUsers);
+
+  // Enhanced handlers with dialog management
+  const onAddUser = async (data) => {
+    await handleAddUser(data);
+    setIsAddDialogOpen(false);
   };
 
-  const handleEditUser = async (data) => {
-    try {
-      await updateUser({ id: editingUser._id, ...data });
-      setIsEditDialogOpen(false);
-      setEditingUser(null);
-      toast.success("User updated successfully");
-    } catch (error) {
-      toast.error("Failed to update user");
-    }
-  };
-
-  const handleDeleteUser = async (userId) => {
-    try {
-      await deleteUser(userId);
-      toast.success("User deleted successfully");
-    } catch (error) {
-      toast.error("Failed to delete user");
-    }
+  const onEditUser = async (data) => {
+    await handleEditUser({ id: editingUser._id, ...data });
+    setIsEditDialogOpen(false);
+    setEditingUser(null);
   };
 
   const openEditDialog = (user) => {
     setEditingUser(user);
     setIsEditDialogOpen(true);
+  };
+
+  const closeAddDialog = () => setIsAddDialogOpen(false);
+  const closeEditDialog = () => {
+    setIsEditDialogOpen(false);
+    setEditingUser(null);
   };
 
   if (!isClient) {
@@ -87,182 +83,53 @@ export default function UsersPage() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="mb-4 text-red-500 text-base sm:text-lg font-medium">
-            Failed to load users.
-          </div>
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Failed to load users
+          </h2>
+          <p className="text-gray-600">
+            Please try refreshing the page or contact support if the problem
+            persists.
+          </p>
         </div>
       </div>
     );
   }
 
-  // Calculate user statistics
-  const totalUsers = users?.length || 0;
-  const adminUsers =
-    users?.filter((user) => user.role === "admin")?.length || 0;
-  const staffUsers =
-    users?.filter((user) => user.role === "staff")?.length || 0;
-  const activeUsers =
-    users?.filter((user) => user.isActive !== false)?.length || 0;
-
   return (
     <div className="flex-1 space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
-      <nav className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
-        <Home className="w-3 h-3 sm:w-4 sm:h-4" />
-        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span>Admin</span>
-        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-        <span className="text-gray-900 font-medium">Users</span>
-      </nav>
+      <UserManagementHeader
+        totalUsers={userStats.total}
+        onAddUser={() => setIsAddDialogOpen(true)}
+        onToggleSidebar={toggleSidebar}
+      />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg sm:rounded-xl">
-              <Users className="w-4 h-4 sm:w-6 sm:h-6 text-indigo-600" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
-                User Management
-              </h1>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-600">
-                Manage restaurant staff and user accounts
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Badge
-            variant="secondary"
-            className="bg-indigo-100 text-indigo-700 text-xs sm:text-sm px-2 sm:px-3 py-1"
-          >
-            <Users className="w-3 h-3 mr-1.5 sm:mr-2" />
-            {totalUsers} Users
-          </Badge>
-          <Button
-            onClick={() => setIsAddDialogOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-xs sm:text-sm px-3 sm:px-4 py-2"
-          >
-            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-            Add User
-          </Button>
-          <button
-            onClick={toggleSidebar}
-            className="p-2 sm:p-3 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg sm:rounded-xl transition-all duration-200 shadow-sm border border-gray-200"
-          >
-            <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <Card className="bg-white/80 backdrop-blur-sm border-0">
-          <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
-                  Total Users
-                </p>
-                <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
-                  {totalUsers}
-                </p>
-              </div>
-              <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-indigo-100 rounded-lg">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0">
-          <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
-                  Admins
-                </p>
-                <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
-                  {adminUsers}
-                </p>
-              </div>
-              <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-red-100 rounded-lg">
-                <Shield className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0">
-          <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
-                  Staff
-                </p>
-                <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
-                  {staffUsers}
-                </p>
-              </div>
-              <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-blue-100 rounded-lg">
-                <UserCheck className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0">
-          <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
-                  Active Users
-                </p>
-                <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">
-                  {activeUsers}
-                </p>
-              </div>
-              <div className="flex-shrink-0 p-1.5 sm:p-2 lg:p-3 bg-green-100 rounded-lg">
-                <UserCheck className="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <UserStatsCards stats={userStats} />
 
       <UserTable
-        users={users}
+        users={displayUsers}
         isLoading={isLoading}
         isError={isError}
         onEdit={openEditDialog}
         onDelete={handleDeleteUser}
+        onToggleStatus={handleToggleUserStatus}
         search={search}
         setSearch={setSearch}
         roleFilter={roleFilter}
         setRoleFilter={setRoleFilter}
       />
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-          </DialogHeader>
-          <UserForm onSubmit={handleEditUser} initialData={editingUser} />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogTrigger asChild>
-          <span style={{ display: "none" }} />
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-          </DialogHeader>
-          <UserForm onSubmit={handleAddUser} />
-        </DialogContent>
-      </Dialog>
+      <UserDialogs
+        isAddOpen={isAddDialogOpen}
+        isEditOpen={isEditDialogOpen}
+        editingUser={editingUser}
+        onAddClose={closeAddDialog}
+        onEditClose={closeEditDialog}
+        onAddUser={onAddUser}
+        onEditUser={onEditUser}
+      />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentSettingsStore } from "@/hooks/zustand/use-payment-settings-store";
-import { paymentMethodOptions } from "@/utils/constants";
+
 import { CreditCard, Banknote, Smartphone, RotateCcw } from "lucide-react";
 
 // Map icon names to actual icon components
@@ -15,7 +15,11 @@ const iconMap = {
   Smartphone,
 };
 
-const paymentMethodsWithIcons = paymentMethodOptions.map((method) => ({
+const paymentMethodsWithIcons = [
+  { value: "cash", label: "Cash", icon: "Banknote" },
+  { value: "card", label: "Credit Card", icon: "CreditCard" },
+  { value: "wallet", label: "Mobile Pay", icon: "Smartphone" },
+].map((method) => ({
   ...method,
   icon: iconMap[method.icon],
 }));

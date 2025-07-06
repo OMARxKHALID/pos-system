@@ -13,7 +13,6 @@ import {
   validateName,
   validateRequired,
 } from "@/utils/validation";
-import { VALIDATION_LIMITS } from "@/utils/constants";
 
 export async function GET() {
   try {
@@ -49,29 +48,20 @@ export async function POST(req) {
       return apiError("Name can only contain letters and spaces", 400);
     }
 
-    if (data.name.length > VALIDATION_LIMITS.NAME_MAX_LENGTH) {
-      return apiError(
-        `Name must be less than ${VALIDATION_LIMITS.NAME_MAX_LENGTH} characters`,
-        400
-      );
+    if (data.name.length > 50) {
+      return apiError(`Name must be less than 50 characters`, 400);
     }
 
     if (!validateEmail(data.email)) {
       return apiError("Please enter a valid email address", 400);
     }
 
-    if (data.password.length < VALIDATION_LIMITS.PASSWORD_MIN_LENGTH) {
-      return apiError(
-        `Password must be at least ${VALIDATION_LIMITS.PASSWORD_MIN_LENGTH} characters`,
-        400
-      );
+    if (data.password.length < 6) {
+      return apiError(`Password must be at least 6 characters`, 400);
     }
 
-    if (data.password.length > VALIDATION_LIMITS.PASSWORD_MAX_LENGTH) {
-      return apiError(
-        `Password must be less than ${VALIDATION_LIMITS.PASSWORD_MAX_LENGTH} characters`,
-        400
-      );
+    if (data.password.length > 100) {
+      return apiError(`Password must be less than 100 characters`, 400);
     }
 
     data.password = await bcrypt.hash(data.password, 10);
@@ -100,11 +90,8 @@ export async function PUT(req) {
         return apiError("Name can only contain letters and spaces", 400);
       }
 
-      if (data.name.length > VALIDATION_LIMITS.NAME_MAX_LENGTH) {
-        return apiError(
-          `Name must be less than ${VALIDATION_LIMITS.NAME_MAX_LENGTH} characters`,
-          400
-        );
+      if (data.name.length > 50) {
+        return apiError(`Name must be less than 50 characters`, 400);
       }
     }
 
@@ -113,18 +100,12 @@ export async function PUT(req) {
     }
 
     if (data.password) {
-      if (data.password.length < VALIDATION_LIMITS.PASSWORD_MIN_LENGTH) {
-        return apiError(
-          `Password must be at least ${VALIDATION_LIMITS.PASSWORD_MIN_LENGTH} characters`,
-          400
-        );
+      if (data.password.length < 6) {
+        return apiError(`Password must be at least 6 characters`, 400);
       }
 
-      if (data.password.length > VALIDATION_LIMITS.PASSWORD_MAX_LENGTH) {
-        return apiError(
-          `Password must be less than ${VALIDATION_LIMITS.PASSWORD_MAX_LENGTH} characters`,
-          400
-        );
+      if (data.password.length > 100) {
+        return apiError(`Password must be less than 100 characters`, 400);
       }
 
       data.password = await bcrypt.hash(data.password, 10);

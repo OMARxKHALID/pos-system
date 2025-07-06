@@ -21,10 +21,11 @@ export const authOptions = {
         const user = await User.findOne({ email: credentials.email });
         if (
           user &&
-          (await bcrypt.compare(credentials.password, user.password))
+          (await bcrypt.compare(credentials.password, user.password)) &&
+          user.active === true
         ) {
           return {
-            id: user._id,
+            id: user._id.toString(),
             name: user.name,
             email: user.email,
             role: user.role,
@@ -45,11 +46,13 @@ export const authOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (token?.role) session.user.role = token.role;
+      if (token?.id) session.user.id = token.id;
       return session;
     },
   },

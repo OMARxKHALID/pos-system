@@ -23,7 +23,6 @@ import { Switch } from "@/components/ui/switch";
 import { usePaymentSettingsStore } from "@/hooks/zustand/use-payment-settings-store";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { formatCurrency } from "@/utils/formatters";
-import { paymentMethodOptions } from "@/utils/constants";
 
 export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
   const {
@@ -54,7 +53,11 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
     Smartphone,
   };
 
-  const allPaymentMethods = paymentMethodOptions.map((method) => ({
+  const allPaymentMethods = [
+    { value: "cash", label: "Cash", icon: "Banknote" },
+    { value: "card", label: "Credit Card", icon: "CreditCard" },
+    { value: "wallet", label: "Mobile Pay", icon: "Smartphone" },
+  ].map((method) => ({
     ...method,
     icon: iconMap[method.icon],
   }));

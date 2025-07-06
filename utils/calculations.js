@@ -1,11 +1,9 @@
 // Pure calculation functions - no side effects
 
-import { TAX_RATE } from "./constants";
-
 export function calculateOrderTotals(
   orderItems,
   cartDiscountPercentage = 0,
-  taxRate = TAX_RATE
+  taxRate = 0.1
 ) {
   const subtotal = calculateSubtotalBeforeDiscounts(orderItems);
   const itemDiscountsTotal = calculateTotalItemDiscounts(orderItems);
@@ -54,37 +52,6 @@ export function calculateItemFinalPrice(item) {
 
 export function clampDiscountPercentage(discount) {
   return Math.max(0, Math.min(100, discount));
-}
-
-export function analyzeOrderFinancials(order, taxRate = TAX_RATE) {
-  const subtotalBeforeDiscounts = order.items.reduce(
-    (sum, item) => sum + calculateItemOriginalPrice(item),
-    0
-  );
-
-  const totalItemDiscounts = order.items.reduce(
-    (sum, item) => sum + calculateItemDiscountAmount(item),
-    0
-  );
-
-  const subtotalAfterItemDiscounts =
-    subtotalBeforeDiscounts - totalItemDiscounts;
-  const cartDiscountAmount =
-    (order.discount / 100) * subtotalAfterItemDiscounts;
-  const subtotalAfterAllDiscounts =
-    subtotalAfterItemDiscounts - cartDiscountAmount;
-
-  const taxAmount = subtotalAfterAllDiscounts * taxRate;
-  const grandTotal = subtotalAfterAllDiscounts + taxAmount;
-
-  return {
-    subtotalBeforeDiscounts,
-    totalItemDiscounts,
-    cartDiscountAmount,
-    subtotalAfterAllDiscounts,
-    taxAmount,
-    grandTotal,
-  };
 }
 
 export function calculateAverageOrderValue(orders) {

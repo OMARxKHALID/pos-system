@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ import {
 import { usePagination } from "@/hooks/use-pagination";
 import TablePagination from "@/components/ui/table-pagination";
 import { capitalizeFirst } from "@/utils/string-utils";
+import { filterUsers } from "@/utils/user-utils";
 
 const UserTable = ({
   users = [],
@@ -30,20 +32,14 @@ const UserTable = ({
   isError,
   onEdit,
   onDelete,
+  onToggleStatus,
   search,
   setSearch,
   roleFilter,
   setRoleFilter,
 }) => {
   // Filter users based on search and role filter
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      !search ||
-      user.name?.toLowerCase().includes(search.toLowerCase()) ||
-      user.email?.toLowerCase().includes(search.toLowerCase());
-    const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    return matchesSearch && matchesRole;
-  });
+  const filteredUsers = filterUsers(users, search, roleFilter);
 
   // Pagination
   const {
@@ -109,6 +105,7 @@ const UserTable = ({
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -116,7 +113,7 @@ const UserTable = ({
                     {paginatedItems.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={5}
+                          colSpan={6}
                           className="py-6 text-sm text-center text-gray-400 sm:py-8"
                         >
                           No users found
@@ -143,6 +140,26 @@ const UserTable = ({
                             >
                               {capitalizeFirst(user.role)}
                             </Badge>
+                          </TableCell>
+                          <TableCell className="py-3 sm:py-4">
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={user.active !== false}
+                                onCheckedChange={(checked) =>
+                                  onToggleStatus(user._id, checked)
+                                }
+                              />
+                              <Badge
+                                variant={
+                                  user.active !== false
+                                    ? "default"
+                                    : "secondary"
+                                }
+                                className="text-xs"
+                              >
+                                {user.active !== false ? "Active" : "Inactive"}
+                              </Badge>
+                            </div>
                           </TableCell>
                           <TableCell className="py-3 sm:py-4 flex gap-2">
                             <Button
@@ -186,16 +203,35 @@ const UserTable = ({
                       <span className="text-xs font-semibold text-gray-900">
                         {user.name}
                       </span>
-                      <Badge
-                        variant={
-                          user.role === "admin" ? "default" : "secondary"
-                        }
-                        className="text-xs"
-                      >
-                        {capitalizeFirst(user.role)}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            user.role === "admin" ? "default" : "secondary"
+                          }
+                          className="text-xs"
+                        >
+                          {capitalizeFirst(user.role)}
+                        </Badge>
+                        <Badge
+                          variant={
+                            user.active !== false ? "default" : "secondary"
+                          }
+                          className="text-xs"
+                        >
+                          {user.active !== false ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
                     </div>
                     <div className="text-xs text-gray-600">{user.email}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">Status:</span>
+                      <Switch
+                        checked={user.active !== false}
+                        onCheckedChange={(checked) =>
+                          onToggleStatus(user._id, checked)
+                        }
+                      />
+                    </div>
                     <div className="flex gap-2 mt-2">
                       <Button
                         variant="outline"

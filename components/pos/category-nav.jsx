@@ -4,11 +4,10 @@ import { useCategory } from "@/hooks/use-category";
 import { useMenu } from "@/hooks/use-menu";
 import { normalizeString } from "@/utils/string-utils";
 import { getCategoryColor } from "@/utils/category-colors";
-import { CategoryNavSkeleton } from "./category-nav-skeleton";
 
 export function CategoryNav({ selectedCategory, onCategoryChange }) {
-  const { categories, isLoading: categoriesLoading } = useCategory();
-  const { menuItems, isLoading: menuLoading } = useMenu();
+  const { categories } = useCategory();
+  const { menuItems } = useMenu();
 
   // Calculate item counts for each category
   const getCategoryItemCount = (categoryId) => {
@@ -30,12 +29,6 @@ export function CategoryNav({ selectedCategory, onCategoryChange }) {
   const allCategories = categories
     ? [{ _id: "all", name: "All", icon: "🍽️" }, ...categories]
     : [];
-
-  const isLoading = categoriesLoading || menuLoading;
-
-  if (isLoading) {
-    return <CategoryNavSkeleton />;
-  }
 
   return (
     <div className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
