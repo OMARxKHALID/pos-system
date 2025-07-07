@@ -1,9 +1,10 @@
 "use client";
 
-import { BarChart3, ChevronRight, Home } from "lucide-react";
+import { BarChart3, ChevronRight, Home, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-export function DashboardHeader({ toggleSidebar }) {
+export function DashboardHeader({ toggleSidebar, onRefresh, isRefreshing }) {
   return (
     <div className="mb-6 sm:mb-8">
       {/* Breadcrumb */}
@@ -41,6 +42,18 @@ export function DashboardHeader({ toggleSidebar }) {
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mr-1.5 sm:mr-2"></div>
             Live Data
           </Badge>
+          <Button
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
           <button
             onClick={toggleSidebar}
             className="p-2 sm:p-3 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg sm:rounded-xl transition-all duration-200 shadow-sm border border-gray-200"

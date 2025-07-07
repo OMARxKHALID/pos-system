@@ -24,6 +24,7 @@ export default function sitemap() {
     "/admin/category",
     "/admin/orders",
     "/admin/users",
+    "/admin/settings",
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),

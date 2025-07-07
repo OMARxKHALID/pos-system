@@ -25,6 +25,7 @@ import { usePagination } from "@/hooks/use-pagination";
 import TablePagination from "@/components/ui/table-pagination";
 import { capitalizeFirst } from "@/utils/string-utils";
 import { filterUsers } from "@/utils/user-utils";
+import { getPermissionDisplayName } from "@/utils/permission-utils";
 
 const UserTable = ({
   users = [],
@@ -105,6 +106,7 @@ const UserTable = ({
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead>Permissions</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -113,7 +115,7 @@ const UserTable = ({
                     {paginatedItems.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={6}
+                          colSpan={7}
                           className="py-6 text-sm text-center text-gray-400 sm:py-8"
                         >
                           No users found
@@ -140,6 +142,29 @@ const UserTable = ({
                             >
                               {capitalizeFirst(user.role)}
                             </Badge>
+                          </TableCell>
+                          <TableCell className="py-3 sm:py-4">
+                            <div className="flex flex-wrap gap-1">
+                              {user.role === "admin" ? (
+                                <Badge variant="outline" className="text-xs">
+                                  All Access
+                                </Badge>
+                              ) : (
+                                user.permissions?.map((permission) => (
+                                  <Badge
+                                    key={permission}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {getPermissionDisplayName(permission)}
+                                  </Badge>
+                                )) || (
+                                  <span className="text-xs text-gray-400">
+                                    No permissions
+                                  </span>
+                                )
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="py-3 sm:py-4">
                             <div className="flex items-center gap-2">
@@ -223,6 +248,32 @@ const UserTable = ({
                       </div>
                     </div>
                     <div className="text-xs text-gray-600">{user.email}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">
+                        Permissions:
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {user.role === "admin" ? (
+                          <Badge variant="outline" className="text-xs">
+                            All Access
+                          </Badge>
+                        ) : (
+                          user.permissions?.map((permission) => (
+                            <Badge
+                              key={permission}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {getPermissionDisplayName(permission)}
+                            </Badge>
+                          )) || (
+                            <span className="text-xs text-gray-400">
+                              No permissions
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500">Status:</span>
                       <Switch

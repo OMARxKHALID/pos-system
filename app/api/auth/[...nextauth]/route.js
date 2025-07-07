@@ -29,6 +29,7 @@ export const authOptions = {
             name: user.name,
             email: user.email,
             role: user.role,
+            permissions: user.permissions || [],
           };
         }
         return null;
@@ -47,12 +48,14 @@ export const authOptions = {
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.permissions = user.permissions || [];
       }
       return token;
     },
     async session({ session, token }) {
       if (token?.role) session.user.role = token.role;
       if (token?.id) session.user.id = token.id;
+      if (token?.permissions) session.user.permissions = token.permissions;
       return session;
     },
   },

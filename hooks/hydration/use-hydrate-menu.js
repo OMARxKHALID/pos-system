@@ -1,9 +1,9 @@
 "use client";
 
-import { useMenu } from "@/hooks/use-menu";
-import { useCartStore } from "@/hooks/zustand/use-cart-store";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useMenu } from "@/hooks/use-menu";
+import { useCartStore } from "@/hooks/zustand/use-cart-store";
 
 export function useHydrateMenu() {
   const pathname = usePathname();
@@ -16,6 +16,7 @@ export function useHydrateMenu() {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/pos");
 
+  // Hydrate menu data
   useEffect(() => {
     if (shouldHydrate && menuItems && !isLoading && !isError) {
       setMenu(menuItems);
@@ -23,6 +24,7 @@ export function useHydrateMenu() {
   }, [menuItems, isLoading, isError, setMenu, shouldHydrate]);
 
   return {
+    // States
     isHydrated: shouldHydrate ? !isLoading && !isError && !!menuItems : true,
     isLoading: shouldHydrate ? isLoading : false,
     isError: shouldHydrate ? isError : false,

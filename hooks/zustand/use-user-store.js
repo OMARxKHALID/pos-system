@@ -1,4 +1,4 @@
-// Zustand store for user management
+// Zustand store for user state management
 // State at top, actions grouped, SSR-safe persist, named export
 
 import { create } from "zustand";
@@ -10,6 +10,7 @@ const useUserStore = create(
     (set) => ({
       // State
       user: null,
+
       // Actions
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: null }),

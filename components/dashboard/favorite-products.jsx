@@ -20,7 +20,7 @@ const FavoriteProducts = ({ products = [], search, setSearch }) => (
       </div>
       <div className="flex items-center gap-2">
         <Input
-          className="w-48 h-8 p-2 text-sm"
+          className="w-40 h-8 p-2 text-sm"
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}

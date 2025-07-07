@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -25,9 +26,17 @@ import {
   validateName,
   validateRequired,
 } from "@/utils/validation";
+import {
+  getDefaultPermissions,
+  getAvailablePermissions,
+} from "@/utils/permission-utils";
+import React from "react";
 
 const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
   const isEditing = !!initialData;
+
+  // Get available permissions from centralized utility
+  const availablePermissions = getAvailablePermissions();
 
   const form = useForm({
     resolver: zodResolver(isEditing ? userEditSchema : userSchema),
@@ -36,8 +45,26 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
       email: initialData?.email || "",
       password: "",
       role: initialData?.role || "staff",
+      permissions: initialData?.permissions || [
+        "dashboard",
+        "menu",
+        "category",
+        "orders",
+      ],
     },
   });
+
+  // Watch for role changes and update permissions accordingly
+  const watchedRole = form.watch("role");
+  const watchedPermissions = form.watch("permissions");
+
+  // Update permissions when role changes
+  React.useEffect(() => {
+    if (watchedRole) {
+      const defaultPermissions = getDefaultPermissions(watchedRole);
+      form.setValue("permissions", defaultPermissions);
+    }
+  }, [watchedRole, form]);
 
   const handleSubmit = (data) => {
     // Additional validation using utility functions
@@ -60,6 +87,14 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
 
     if (!isEditing && !validateRequired(data.password)) {
       form.setError("password", { message: "Password is required" });
+      return;
+    }
+
+    // Ensure at least one permission is selected
+    if (!data.permissions || data.permissions.length === 0) {
+      form.setError("permissions", {
+        message: "At least one permission must be selected",
+      });
       return;
     }
 
@@ -143,6 +178,56 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="permissions"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Permissions</FormLabel>
+              <div className="space-y-3">
+                {availablePermissions.map((permission) => (
+                  <div
+                    key={permission.value}
+                    className="flex items-start space-x-3"
+                  >
+                    <Checkbox
+                      id={permission.value}
+                      checked={field.value?.includes(permission.value) || false}
+                      onCheckedChange={(checked) => {
+                        const currentPermissions = field.value || [];
+                        if (checked) {
+                          field.onChange([
+                            ...currentPermissions,
+                            permission.value,
+                          ]);
+                        } else {
+                          field.onChange(
+                            currentPermissions.filter(
+                              (p) => p !== permission.value
+                            )
+                          );
+                        }
+                      }}
+                    />
+                    <div className="flex-1">
+                      <label
+                        htmlFor={permission.value}
+                        className="text-sm font-medium text-gray-900 cursor-pointer"
+                      >
+                        {permission.label}
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {permission.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
               <FormMessage />
             </FormItem>
           )}

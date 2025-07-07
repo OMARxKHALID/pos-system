@@ -1,4 +1,4 @@
-// Zustand store for admin sidebar open state
+// Zustand store for admin sidebar state management
 // State at top, actions grouped, named export
 
 import { create } from "zustand";

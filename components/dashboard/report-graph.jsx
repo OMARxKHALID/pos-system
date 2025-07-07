@@ -35,7 +35,7 @@ const ReportGraph = ({ data = [], todaySales = 0, yesterdaySales = 0 }) => {
     Array.isArray(data) && data.length > 0
       ? data.map((d) => ({
           date: formatDate(d.date),
-          sales: d.totalSales || 0,
+          sales: d.sales || 0,
         }))
       : [];
 

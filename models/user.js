@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { validatePermissions } from "../utils/permission-utils.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -45,6 +46,21 @@ const userSchema = new mongoose.Schema(
     active: {
       type: Boolean,
       default: true,
+    },
+    permissions: {
+      type: [String],
+      default: function () {
+        // Default permissions based on role
+        return this.role === "admin"
+          ? ["dashboard", "menu", "category", "orders", "users", "settings"]
+          : ["dashboard", "menu", "category", "orders"];
+      },
+      validate: {
+        validator: function (permissions) {
+          return validatePermissions(permissions);
+        },
+        message: "Invalid permission provided",
+      },
     },
   },
   { timestamps: true }

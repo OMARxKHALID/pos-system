@@ -3,6 +3,7 @@ import User from "@/models/user";
 import bcrypt from "bcryptjs";
 import {
   requireAdmin,
+  requireUserManagement,
   apiError,
   apiSuccess,
   validateRequiredFields,
@@ -14,8 +15,12 @@ import {
   validateRequired,
 } from "@/utils/validation";
 
-export async function GET() {
+export async function GET(req) {
   try {
+    // Allow staff with users permission to view users
+    const authResult = await requireUserManagement(req);
+    if (authResult instanceof Response) return authResult;
+
     await dbConnect();
     const users = await User.find({}, "-password");
     return apiSuccess(users);
@@ -26,6 +31,7 @@ export async function GET() {
 
 export async function POST(req) {
   try {
+    // Only admin can create new users
     const authResult = await requireAdmin(req);
     if (authResult instanceof Response) return authResult;
 
@@ -64,6 +70,14 @@ export async function POST(req) {
       return apiError(`Password must be less than 100 characters`, 400);
     }
 
+    // Set default permissions based on role if not provided
+    if (!data.permissions) {
+      data.permissions =
+        data.role === "admin"
+          ? ["dashboard", "menu", "category", "orders", "users", "settings"]
+          : ["dashboard", "menu", "category", "orders"];
+    }
+
     data.password = await bcrypt.hash(data.password, 10);
     const user = await User.create(data);
 
@@ -75,7 +89,8 @@ export async function POST(req) {
 
 export async function PUT(req) {
   try {
-    const authResult = await requireAdmin(req);
+    // Allow staff with users permission to update users
+    const authResult = await requireUserManagement(req);
     if (authResult instanceof Response) return authResult;
 
     await dbConnect();
@@ -111,6 +126,14 @@ export async function PUT(req) {
       data.password = await bcrypt.hash(data.password, 10);
     }
 
+    // Update permissions if role is being changed
+    if (data.role && !data.permissions) {
+      data.permissions =
+        data.role === "admin"
+          ? ["dashboard", "menu", "category", "orders", "users", "settings"]
+          : ["dashboard", "menu", "category", "orders"];
+    }
+
     const updated = await User.findByIdAndUpdate(id, data, {
       new: true,
       select: "-password",
@@ -128,6 +151,7 @@ export async function PUT(req) {
 
 export async function DELETE(req) {
   try {
+    // Only admin can delete users
     const authResult = await requireAdmin(req);
     if (authResult instanceof Response) return authResult;
 

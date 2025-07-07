@@ -1,63 +1,101 @@
-import { useUsers } from "@/hooks/use-users";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 
+// Query configuration
+const userManagementQueryConfig = {
+  staleTime: 5 * 60 * 1000, // 5 minutes
+  gcTime: 10 * 60 * 1000, // 10 minutes
+  refetchOnWindowFocus: false,
+  refetchOnMount: true,
+  refetchOnReconnect: true,
+};
+
+// Mutation handlers
+const createUserManagementMutations = (queryClient) => ({
+  createUser: useMutation({
+    mutationFn: (userData) => apiClient.post("/users", userData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User created successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create user");
+    },
+  }),
+
+  updateUser: useMutation({
+    mutationFn: ({ id, ...userData }) =>
+      apiClient.putWithId("/users", id, userData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update user");
+    },
+  }),
+
+  deleteUser: useMutation({
+    mutationFn: (id) => apiClient.deleteWithId("/users", id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User deleted successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete user");
+    },
+  }),
+
+  toggleUserStatus: useMutation({
+    mutationFn: ({ id, active }) =>
+      apiClient.putWithId("/users", id, { active }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User status updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update user status");
+    },
+  }),
+});
+
 export function useUserManagement() {
+  const queryClient = useQueryClient();
+
+  // Fetch users
   const {
-    users,
+    data: users,
     isLoading,
     isError,
-    addUser,
-    updateUser,
-    deleteUser,
-    toggleUserStatus,
-  } = useUsers();
+    error,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => apiClient.get("/users"),
+    ...userManagementQueryConfig,
+  });
 
-  // Event handlers with toast notifications
-  const handleAddUser = async (data) => {
-    try {
-      await addUser(data);
-      toast.success("User added successfully");
-    } catch (error) {
-      toast.error("Failed to add user");
-    }
-  };
-
-  const handleEditUser = async (data) => {
-    try {
-      await updateUser(data);
-      toast.success("User updated successfully");
-    } catch (error) {
-      toast.error("Failed to update user");
-    }
-  };
-
-  const handleDeleteUser = async (userId) => {
-    try {
-      await deleteUser(userId);
-      toast.success("User deleted successfully");
-    } catch (error) {
-      toast.error("Failed to delete user");
-    }
-  };
-
-  const handleToggleUserStatus = async (userId, active) => {
-    try {
-      await toggleUserStatus({ id: userId, active });
-      toast.success(
-        `User ${active ? "activated" : "deactivated"} successfully`
-      );
-    } catch (error) {
-      toast.error(`Failed to ${active ? "activate" : "deactivate"} user`);
-    }
-  };
+  const mutations = createUserManagementMutations(queryClient);
 
   return {
+    // Data
     users,
+
+    // Loading states
     isLoading,
     isError,
-    handleAddUser,
-    handleEditUser,
-    handleDeleteUser,
-    handleToggleUserStatus,
+    error,
+
+    // Actions
+    createUser: mutations.createUser.mutateAsync,
+    updateUser: mutations.updateUser.mutateAsync,
+    deleteUser: mutations.deleteUser.mutateAsync,
+    toggleUserStatus: mutations.toggleUserStatus.mutateAsync,
+
+    // Mutation states
+    isCreating: mutations.createUser.isPending,
+    isUpdating: mutations.updateUser.isPending,
+    isDeleting: mutations.deleteUser.isPending,
+    isTogglingStatus: mutations.toggleUserStatus.isPending,
   };
 }

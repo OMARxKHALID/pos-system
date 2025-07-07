@@ -27,6 +27,7 @@ import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { capitalizeFirst, extractInitials } from "@/utils/string-utils";
+import { filterNavLinksByPermissions } from "@/utils/permission-utils";
 
 const NAV_LINKS = [
   { href: "/", label: "POS", icon: Home },
@@ -35,12 +36,38 @@ const NAV_LINKS = [
     label: "Dashboard",
     icon: BarChart3,
     prefetch: true,
+    permission: "dashboard",
   },
-  { href: "/admin/menu", label: "Menu", icon: Package },
-  { href: "/admin/category", label: "Categories", icon: Tag },
-  { href: "/admin/orders", label: "Orders", icon: ClipboardList },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  {
+    href: "/admin/menu",
+    label: "Menu",
+    icon: Package,
+    permission: "menu",
+  },
+  {
+    href: "/admin/category",
+    label: "Categories",
+    icon: Tag,
+    permission: "category",
+  },
+  {
+    href: "/admin/orders",
+    label: "Orders",
+    icon: ClipboardList,
+    permission: "orders",
+  },
+  {
+    href: "/admin/users",
+    label: "Users",
+    icon: Users,
+    permission: "users",
+  },
+  {
+    href: "/admin/settings",
+    label: "Settings",
+    icon: Settings,
+    permission: "settings",
+  },
 ];
 
 const NavLink = ({ href, label, icon: Icon, prefetch = false }) => {
@@ -68,8 +95,15 @@ const NavLink = ({ href, label, icon: Icon, prefetch = false }) => {
 
 const SidebarContent = () => {
   const { user } = useUserStore();
+  const { data: session } = useSession();
   const { status } = useSession();
   const isLoading = status === "loading";
+
+  // Filter navigation links based on user permissions using centralized utility
+  const filteredNavLinks = filterNavLinksByPermissions(
+    NAV_LINKS,
+    session?.user
+  );
 
   return (
     <div className="flex flex-col h-full ">
@@ -110,7 +144,7 @@ const SidebarContent = () => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {NAV_LINKS.map((link) => (
+        {filteredNavLinks.map((link) => (
           <NavLink key={link.href} {...link} />
         ))}
       </nav>

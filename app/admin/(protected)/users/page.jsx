@@ -10,6 +10,7 @@ import UserTable from "@/components/user/user-table";
 import { UserDialogs } from "@/components/user/user-dialogs";
 import { PageLoading } from "@/components/ui/loading";
 import { AlertTriangle } from "lucide-react";
+import { PermissionGuard } from "@/components/common/permission-guard";
 import {
   calculateUserStats,
   filterUsers,
@@ -77,59 +78,57 @@ export default function UsersPage() {
     return <PageLoading />;
   }
 
-  if (isLoading) {
-    return <PageLoading />;
-  }
-
-  if (isError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Failed to load users
-          </h2>
-          <p className="text-gray-600">
-            Please try refreshing the page or contact support if the problem
-            persists.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex-1 space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
-      <UserManagementHeader
-        totalUsers={userStats.total}
-        onAddUser={() => setIsAddDialogOpen(true)}
-        onToggleSidebar={toggleSidebar}
-      />
+    <PermissionGuard requiredPermission="users">
+      {isLoading ? (
+        <PageLoading />
+      ) : isError ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Failed to load users
+            </h2>
+            <p className="text-gray-600">
+              Please try refreshing the page or contact support if the problem
+              persists.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
+          <UserManagementHeader
+            totalUsers={userStats.total}
+            onAddUser={() => setIsAddDialogOpen(true)}
+            onToggleSidebar={toggleSidebar}
+          />
 
-      <UserStatsCards stats={userStats} />
+          <UserStatsCards stats={userStats} />
 
-      <UserTable
-        users={displayUsers}
-        isLoading={isLoading}
-        isError={isError}
-        onEdit={openEditDialog}
-        onDelete={handleDeleteUser}
-        onToggleStatus={handleToggleUserStatus}
-        search={search}
-        setSearch={setSearch}
-        roleFilter={roleFilter}
-        setRoleFilter={setRoleFilter}
-      />
+          <UserTable
+            users={displayUsers}
+            isLoading={isLoading}
+            isError={isError}
+            onEdit={openEditDialog}
+            onDelete={handleDeleteUser}
+            onToggleStatus={handleToggleUserStatus}
+            search={search}
+            setSearch={setSearch}
+            roleFilter={roleFilter}
+            setRoleFilter={setRoleFilter}
+          />
 
-      <UserDialogs
-        isAddOpen={isAddDialogOpen}
-        isEditOpen={isEditDialogOpen}
-        editingUser={editingUser}
-        onAddClose={closeAddDialog}
-        onEditClose={closeEditDialog}
-        onAddUser={onAddUser}
-        onEditUser={onEditUser}
-      />
-    </div>
+          <UserDialogs
+            isAddOpen={isAddDialogOpen}
+            isEditOpen={isEditDialogOpen}
+            editingUser={editingUser}
+            onAddClose={closeAddDialog}
+            onEditClose={closeEditDialog}
+            onAddUser={onAddUser}
+            onEditUser={onEditUser}
+          />
+        </div>
+      )}
+    </PermissionGuard>
   );
 }

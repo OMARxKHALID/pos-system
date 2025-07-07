@@ -1,5 +1,5 @@
-// Payment Settings Store
-// Manages payment-related preferences and defaults
+// Zustand store for payment settings state management
+// State at top, actions grouped, SSR-safe persist, named export
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -8,17 +8,13 @@ import { createPersistConfig } from "@/lib/zustand-storage";
 const usePaymentSettingsStore = create(
   persist(
     (set, get) => ({
-      // Payment Settings
+      // State
       defaultPaymentMethod: "cash",
       defaultCustomerName: "",
       autoFillCustomerName: true,
       rememberLastCustomer: false,
       lastCustomerName: "",
-
-      // Receipt Settings
       downloadReceipt: true,
-
-      // Payment Method Preferences
       preferredPaymentMethods: ["cash", "card", "wallet"],
 
       // Actions
