@@ -4,13 +4,14 @@ import dbConnect from "@/lib/db-connect";
 import Order from "@/models/order";
 import Menu from "@/models/menu";
 import User from "@/models/user";
+import { apiSuccess, apiError } from "@/lib/api-middleware";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session) {
-      return Response.json({ error: "Not authenticated" }, { status: 401 });
+      return apiError("Not authenticated", 401);
     }
 
     await dbConnect();
@@ -159,7 +160,7 @@ export async function GET() {
             productsPrev7.length) *
           100;
 
-    return Response.json({
+    return apiSuccess({
       totalOrders,
       totalRevenue,
       averageOrderValue,
@@ -174,6 +175,6 @@ export async function GET() {
       productsChange,
     });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return apiError(error.message);
   }
 }

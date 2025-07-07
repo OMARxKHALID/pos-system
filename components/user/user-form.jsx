@@ -26,17 +26,14 @@ import {
   validateName,
   validateRequired,
 } from "@/utils/validation";
-import {
-  getDefaultPermissions,
-  getAvailablePermissions,
-} from "@/utils/permission-utils";
+import { getDefaultPermissions } from "@/utils/permission-utils";
 import React from "react";
+import { useUsers } from "@/hooks/use-users";
 
 const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
   const isEditing = !!initialData;
 
-  // Get available permissions from centralized utility
-  const availablePermissions = getAvailablePermissions();
+  const { availablePermissions } = useUsers();
 
   const form = useForm({
     resolver: zodResolver(isEditing ? userEditSchema : userSchema),
@@ -54,13 +51,32 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
     },
   });
 
-  // Watch for role changes and update permissions accordingly
-  const watchedRole = form.watch("role");
-  const watchedPermissions = form.watch("permissions");
-
-  // Update permissions when role changes
+  // Reset form when initialData changes (for editing different users)
   React.useEffect(() => {
-    if (watchedRole) {
+    if (isEditing && initialData) {
+      form.reset({
+        name: initialData.name || "",
+        email: initialData.email || "",
+        password: "",
+        role: initialData.role || "staff",
+        permissions: initialData.permissions || [
+          "dashboard",
+          "menu",
+          "category",
+          "orders",
+        ],
+      });
+    }
+  }, [isEditing, initialData, form]);
+
+  // Watch for role changes and update permissions accordingly (only if permissions are empty)
+  const watchedRole = form.watch("role");
+  React.useEffect(() => {
+    if (
+      watchedRole &&
+      (!form.getValues("permissions") ||
+        form.getValues("permissions").length === 0)
+    ) {
       const defaultPermissions = getDefaultPermissions(watchedRole);
       form.setValue("permissions", defaultPermissions);
     }
@@ -85,6 +101,7 @@ const UserForm = ({ onSubmit, initialData = null, loading = false }) => {
       return;
     }
 
+    // Only require password on create (not edit)
     if (!isEditing && !validateRequired(data.password)) {
       form.setError("password", { message: "Password is required" });
       return;

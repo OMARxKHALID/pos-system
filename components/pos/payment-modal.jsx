@@ -28,7 +28,6 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
   const {
     defaultPaymentMethod,
     getDefaultCustomerName,
-    updateLastCustomer,
     downloadReceipt,
     setDownloadReceipt,
     preferredPaymentMethods,
@@ -71,10 +70,7 @@ export function PaymentModal({ open, onOpenChange, total, onConfirm }) {
       : allPaymentMethods;
 
   const handleConfirm = () => {
-    onConfirm(customerName, selectedPaymentMethod, downloadReceipt);
-    updateLastCustomer(customerName);
-    setCustomerName(getDefaultCustomerName());
-    setSelectedPaymentMethod(defaultPaymentMethod);
+    onConfirm(customerName, selectedPaymentMethod);
   };
 
   return (

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useAdminSidebarStore } from "@/hooks/zustand/use-admin-sidebar-store";
-import { useUserManagement } from "@/hooks/use-user-management";
 import { UserManagementHeader } from "@/components/user/user-management-header";
 import { UserStatsCards } from "@/components/user/user-stats-cards";
 import UserTable from "@/components/user/user-table";
@@ -16,6 +15,7 @@ import {
   filterUsers,
   filterOutCurrentUser,
 } from "@/utils/user-utils";
+import { useUsers } from "@/hooks/use-users";
 
 export default function UsersPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -31,11 +31,11 @@ export default function UsersPage() {
     users,
     isLoading,
     isError,
-    handleAddUser,
-    handleEditUser,
-    handleDeleteUser,
-    handleToggleUserStatus,
-  } = useUserManagement();
+    createUser,
+    updateUser,
+    deleteUser,
+    toggleUserStatus,
+  } = useUsers();
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -53,12 +53,12 @@ export default function UsersPage() {
 
   // Enhanced handlers with dialog management
   const onAddUser = async (data) => {
-    await handleAddUser(data);
+    await createUser(data);
     setIsAddDialogOpen(false);
   };
 
   const onEditUser = async (data) => {
-    await handleEditUser({ id: editingUser._id, ...data });
+    await updateUser({ id: editingUser._id, ...data });
     setIsEditDialogOpen(false);
     setEditingUser(null);
   };
@@ -72,6 +72,11 @@ export default function UsersPage() {
   const closeEditDialog = () => {
     setIsEditDialogOpen(false);
     setEditingUser(null);
+  };
+
+  // Adapter for UserTable's onToggleStatus signature
+  const handleToggleUserStatus = (userId, checked) => {
+    return toggleUserStatus({ id: userId, active: checked });
   };
 
   if (!isClient) {
@@ -110,7 +115,7 @@ export default function UsersPage() {
             isLoading={isLoading}
             isError={isError}
             onEdit={openEditDialog}
-            onDelete={handleDeleteUser}
+            onDelete={deleteUser}
             onToggleStatus={handleToggleUserStatus}
             search={search}
             setSearch={setSearch}

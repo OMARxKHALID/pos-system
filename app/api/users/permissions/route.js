@@ -14,14 +14,14 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     if (!session) {
-      return Response.json({ error: "Not authenticated" }, { status: 401 });
+      return apiError("Not authenticated", 401);
     }
 
     await dbConnect();
 
     const users = await User.find({}, "name email role permissions active");
 
-    return Response.json({
+    return apiSuccess({
       users: users.map((user) => ({
         _id: user._id,
         name: user.name,
@@ -32,7 +32,7 @@ export async function GET() {
       })),
     });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return apiError(error.message);
   }
 }
 

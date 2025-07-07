@@ -1,20 +1,39 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import { getAvailablePermissions } from "@/utils/permission-utils";
 
-// Query configuration
-const usersQueryConfig = {
-  staleTime: 10 * 60 * 1000, // 10 minutes
-  gcTime: 30 * 60 * 1000, // 30 minutes
+// Default query configuration
+const defaultUsersQueryConfig = {
+  staleTime: 10 * 60 * 1000,
+  gcTime: 30 * 60 * 1000,
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
 };
 
-// Mutation handlers
-const createUserMutations = (queryClient) => ({
-  addUser: useMutation({
-    mutationFn: (user) => apiClient.post("/users", user),
+export function useUsers(queryConfig = {}) {
+  const queryClient = useQueryClient();
+
+  // === Queries ===
+  const {
+    data: users,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const result = await apiClient.get("/users/permissions");
+      return Array.isArray(result?.users) ? result.users : [];
+    },
+    ...defaultUsersQueryConfig,
+    ...queryConfig,
+  });
+
+  // === Mutations ===
+  const createUser = useMutation({
+    mutationFn: (userData) => apiClient.post("/users", userData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast.success("User created successfully");
@@ -22,10 +41,11 @@ const createUserMutations = (queryClient) => ({
     onError: (error) => {
       toast.error(error.message || "Failed to create user");
     },
-  }),
+  });
 
-  updateUser: useMutation({
-    mutationFn: ({ id, ...user }) => apiClient.putWithId("/users", id, user),
+  const updateUser = useMutation({
+    mutationFn: ({ id, ...userData }) =>
+      apiClient.putWithId("/users", id, userData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast.success("User updated successfully");
@@ -33,9 +53,9 @@ const createUserMutations = (queryClient) => ({
     onError: (error) => {
       toast.error(error.message || "Failed to update user");
     },
-  }),
+  });
 
-  deleteUser: useMutation({
+  const deleteUser = useMutation({
     mutationFn: (id) => apiClient.deleteWithId("/users", id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -44,9 +64,9 @@ const createUserMutations = (queryClient) => ({
     onError: (error) => {
       toast.error(error.message || "Failed to delete user");
     },
-  }),
+  });
 
-  toggleUserStatus: useMutation({
+  const toggleUserStatus = useMutation({
     mutationFn: ({ id, active }) =>
       apiClient.putWithId("/users", id, { active }),
     onSuccess: () => {
@@ -56,45 +76,43 @@ const createUserMutations = (queryClient) => ({
     onError: (error) => {
       toast.error(error.message || "Failed to update user status");
     },
-  }),
-});
-
-export function useUsers() {
-  const queryClient = useQueryClient();
-
-  // Fetch users
-  const {
-    data: users,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: () => apiClient.get("/users"),
-    ...usersQueryConfig,
   });
 
-  const mutations = createUserMutations(queryClient);
+  const updatePermissions = useMutation({
+    mutationFn: ({ userId, permissions }) =>
+      apiClient.put("/users/permissions", { userId, permissions }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User permissions updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update permissions");
+    },
+  });
 
+  // === Available Permissions ===
+  const availablePermissions = getAvailablePermissions();
+
+  // === Return ===
   return {
-    // Data
     users,
-
-    // Loading states
+    availablePermissions,
     isLoading,
     isError,
     error,
 
     // Actions
-    addUser: mutations.addUser.mutateAsync,
-    updateUser: mutations.updateUser.mutateAsync,
-    deleteUser: mutations.deleteUser.mutateAsync,
-    toggleUserStatus: mutations.toggleUserStatus.mutateAsync,
+    createUser: createUser.mutateAsync,
+    updateUser: updateUser.mutateAsync,
+    deleteUser: deleteUser.mutateAsync,
+    toggleUserStatus: toggleUserStatus.mutateAsync,
+    updatePermissions: updatePermissions.mutate,
 
-    // Mutation states
-    isCreating: mutations.addUser.isPending,
-    isUpdating: mutations.updateUser.isPending,
-    isDeleting: mutations.deleteUser.isPending,
-    isTogglingStatus: mutations.toggleUserStatus.isPending,
+    // States
+    isCreating: createUser.isPending,
+    isUpdating: updateUser.isPending,
+    isDeleting: deleteUser.isPending,
+    isTogglingStatus: toggleUserStatus.isPending,
+    isUpdatingPermissions: updatePermissions.isPending,
   };
 }

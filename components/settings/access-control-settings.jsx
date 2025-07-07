@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useUserPermissions } from "@/hooks/use-user-permissions";
+import { useUsers } from "@/hooks/use-users";
 import { PageLoading } from "@/components/ui/loading";
 import {
   AlertTriangle,
@@ -17,15 +17,17 @@ import {
   RotateCcw,
   Key,
 } from "lucide-react";
-import { capitalizeFirst } from "@/utils/string-utils";
-import { getAvailablePermissions } from "@/utils/permission-utils";
 
 export function AccessControlSettings() {
-  const { users, isLoading, isError, updatePermissions, isUpdating } =
-    useUserPermissions();
-
+  const {
+    users,
+    availablePermissions,
+    isLoading,
+    isError,
+    updatePermissions,
+    isUpdatingPermissions,
+  } = useUsers();
   const safeUsers = Array.isArray(users) ? users : [];
-  const availablePermissions = getAvailablePermissions();
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [userPermissions, setUserPermissions] = useState({});
@@ -256,11 +258,11 @@ export function AccessControlSettings() {
                 <div className="flex justify-end pt-3">
                   <Button
                     onClick={handleSavePermissions}
-                    disabled={isUpdating}
+                    disabled={isUpdatingPermissions}
                     className="bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm px-3 sm:px-4 py-2"
                   >
                     <Save className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                    {isUpdating ? "Saving..." : "Save Permissions"}
+                    {isUpdatingPermissions ? "Saving..." : "Save Permissions"}
                   </Button>
                 </div>
               )}

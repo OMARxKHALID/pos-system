@@ -13,10 +13,8 @@ export function CustomerSettings() {
   const {
     defaultCustomerName,
     autoFillCustomerName,
-    rememberLastCustomer,
     setDefaultCustomerName,
     setAutoFillCustomerName,
-    setRememberLastCustomer,
   } = usePaymentSettingsStore();
 
   const [tempCustomerName, setTempCustomerName] = useState(defaultCustomerName);
@@ -28,7 +26,6 @@ export function CustomerSettings() {
   const resetCustomerSettings = () => {
     setDefaultCustomerName("");
     setAutoFillCustomerName(true);
-    setRememberLastCustomer(false);
     setTempCustomerName("");
   };
 
@@ -88,25 +85,6 @@ export function CustomerSettings() {
                 id="auto-fill"
                 checked={autoFillCustomerName}
                 onCheckedChange={setAutoFillCustomerName}
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-3 sm:p-4 bg-white/60 rounded-lg border border-gray-100">
-              <div>
-                <Label
-                  htmlFor="remember-customer"
-                  className="text-xs sm:text-sm font-medium text-gray-700"
-                >
-                  Remember Last Customer
-                </Label>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  Remember the last customer name used
-                </p>
-              </div>
-              <Switch
-                id="remember-customer"
-                checked={rememberLastCustomer}
-                onCheckedChange={setRememberLastCustomer}
               />
             </div>
           </div>
